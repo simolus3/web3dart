@@ -16,10 +16,10 @@ should not be used in a productive environment.
 In order to use this library, you will need an client connected to
 Ethereum nodes so that your transactions can actually be processed. You
 can either set up a local, private blockchain (by for instance using
-[truffle][http://truffleframework.com/] and
-[ganache][http://truffleframework.com/ganache/]), run an Ethereum node
-yourself (for instance with [geth][https://github.com/ethereum/go-ethereum/wiki/geth]),
-or use a public RPC API, like [infura][https://infura.io/].
+[truffle](http://truffleframework.com/) and
+[ganache](http://truffleframework.com/ganache/), run an Ethereum node
+yourself (for instance with [geth](https://github.com/ethereum/go-ethereum/wiki/geth),
+or use a public RPC API, like [infura](https://infura.io/).
 
 ```dart
 import 'package:web3dart/web3dart.dart';
@@ -44,4 +44,4 @@ new Transaction(keys: credentials, maximumGas: 100000)
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
-[tracker]: http://example.com/issues/replaceme
+[tracker]: https://github.com/simolus3/web3dart/issues/new
