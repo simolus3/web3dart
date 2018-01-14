@@ -13,6 +13,8 @@ import "package:web3dart/src/utils/numbers.dart" as numbers;
 /// accounts yourself.
 class Web3Client {
 
+	final BlockNum defaultBlock = BlockNum.current();
+
 	JsonRPC _jsonRpc;
 	///Whether errors, handled or not, should be printed to the console.
 	bool printErrors = false;
@@ -34,6 +36,10 @@ class Web3Client {
 
 			rethrow;
 		}
+	}
+
+	String _getBlockParam(BlockNum block) {
+		return (block ?? defaultBlock).toBlockParam();
 	}
 
 	/// Returns the version of the client we're sending requests to.
@@ -96,20 +102,22 @@ class Web3Client {
 
 	/// Gets the balance of the account with the specified address.
 	///
-	/// If [atBlock] is set, it will not return the current balance but rather the
-	/// balance the account has had at that block.
-	Future<EtherAmount> getBalance(String address, {int atBlock}) {
-		var blockParam = atBlock != null ?
-			numbers.toHex(atBlock, pad:true, include0x: true) : "latest";
+	/// This function allows specifying a custom block mined in the past to get
+	/// historical data. By default, [BlockNum.current] will be used.
+	Future<EtherAmount> getBalance(String address, {BlockNum block}) {
+		var blockParam = _getBlockParam(block);
 		
 		return _makeRPCCall("eth_getBalance", [address, blockParam]).then((data) {
 			return EtherAmount.fromUnitAndValue(EtherUnit.WEI, numbers.hexToInt(data));
 		});
 	}
 
-	Future<int> getTransactionCount(String address, {int atBlock}) async {
-		var blockParam = atBlock != null ?
-			numbers.toHex(atBlock, pad:true, include0x: true) : "latest";
+	/// Gets the amount of transactions issued by the specified [address].
+	///
+	/// This function allows specifying a custom block mined in the past to get
+	/// historical data. By default, [BlockNum.current] will be used.
+	Future<int> getTransactionCount(String address, {BlockNum block}) async {
+		var blockParam = _getBlockParam(block);
 			
 		return _makeRPCCall("eth_getTransactionCount", [address, blockParam])
 				.then(numbers.hexToInt).then((d) => d.intValue());
@@ -158,4 +166,51 @@ class SyncInformation {
 		else
 			return "SyncInformation: Currently not performing a synchronisation";
 	}
+}
+
+/// For operations that are reading data from the blockchain without making a
+/// transaction that would modify it, the Ethereum client can read that data
+/// from previous states of the blockchain as well. This class specifies which
+/// state to use.
+class BlockNum {
+
+	final bool useAbsolute;
+	final int blockNum;
+
+	const BlockNum._(this.useAbsolute, this.blockNum);
+
+	/// Use the state of the blockchain at the block specified.
+	static exact(int i) {
+		return new BlockNum._(true, i);
+	}
+
+	/// Use the state of the blockchain with the first block
+	static genesis() {
+		return const BlockNum._(false, 0);
+	}
+
+	/// Use the state of the blockchain as of the latest mined block.
+	static current() {
+		return const BlockNum._(false, 1);
+	}
+
+	/// Use the current state of the blockchain, including pending transactions
+	/// that have not yet been mined.
+	static pending() {
+		return const BlockNum._(false, 2);
+	}
+
+	/// Generates the block parameter as it is accepted by the Ethereum client.
+	String toBlockParam() {
+		if (useAbsolute)
+			return numbers.toHex(blockNum, pad:true, include0x: true);
+
+		switch (blockNum) {
+			case 0: return "earliest";
+			case 1: return "latest";
+			case 2: return "pending";
+			default: return "latest"; //Can't happen, though
+		}
+	}
+
 }
