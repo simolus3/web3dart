@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import "package:jsonrpc2/jsonrpc_io_client.dart";
+import 'package:http/http.dart';
+import 'package:web3dart/src/io/jsonrpc.dart';
 import 'package:web3dart/src/io/rawtransaction.dart';
 import 'package:web3dart/src/utils/amounts.dart';
 import 'package:web3dart/src/utils/credentials.dart';
@@ -12,21 +13,21 @@ import "package:web3dart/src/utils/numbers.dart" as numbers;
 /// accounts yourself.
 class Web3Client {
 
-	ServerProxy _proxy;
+	JsonRPC _jsonRpc;
 	///Whether errors, handled or not, should be printed to the console.
 	bool printErrors = false;
 
-	Web3Client(String connectionUrl) {
-		_proxy = new ServerProxy(connectionUrl);
+	Web3Client(String connectionUrl, Client _httpClient) {
+		_jsonRpc = new JsonRPC(connectionUrl, _httpClient);
 	}
 
 	Future _makeRPCCall(String function, [List<String> params = null]) async {
 		try {
-			var data = await _proxy.call(function, params);
+			var data = await _jsonRpc.call(function, params);
 			if (data is Error || data is Exception)
 				throw data;
 
-			return data;
+			return data.result;
 		} catch (e) {
 			if (printErrors)
 				print(e);
