@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:bignum/bignum.dart';
@@ -6,8 +7,11 @@ import "package:pointycastle/digests/sha256.dart";
 import "package:pointycastle/digests/sha3.dart";
 import "package:pointycastle/ecc/api.dart";
 import "package:pointycastle/ecc/curves/secp256k1.dart";
+import 'package:pointycastle/key_generators/api.dart';
+import "package:pointycastle/key_generators/ec_key_generator.dart";
 import "package:pointycastle/macs/hmac.dart";
 import "package:pointycastle/signers/ecdsa_signer.dart";
+import 'package:web3dart/src/utils/dartrandom.dart';
 
 final ECDomainParameters _params = new ECCurve_secp256k1();
 final BigInteger _HALF_CURVE_ORDER = _params.n.divide(BigInteger.TWO);
@@ -22,6 +26,18 @@ class MsgSignature {
 	final int v;
 
 	MsgSignature(this.r, this.s, this.v);
+}
+
+/// Generates a new private key using the random instance provided.
+BigInteger generateNewPrivateKey(Random random) {
+	ECKeyGenerator generator = new ECKeyGenerator();
+
+	var keyParams = new ECKeyGeneratorParameters(_params);
+
+	generator.init(new ParametersWithRandom(keyParams, new DartRandom(random)));
+
+	AsymmetricKeyPair<ECPublicKey, ECPrivateKey> key = generator.generateKeyPair();
+	return key.privateKey.d;
 }
 
 /**

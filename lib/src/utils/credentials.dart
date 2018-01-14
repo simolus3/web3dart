@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bignum/bignum.dart';
 import "package:web3dart/src/utils/keys.dart" as crypto;
 import "package:web3dart/src/utils/numbers.dart" as num;
@@ -34,4 +36,14 @@ class Credentials {
 	/// Constructs the public key and the address from this private key.
 	static Credentials fromHexPrivateKey(String privateKey)
 			=> Credentials.fromPrivateKey(num.hexToInt(privateKey));
+
+	/// Generates a new keypair and Ethereum address.
+	///
+	/// You can optionally issue your own random instance which will be used to
+	/// generate the numbers. By default, a Random.secure() instance will be used.
+	static Credentials generateNew({Random random}) {
+		var privateKey = crypto.generateNewPrivateKey(random ?? new Random.secure());
+
+		return Credentials.fromPrivateKey(privateKey);
+	}
 }

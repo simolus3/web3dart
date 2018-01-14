@@ -7,9 +7,9 @@ should not be used in a productive environment.
 ### Features
 - Send valid and signed transactions to an Ethereum client using the
   JSON-RPC API.
+- Generate private keys and Ethereum accounts
 ### TODO
 - Interact with smart contracts deployed on the Ethereum blockchain.
-- Key/Account generation.
 
 ## Usage
 
