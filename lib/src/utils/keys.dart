@@ -28,6 +28,11 @@ class MsgSignature {
 	MsgSignature(this.r, this.s, this.v);
 }
 
+Uint8List sha3(Uint8List input) {
+	sha3digest.reset();
+	return sha3digest.process(input);
+}
+
 /// Generates a new private key using the random instance provided.
 BigInteger generateNewPrivateKey(Random random) {
 	ECKeyGenerator generator = new ECKeyGenerator();

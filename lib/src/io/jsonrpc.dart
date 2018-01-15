@@ -72,4 +72,7 @@ class RPCError implements Exception {
 
 	const RPCError(this.errorCode, this.message, this.data);
 
+	String toString() {
+		return "RPCError: got code $errorCode with msg \"$message\".";
+	}
 }

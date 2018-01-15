@@ -13,7 +13,7 @@ class RawTransaction {
 
 	final BigInteger to;
 	final BigInteger value; //amount
-	final BigInteger data;
+	final List<int> data;
 
   RawTransaction({this.nonce, this.gasPrice, this.gasLimit, this.to, this.value, this.data});
 
@@ -26,7 +26,7 @@ class RawTransaction {
 			list.add(rlp.toBuffer(gasLimit));
 			list.add(rlp.toBuffer(to ?? BigInteger.ZERO));
 			list.add(rlp.toBuffer(value));
-			list.add(rlp.toBuffer(data ?? BigInteger.ZERO));
+			list.add(rlp.toBuffer(data ?? []));
 
 			if (signature != null) {
 				list.add(rlp.toBuffer(signature.v));

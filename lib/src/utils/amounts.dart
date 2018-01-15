@@ -37,7 +37,9 @@ class EtherAmount {
 	BigInteger get getInWei => _value;
 	BigInteger get getInEther => getValueInUnitBI(EtherUnit.ETHER);
 
-	EtherAmount._(this._value);
+	EtherAmount.inWei(this._value);
+
+	EtherAmount.zero() : this.inWei(BigInteger.ZERO);
 
 	/// Constructs an amount of Ether by a unit and its amount. [amount] can either
 	/// be a base10 string, a num, or a BigInteger.
@@ -45,7 +47,7 @@ class EtherAmount {
 		if (!(amount is BigInteger))
 			amount = new BigInteger(amount);
 
-		return new EtherAmount._(amount.multiply(FACTORS[unit]));
+		return new EtherAmount.inWei(amount.multiply(FACTORS[unit]));
 	}
 
 	/// Gets the value of this amount in the specified unit as a whole number.

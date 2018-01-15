@@ -2,7 +2,7 @@ import 'package:bignum/bignum.dart';
 import 'package:convert/convert.dart';
 
 /// If present, removes the 0x from the start of a hex-string.
-String _strip0x(String hex) {
+String strip0x(String hex) {
 	if (hex.startsWith("0x"))
 		return hex.substring(2);
 	return hex;
@@ -56,7 +56,7 @@ List<int> numberToBytes(dynamic number) {
 /// Converts the hexadecimal string, which can be prefixed with 0x, to a byte
 /// sequence.
 List<int> hexToBytes(String hexStr) {
-	return hex.decode(_strip0x(hexStr));
+	return hex.decode(strip0x(hexStr));
 }
 
 
@@ -67,5 +67,5 @@ BigInteger bytesToInt(List<int> bytes) {
 
 ///Takes the hexadecimal input and creates a BigInteger.
 BigInteger hexToInt(String hex) {
-	return new BigInteger(_strip0x(hex), 16);
+	return new BigInteger(strip0x(hex), 16);
 }

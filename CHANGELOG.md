@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2
+- Send transactions and call messages from smart contracts on the
+  Blockchain.
+
 ## 0.1
 - Create new Ethereum accounts
 

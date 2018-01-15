@@ -46,15 +46,33 @@ class Transaction {
 
 	/// Configures this transaction so that it will send the specified amount of
 	/// Ether to the account at the address specified in to.
-	///
-	/// Notice that the amount of Ether the recipient will actually receive is a
-	/// bit lower due to the gas costs used by this transaction.
 	FinalizedTransaction prepareForSimpleTransaction(String to, EtherAmount amount) {
-		return new FinalizedTransaction._(this, numbers.hexToInt(to), amount, BigInteger.ZERO);
+		return new FinalizedTransaction._(this, numbers.hexToInt(to), amount, []);
 	}
 
-	FinalizedTransaction prepareCustomTransaction(String to, EtherAmount amount, BigInteger data) {
-		return new FinalizedTransaction._(this, numbers.hexToInt(to), amount, BigInteger.ZERO);
+	/// Configures this transaction so that it will call the specified function
+	/// in the deployed contract with the specified parameters.
+	FinalizedTransaction prepareForCall(DeployedContract contract, ContractFunction function, List<dynamic> params) {
+		return prepareForPaymentCall(contract, function, params, new EtherAmount.zero());
+	}
+
+	/// Configures this transaction so that it will call the specified function in
+	/// the deployed contract with the specified parameters and send the specified
+	/// amount of Ether to the contract.
+	FinalizedTransaction prepareForPaymentCall(DeployedContract contract, ContractFunction function, List<dynamic> params, EtherAmount amount) {
+		bool isNoAmount = amount.getInWei == BigInteger.ZERO;
+
+		if (!isNoAmount && !function.isPayable)
+			throw new Exception("Can't send Ether to to function that is not payable");
+
+		var data = numbers.hexToBytes(function.encodeCall(params));
+		return new FinalizedTransaction._(
+				this, numbers.hexToInt(contract.address), amount, data,
+				isConst: function.isConstant && isNoAmount, function: function);
+	}
+
+	FinalizedTransaction prepareCustomTransaction(String to, EtherAmount amount, List<int> data) {
+		return new FinalizedTransaction._(this, numbers.hexToInt(to), amount, data);
 	}
 }
 
@@ -63,9 +81,14 @@ class FinalizedTransaction {
 	final Transaction base;
 	final BigInteger receiver;
 	final EtherAmount value;
-	final BigInteger data;
+	final List<int> data;
 
-	FinalizedTransaction._(this.base, this.receiver, this.value, this.data);
+	final bool isConst;
+	ContractFunction _function;
+
+	FinalizedTransaction._(this.base, this.receiver, this.value, this.data, {this.isConst = false, ContractFunction function}) {
+		this._function = function;
+	}
 
 	BigInteger _getSenderAddress() => base._keys.address;
 
@@ -87,11 +110,22 @@ class FinalizedTransaction {
 		);
 	}
 
-	/// Signs the transaction using the private key given in the constructor and
-	/// submits it to an connected Ethereum client.
+	/// Sends this transaction to the Ethereum client.
 	Future<List<int>> send(Web3Client client) {
 		return _asRaw(client).then((raw) {
 			return client.sendRawTransaction(base._keys, raw);
+		});
+	}
+
+	/// Sends this transaction to be executed immediately without modifying the
+	/// state of the Blockchain. The data returned by the called contract will
+	/// be returned here immediately as well.
+	Future<dynamic> call(Web3Client client) {
+		if (!isConst)
+			throw new Exception("Tried to call a transaction that modifys state");
+
+		return _asRaw(client).then((raw) {
+			return client.call(base._keys, raw, _function);
 		});
 	}
 }

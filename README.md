@@ -8,8 +8,11 @@ should not be used in a productive environment.
 - Send valid and signed transactions to an Ethereum client using the
   JSON-RPC API.
 - Generate private keys and Ethereum accounts
+- _(sort of)_ Send messages and function calls to smart contracts
 ### TODO
-- Interact with smart contracts deployed on the Ethereum blockchain.
+- Code generation based on smart contract ABI for easier interaction
+- Smart Contract events
+- Encode all supported solidity types
 
 ## Usage
 
@@ -43,7 +46,7 @@ main() {
     .send(client); //and send.
     }
 ```
-## Features and bugs
+## Feature requests and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 

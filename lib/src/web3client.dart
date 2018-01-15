@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:bignum/bignum.dart';
 import 'package:http/http.dart';
+import 'package:web3dart/src/contracts/abi.dart';
 import 'package:web3dart/src/io/jsonrpc.dart';
 import 'package:web3dart/src/io/rawtransaction.dart';
 import 'package:web3dart/src/utils/amounts.dart';
@@ -23,7 +25,7 @@ class Web3Client {
 		_jsonRpc = new JsonRPC(connectionUrl, _httpClient);
 	}
 
-	Future _makeRPCCall(String function, [List<String> params = null]) async {
+	Future _makeRPCCall(String function, [List<dynamic> params = null]) async {
 		try {
 			var data = await _jsonRpc.call(function, params);
 			if (data is Error || data is Exception)
@@ -90,6 +92,17 @@ class Web3Client {
 			return new SyncInformation._(null, null, null);
 	}
 
+	/// Returns true if the connected client is currently mining, false if not.
+	Future<bool> isMining() {
+		return _makeRPCCall("eth_mining");
+	}
+
+	/// Returns the amount of hashes per second the connected node is mining with.
+	Future<int> getMiningHashrate() {
+		return _makeRPCCall("eth_hashrate")
+				.then((s) => numbers.hexToInt(s).intValue());
+	}
+
 	/// Returns the amount of Ether typically needed to pay for one unit of gas.
 	///
 	/// Although not strictly defined, this value will typically be a sensible
@@ -98,6 +111,12 @@ class Web3Client {
 		var data = await _makeRPCCall("eth_gasPrice");
 
 		return EtherAmount.fromUnitAndValue(EtherUnit.WEI, numbers.hexToInt(data));
+	}
+
+	/// Returns the number of the most recent block on the chain.
+	Future<int> getBlockNumber() {
+		return _makeRPCCall("eth_blockNumber")
+				.then((s) => numbers.hexToInt(s).intValue());
 	}
 
 	/// Gets the balance of the account with the specified address.
@@ -112,15 +131,38 @@ class Web3Client {
 		});
 	}
 
+	/// Gets an element from the storage of the contract with the specified
+	/// [address] at the specified [position].
+	/// See https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_getstorageat for
+	/// more details.
+	/// This function allows specifying a custom block mined in the past to get
+	/// historical data. By default, [BlockNum.current] will be used.
+	Future<List<int>> getStorage(String address, BigInteger position, {BlockNum block}) {
+		var blockParam = _getBlockParam(block);
+
+		return _makeRPCCall("eth_getStorageAt",
+				[address, numbers.toHex(position, pad: true, include0x: true),
+					blockParam]).then(numbers.hexToBytes);
+	}
+
 	/// Gets the amount of transactions issued by the specified [address].
 	///
 	/// This function allows specifying a custom block mined in the past to get
 	/// historical data. By default, [BlockNum.current] will be used.
-	Future<int> getTransactionCount(String address, {BlockNum block}) async {
+	Future<int> getTransactionCount(String address, {BlockNum block}) {
 		var blockParam = _getBlockParam(block);
 			
 		return _makeRPCCall("eth_getTransactionCount", [address, blockParam])
 				.then(numbers.hexToInt).then((d) => d.intValue());
+	}
+
+	/// Gets the code of a contract at the specified [address]
+	///
+	/// This function allows specifying a custom block mined in the past to get
+	/// historical data. By default, [BlockNum.current] will be used.
+	Future<List<int>> getCode(String address, {BlockNum block}) {
+		return _makeRPCCall("eth_getCode", [address, _getBlockParam(block)])
+				.then(numbers.hexToBytes);
 	}
 
 	/// Signs the given transaction using the keys supplied in the Credentials
@@ -135,6 +177,29 @@ class Web3Client {
 
 		return _makeRPCCall("eth_sendRawTransaction", [numbers.bytesToHex(data, include0x: true)])
 				.then(numbers.hexToBytes);
+	}
+
+	/// Executes the transaction, which should be calling a method in a smart
+	/// contract deployed on the blockchain, without modifying the blockchain.
+	///
+	/// For method calls that don't write to the blockchain or otherwise change
+	/// its state, the connected client can compute the call locally and return
+	/// the given data without consuming any gas that would be required to
+	/// calculate this call if it was included in a mined block.
+	/// This function allows specifying a custom block mined in the past to get
+	/// historical data. By default, [BlockNum.current] will be used.
+	Future<dynamic> call(Credentials cred, RawTransaction transaction, ContractFunction decoder, {BlockNum block}) {
+		String intToHex(dynamic d) => numbers.toHex(d, pad: true, include0x: true);
+
+		var data = {
+			"from": cred.addressHex, "to": intToHex(transaction.to),
+			"data": numbers.bytesToHex(transaction.data),
+		};
+
+		return _makeRPCCall(
+				"eth_call", [data, _getBlockParam(block)]).then((data) {
+					return decoder.decodeReturnValues(data);
+		});
 	}
 }
 

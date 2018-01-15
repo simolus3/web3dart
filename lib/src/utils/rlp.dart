@@ -65,6 +65,8 @@ Uint8List toBuffer(dynamic data) {
 			return new Uint8List(0);
 
 		return new Uint8List.fromList(numberToBytes(data));
+	} else if (data is List<int>) {
+		return new Uint8List.fromList(data);
 	}
 
 	throw new TypeError();
