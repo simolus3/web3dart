@@ -12,7 +12,8 @@ should not be used in a productive environment.
 ### TODO
 - Code generation based on smart contract ABI for easier interaction
 - Smart Contract events
-- Encode all supported solidity types
+- Encode all supported solidity types, although only tuple and (u)fixed,
+  which are not commonly used, are not supported at the moment.
 
 ## Usage
 
@@ -46,6 +47,10 @@ main() {
     .send(client); //and send.
     }
 ```
+
+See [`example/crypto_kittens_example.dart`](https://github.com/simolus3/web3dart/blob/master/example/crypto_kittens_example.dart)
+for an example on how to call methods from smart contracts deployed on the blockchain.
+
 ## Feature requests and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].

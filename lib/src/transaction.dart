@@ -31,6 +31,9 @@ class Transaction {
 			this._keys = keys;
 			this._maxGas = maximumGas;
 			this._gasPrice = gasPrice;
+
+			if (this._maxGas == 0)
+				this._gasPrice = new EtherAmount.zero();
 	}
 
 	/// Forces this transaction to use the specified nonce.

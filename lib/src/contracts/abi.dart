@@ -301,7 +301,7 @@ class ContractFunction {
 
 				data = decodedRaw.item2; //remaining data
 			} else {
-				var decodedRaw = new UintType().decodeRest(data);
+				var decodedRaw = param.type.decodeRest(data);
 
 				decoded.add(decodedRaw.item1);
 				data = decodedRaw.item2; //remaining data

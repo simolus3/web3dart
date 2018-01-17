@@ -193,7 +193,7 @@ class Web3Client {
 
 		var data = {
 			"from": cred.addressHex, "to": intToHex(transaction.to),
-			"data": numbers.bytesToHex(transaction.data),
+			"data": numbers.bytesToHex(transaction.data, include0x: true),
 		};
 
 		return _makeRPCCall(

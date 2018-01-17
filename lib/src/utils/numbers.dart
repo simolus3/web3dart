@@ -9,7 +9,7 @@ String strip0x(String hex) {
 }
 
 /// Converts the [number], which can either be a dart [int] or a [BigInteger],
-/// into a hexadecimal representation.
+/// into a hexadecimal representation. The number needs to be positive or zero.
 ///
 /// When [pad] is set to true, this method will prefix a zero so that the result
 /// will have an even length. When [include0x] is set to true, the output will

@@ -81,10 +81,15 @@ class StaticLengthBytes extends ABIType<List<int>> {
 	final bool isDynamic = false;
 	String get name => "bytes$length";
 
-	StaticLengthBytes(this.length);
+	StaticLengthBytes(this.length, {bool ignoreLength: false}) {
+		if (!ignoreLength && (length <= 0 || length > 32))
+			throw new ArgumentError("Length of static byte array must be between 0 and 32, was $length");
+	}
 
 	@override
 	String encode(List<int> bytes) {
+		if (bytes.length != length)
+			throw new ArgumentError("Length of bytes did not match. (Expected $length, got ${bytes.length})");
 		var encoded = numbers.bytesToHex(bytes);
 
 		return encoded + ("0" * (calculatePadLen(encoded.length)));
@@ -109,7 +114,7 @@ class DynamicLengthBytes extends ABIType<List<int>> {
 	String encode(List<int> bytes) {
 		var length = bytes.length;
 
-		var dataEncoded = new StaticLengthBytes(length).encode(bytes);
+		var dataEncoded = new StaticLengthBytes(length, ignoreLength: true).encode(bytes);
 		return new UintType().encode(length) + dataEncoded;
 	}
 
@@ -120,7 +125,7 @@ class DynamicLengthBytes extends ABIType<List<int>> {
 		var length = decodedLength.item1;
 		data = decodedLength.item2;
 
-		var decodedBytes = new StaticLengthBytes(length).decode(data);
+		var decodedBytes = new StaticLengthBytes(length, ignoreLength: true).decode(data);
 		return new Tuple2(decodedBytes.item1, decodedBytes.item2 + decodedLength.item3);
   }
 }

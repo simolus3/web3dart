@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.1
+- More solidity types, not with encoding.
+
 ## 0.2
 - Send transactions and call messages from smart contracts on the
   Blockchain.

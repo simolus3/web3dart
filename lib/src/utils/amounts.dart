@@ -37,7 +37,7 @@ class EtherAmount {
 	BigInteger get getInWei => _value;
 	BigInteger get getInEther => getValueInUnitBI(EtherUnit.ETHER);
 
-	EtherAmount.inWei(this._value);
+	const EtherAmount.inWei(this._value);
 
 	EtherAmount.zero() : this.inWei(BigInteger.ZERO);
 

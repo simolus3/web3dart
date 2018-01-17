@@ -17,7 +17,8 @@ abstract class ABIType<T> {
 
 	int calculatePadLen(int actualLength) {
 		//must be padded with x so that actualLength + x = k * SIZE_UNIT_HEX
-		return SIZE_UNIT_HEX - actualLength % SIZE_UNIT_HEX;
+		var mod = actualLength % SIZE_UNIT_HEX;
+		return mod == 0 && actualLength > 0 ? 0 : SIZE_UNIT_HEX - mod;
 	}
 
 	@override int get hashCode;
@@ -35,7 +36,7 @@ TO-DO List for types:
 
 name					can encode		can decode
 uint<M>				yes						yes
-int<M>				no						no
+int<M>				yes						yes
 address				yes						yes
 bool					yes						yes
 fixed					no						no
@@ -43,8 +44,8 @@ ufixed				no						no
 bytes<M>			yes						yes
 function			yes						yes
 <type>[k]			yes						yes
-bytes					yes						no
-string				yes						no
+bytes					yes						yes
+string				yes						yes
 <type>[]			yes						yes
 tuple					no						no
  */
