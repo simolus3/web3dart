@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:bignum/bignum.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/src/contracts/abi.dart';
 import 'package:web3dart/src/io/jsonrpc.dart';
@@ -25,7 +24,7 @@ class Web3Client {
 		_jsonRpc = new JsonRPC(connectionUrl, _httpClient);
 	}
 
-	Future _makeRPCCall(String function, [List<dynamic> params = null]) async {
+	Future<dynamic> _makeRPCCall(String function, [List<dynamic> params = null]) async {
 		try {
 			var data = await _jsonRpc.call(function, params);
 			if (data is Error || data is Exception)
@@ -70,7 +69,7 @@ class Web3Client {
 	/// Returns the amount of Ethereum nodes currently connected to the client.
 	Future<int> getPeerCount() {
 		return _makeRPCCall("net_peerCount")
-				.then((s) => numbers.hexToInt(s).intValue());
+				.then((s) => numbers.hexToInt(s).toInt());
 	}
 
 	/// Returns the version of the Ethereum-protocol the client is using.
@@ -100,7 +99,7 @@ class Web3Client {
 	/// Returns the amount of hashes per second the connected node is mining with.
 	Future<int> getMiningHashrate() {
 		return _makeRPCCall("eth_hashrate")
-				.then((s) => numbers.hexToInt(s).intValue());
+				.then((s) => numbers.hexToInt(s).toInt());
 	}
 
 	/// Returns the amount of Ether typically needed to pay for one unit of gas.
@@ -116,7 +115,7 @@ class Web3Client {
 	/// Returns the number of the most recent block on the chain.
 	Future<int> getBlockNumber() {
 		return _makeRPCCall("eth_blockNumber")
-				.then((s) => numbers.hexToInt(s).intValue());
+				.then((s) => numbers.hexToInt(s).toInt());
 	}
 
 	/// Gets the balance of the account with the specified address.
@@ -137,12 +136,12 @@ class Web3Client {
 	/// more details.
 	/// This function allows specifying a custom block mined in the past to get
 	/// historical data. By default, [BlockNum.current] will be used.
-	Future<List<int>> getStorage(String address, BigInteger position, {BlockNum block}) {
+	Future<List<int>> getStorage(String address, BigInt position, {BlockNum block}) {
 		var blockParam = _getBlockParam(block);
 
 		return _makeRPCCall("eth_getStorageAt",
 				[address, numbers.toHex(position, pad: true, include0x: true),
-					blockParam]).then(numbers.hexToBytes);
+					blockParam]).then((s) => numbers.hexToBytes(s));
 	}
 
 	/// Gets the amount of transactions issued by the specified [address].
@@ -153,7 +152,7 @@ class Web3Client {
 		var blockParam = _getBlockParam(block);
 			
 		return _makeRPCCall("eth_getTransactionCount", [address, blockParam])
-				.then(numbers.hexToInt).then((d) => d.intValue());
+				.then((s) => numbers.hexToInt(s)).then((d) => d.toInt());
 	}
 
 	/// Gets the code of a contract at the specified [address]
@@ -162,7 +161,7 @@ class Web3Client {
 	/// historical data. By default, [BlockNum.current] will be used.
 	Future<List<int>> getCode(String address, {BlockNum block}) {
 		return _makeRPCCall("eth_getCode", [address, _getBlockParam(block)])
-				.then(numbers.hexToBytes);
+				.then((s) => numbers.hexToBytes(s));
 	}
 
 	/// Signs the given transaction using the keys supplied in the Credentials
@@ -176,7 +175,7 @@ class Web3Client {
 		var data = transaction.sign(numbers.numberToBytes(cred.privateKey), chainId);
 
 		return _makeRPCCall("eth_sendRawTransaction", [numbers.bytesToHex(data, include0x: true)])
-				.then(numbers.hexToBytes);
+				.then((s) => numbers.hexToBytes(s));
 	}
 
 	/// Executes the transaction, which should be calling a method in a smart

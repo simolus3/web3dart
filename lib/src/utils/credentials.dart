@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:bignum/bignum.dart';
 import "package:web3dart/src/utils/keys.dart" as crypto;
 import "package:web3dart/src/utils/numbers.dart" as num;
 
@@ -9,14 +8,14 @@ import "package:web3dart/src/utils/numbers.dart" as num;
 class Credentials {
 
 	/// The private key, used to sign transactions
-	final BigInteger privateKey;
+	final BigInt privateKey;
 	/// The public key of an account. It can be created with the private key but
 	/// not vice-versa.
-	final BigInteger publicKey;
+	final BigInt publicKey;
 
 	/// The address of this account. Use to [addressHex] for a format most commonly
 	/// used to represent Ethereum addresses.
-	final BigInteger address;
+	final BigInt address;
 
 	/// Returns the Ethereum address of this account.
 	String get addressHex => num.toHex(address, include0x: true);
@@ -24,7 +23,7 @@ class Credentials {
 	Credentials._(this.privateKey, this.publicKey, this.address);
 
 	/// Constructs the public key and the address from this private key.
-	static Credentials fromPrivateKey(BigInteger privateKey) {
+	static Credentials fromPrivateKey(BigInt privateKey) {
 		var publicKeyBytes = crypto.privateKeyToPublic(num.numberToBytes(privateKey));
 		var addressBytes = crypto.publicKeyToAddress(publicKeyBytes);
 		

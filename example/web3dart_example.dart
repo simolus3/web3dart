@@ -10,7 +10,7 @@ main() async {
 	client.printErrors = true;
 
 	var credentials = Credentials.fromHexPrivateKey(_PRIVATE_KEY);
-
+  
 	//Set up a new transaction
 	new Transaction(keys: credentials, maximumGas: 100000)
 		.prepareForSimpleTransaction( //that will transfer 2 ether

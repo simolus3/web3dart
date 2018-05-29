@@ -1,7 +1,8 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:bignum/bignum.dart';
+import 'numbers.dart' as numbers;
+
 import 'package:pointycastle/api.dart';
 
 /// Utility to use dart:math's Random class to generate numbers used by
@@ -16,13 +17,15 @@ class DartRandom implements SecureRandom {
   String get algorithmName => "DartRandom";
 
   @override
-  BigInteger nextBigInteger(int bitLength) {
+  BigInt nextBigInteger(int bitLength) {
     var fullBytes = bitLength ~/ 8;
     var remainingBits = bitLength % 8;
     
-    var main = new BigInteger.fromBytes(1, nextBytes(fullBytes));
+    // Generate a number from the full bytes. Then, prepend a smaller number
+    // covering the remaining bits.
+    var main = numbers.bytesToInt(nextBytes(fullBytes));
     var additional = dartRandom.nextInt(pow(2, remainingBits));
-    return main.add(new BigInteger(additional).shiftRight(fullBytes * 8));
+    return main + (new BigInt.from(additional) << (fullBytes * 8));
   }
 
   @override

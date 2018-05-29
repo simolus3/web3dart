@@ -1,5 +1,3 @@
-import 'package:bignum/bignum.dart';
-
 enum EtherUnit {
 	///Wei, the smallest and atomic amount of Ether
 	WEI,
@@ -22,40 +20,49 @@ enum EtherUnit {
 /// quantities.
 class EtherAmount {
 
-	static final Map<EtherUnit, BigInteger> FACTORS = {
-		EtherUnit.WEI: BigInteger.ONE,
-		EtherUnit.KWEI: new BigInteger(10).pow(3),
-		EtherUnit.MWEI: new BigInteger(10).pow(6),
-		EtherUnit.GWEI: new BigInteger(10).pow(9),
-		EtherUnit.SZABO: new BigInteger(10).pow(12),
-		EtherUnit.FINNEY: new BigInteger(10).pow(15),
-		EtherUnit.ETHER: new BigInteger(10).pow(18)
+	static final Map<EtherUnit, BigInt> FACTORS = {
+		EtherUnit.WEI: BigInt.one,
+		EtherUnit.KWEI: new BigInt.from(10).pow(3),
+		EtherUnit.MWEI: new BigInt.from(10).pow(6),
+		EtherUnit.GWEI: new BigInt.from(10).pow(9),
+		EtherUnit.SZABO: new BigInt.from(10).pow(12),
+		EtherUnit.FINNEY: new BigInt.from(10).pow(15),
+		EtherUnit.ETHER: new BigInt.from(10).pow(18)
 	};
 
-	final BigInteger _value;
+	final BigInt _value;
 
-	BigInteger get getInWei => _value;
-	BigInteger get getInEther => getValueInUnitBI(EtherUnit.ETHER);
+	BigInt get getInWei => _value;
+	BigInt get getInEther => getValueInUnitBI(EtherUnit.ETHER);
 
 	const EtherAmount.inWei(this._value);
 
-	EtherAmount.zero() : this.inWei(BigInteger.ZERO);
+	EtherAmount.zero() : this.inWei(BigInt.zero);
 
 	/// Constructs an amount of Ether by a unit and its amount. [amount] can either
-	/// be a base10 string, a num, or a BigInteger.
+	/// be a base10 string, an int, or a BigInt.
 	static EtherAmount fromUnitAndValue(EtherUnit unit, dynamic amount) {
-		if (!(amount is BigInteger))
-			amount = new BigInteger(amount);
+		BigInt parsedAmount;
+    
+    if (amount is BigInt) {
+      parsedAmount = amount;
+    } else if (amount is int) {
+      parsedAmount = new BigInt.from(amount);
+    } else if (amount is String) {
+      parsedAmount = new BigInt.from(int.parse(amount));
+    } else {
+      throw ArgumentError("Invalid type, must be BigInt, string or int");
+    }
 
-		return new EtherAmount.inWei(amount.multiply(FACTORS[unit]));
+		return new EtherAmount.inWei(parsedAmount * FACTORS[unit]);
 	}
 
 	/// Gets the value of this amount in the specified unit as a whole number.
 	/// **WARNING**: For all units except for [EtherUnit.WEI], this method will
 	/// discard the remainder occurring in the division, making it unsuitable for
 	/// calculations or storage. You should store and process amounts of ether by
-	/// using a BigInteger storing the amount in wei.
-	BigInteger getValueInUnitBI(EtherUnit unit) => _value.divide(FACTORS[unit]);
+	/// using a BigInt storing the amount in wei.
+	BigInt getValueInUnitBI(EtherUnit unit) => _value ~/ FACTORS[unit];
 
 	/// Gets the value of this amount in the specified unit. **WARNING**: Due to
 	/// rounding errors, the return value of this function is not reliable,
@@ -63,11 +70,9 @@ class EtherAmount {
 	/// display the amount of ether in a human-readable format, it should not be
 	/// used for anything else.
 	num getValueInUnit(EtherUnit unit) {
-		var data = _value.divideAndRemainder(FACTORS[unit]);
+    var value = _value ~/ FACTORS[unit];
+    var remainder = _value.remainder(FACTORS[unit]);
 
-		var value = data[0];
-		var remainder = data[1];
-
-		return value.intValue() + remainder.intValue() / FACTORS[unit].intValue();
+		return value.toInt() + (remainder.toInt() / FACTORS[unit].toInt());
 	}
 }

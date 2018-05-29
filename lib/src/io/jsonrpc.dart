@@ -14,7 +14,7 @@ class JsonRPC {
 
 	/// Performs an RPC request, asking the server to execute the function with
 	/// the given name and the associated parameters, which need to be encodable
-	/// with the [JSON] class of dart:convert.
+	/// with the [json] class of dart:convert.
 	///
 	/// When the request is successful, an [RPCResponse] with the request id and
 	/// the data from the server will be returned. If not, an RPCError will be
@@ -32,10 +32,10 @@ class JsonRPC {
 		
 		var response = await client.post(url,
 				headers: {"Content-Type": "application/json"},
-				body: JSON.encode(requestPayload)
+				body: json.encode(requestPayload)
 		);
 
-		Map<String, dynamic> data = JSON.decode(response.body);
+		Map<String, dynamic> data = json.decode(response.body);
 		int id = data["id"];
 
 		if (data.containsKey("error")) {

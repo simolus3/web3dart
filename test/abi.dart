@@ -30,7 +30,7 @@ void main() {
 			
 
 			expect(bar.encodeName(), equals("bar(bytes3[2])"));
-			expect(bar.encodeCall([[UTF8.encode("abc"), UTF8.encode("def")]]),
+			expect(bar.encodeCall([[utf8.encode("abc"), utf8.encode("def")]]),
 					equals("0xfce353f6"
 						+ "6162630000000000000000000000000000000000000000000000000000000000"
 						+ "6465660000000000000000000000000000000000000000000000000000000000")

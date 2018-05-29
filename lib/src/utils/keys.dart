@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
+import 'numbers.dart' as numbers;
 
-import 'package:bignum/bignum.dart';
 import 'package:pointycastle/api.dart';
 import "package:pointycastle/digests/sha256.dart";
 import "package:pointycastle/digests/sha3.dart";
@@ -14,15 +14,15 @@ import "package:pointycastle/signers/ecdsa_signer.dart";
 import 'package:web3dart/src/utils/dartrandom.dart';
 
 final ECDomainParameters _params = new ECCurve_secp256k1();
-final BigInteger _HALF_CURVE_ORDER = _params.n.divide(BigInteger.TWO);
+final BigInt _HALF_CURVE_ORDER = _params.n ~/ BigInt.two;
 
 const int _SHA_BYTES = 256 ~/ 8;
 final SHA3Digest sha3digest = new SHA3Digest(_SHA_BYTES * 8);
 
 /// Signatures used to sign Ethereum transactions and messages.
 class MsgSignature {
-	final BigInteger r;
-	final BigInteger s;
+	final BigInt r;
+	final BigInt s;
 	final int v;
 
 	MsgSignature(this.r, this.s, this.v);
@@ -33,8 +33,9 @@ Uint8List sha3(Uint8List input) {
 	return sha3digest.process(input);
 }
 
-/// Generates a new private key using the random instance provided.
-BigInteger generateNewPrivateKey(Random random) {
+/// Generates a new private key using the random instance provided. Please make
+/// sure you're using a cryptographically secure generator.
+BigInt generateNewPrivateKey(Random random) {
 	ECKeyGenerator generator = new ECKeyGenerator();
 
 	var keyParams = new ECKeyGeneratorParameters(_params);
@@ -50,7 +51,7 @@ BigInteger generateNewPrivateKey(Random random) {
  * Ethereum uses.
  */
 Uint8List privateKeyToPublic(Uint8List privateKey) {
-	var privateKeyNum = new BigInteger.fromBytes(1, privateKey);
+	var privateKeyNum = numbers.bytesToInt(privateKey);
 	ECPoint p = _params.G * privateKeyNum;
 
 	//skip the type flag, https://github.com/ethereumjs/ethereumjs-util/blob/master/index.js#L319
@@ -72,7 +73,7 @@ Uint8List publicKeyToAddress(Uint8List publicKey) {
 MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 	var digest = new SHA256Digest();
 	var signer = new ECDSASigner(null, new HMac(digest, 64));
-	var key = new ECPrivateKey(new BigInteger.fromBytes(1, privateKey), _params);
+	var key = new ECPrivateKey(numbers.bytesToInt(privateKey), _params);
 
 	signer.init(true, new PrivateKeyParameter(key));
 	ECSignature sig = signer.generateSignature(messageHash);
@@ -87,11 +88,11 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 	https://github.com/web3j/web3j/blob/master/crypto/src/main/java/org/web3j/crypto/ECDSASignature.java#L27
 	 */
 	if (sig.s.compareTo(_HALF_CURVE_ORDER) > 0) {
-		var canonicalisedS = _params.n.subtract(sig.s);
+		var canonicalisedS = _params.n - sig.s;
 		sig = new ECSignature(sig.r, canonicalisedS);
 	}
 
-	var publicKey = new BigInteger.fromBytes(1, privateKeyToPublic(privateKey));
+	var publicKey = numbers.bytesToInt(privateKeyToPublic(privateKey));
 
 	//Implementation for calculating v naively taken from there, I don't understand
 	//any of this.
@@ -99,7 +100,7 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 	int recId = -1;
 	for (int i = 0; i < 4; i++) {
 		var k = _recoverFromSignature(i, sig, messageHash, _params);
-		if (k != null && k.equals(publicKey)) {
+		if (k == publicKey) {
 			recId = i;
 			break;
 		}
@@ -112,13 +113,13 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 	return new MsgSignature(sig.r, sig.s, recId + 27);
 }
 
-BigInteger _recoverFromSignature(int recId, ECSignature sig, Uint8List msg, ECDomainParameters params) {
-	BigInteger n = params.n;
-	BigInteger i = new BigInteger(recId ~/ 2);
-	BigInteger x = sig.r.add(i.multiply(n));
+BigInt _recoverFromSignature(int recId, ECSignature sig, Uint8List msg, ECDomainParameters params) {
+	BigInt n = params.n;
+	BigInt i = new BigInt.from(recId ~/ 2);
+	BigInt x = sig.r + (i * n);
 
 	//Parameter q of curve
-	BigInteger prime = new BigInteger("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f", 16);
+	BigInt prime = BigInt.parse("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f", radix: 16);
 	if (x.compareTo(prime) >= 0)
 		return null;
 
@@ -126,23 +127,23 @@ BigInteger _recoverFromSignature(int recId, ECSignature sig, Uint8List msg, ECDo
 	if (!(R * n).isInfinity)
 		return null;
 
-	var e = new BigInteger.fromBytes(1, msg);
+	var e = numbers.bytesToInt(msg);
 
-	var eInv = BigInteger.ZERO.subtract(e).mod(n);
+	var eInv = (BigInt.zero - e) % n;
 	var rInv = sig.r.modInverse(n);
-	var srInv = rInv.multiply(sig.s).mod(n);
-	var eInvrInv = rInv.multiply(eInv).mod(n);
+	var srInv = (rInv * sig.s) % n;
+	var eInvrInv = (rInv * eInv) % n;
 
 	var q = (params.G * eInvrInv) + (R * srInv);
 
 	var bytes = q.getEncoded(false);
-	return new BigInteger.fromBytes(1, bytes.sublist(1));
+	return numbers.bytesToInt(bytes.sublist(1));
 }
 
-ECPoint _decompressKey(BigInteger xBN, bool yBit, ECCurve c) {
-	List<int> x9IntegerToBytes(BigInteger s, int qLength) {
+ECPoint _decompressKey(BigInt xBN, bool yBit, ECCurve c) {
+	List<int> x9IntegerToBytes(BigInt s, int qLength) {
 		//https://github.com/bcgit/bc-java/blob/master/core/src/main/java/org/bouncycastle/asn1/x9/X9IntegerConverter.java#L45
-		var bytes = s.toByteArray();
+		var bytes = numbers.intToBytes(s);
 
 		if (qLength < bytes.length) {
 			return bytes.sublist(0, bytes.length - qLength);

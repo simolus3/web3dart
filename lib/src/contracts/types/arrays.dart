@@ -1,4 +1,4 @@
-import "dart:convert";
+import "dart:convert" show utf8;
 
 import 'package:tuple/tuple.dart';
 import 'package:web3dart/src/contracts/types/integers.dart';
@@ -20,7 +20,7 @@ class DynamicLengthArrayType<T> extends ABIType<List<T>> {
   String encode(List<T> data) {
 		int size = data.length;
 
-		var sizeEncoded = new UintType().encode(size);
+		var sizeEncoded = new UintType().encode(new BigInt.from(size));
 		var dataEncoded = new StaticLengthArrayType(type, size).encode(data);
 		return sizeEncoded + dataEncoded;
   }
@@ -29,7 +29,7 @@ class DynamicLengthArrayType<T> extends ABIType<List<T>> {
   Tuple2<List<T>, int> decode(String data) {
     var decodedLength = new UintType().decodeRest(data);
 
-    var length = decodedLength.item1;
+    var length = decodedLength.item1.toInt();
     data = decodedLength.item2;
 
     var decoded = new StaticLengthArrayType(type, length).decode(data);
@@ -115,14 +115,14 @@ class DynamicLengthBytes extends ABIType<List<int>> {
 		var length = bytes.length;
 
 		var dataEncoded = new StaticLengthBytes(length, ignoreLength: true).encode(bytes);
-		return new UintType().encode(length) + dataEncoded;
+		return new UintType().encode(new BigInt.from(length)) + dataEncoded;
 	}
 
   @override
   Tuple2<List<int>, int> decode(String data) {
 		var decodedLength = new UintType().decodeRest(data);
 
-		var length = decodedLength.item1;
+		var length = decodedLength.item1.toInt();
 		data = decodedLength.item2;
 
 		var decodedBytes = new StaticLengthBytes(length, ignoreLength: true).decode(data);
@@ -137,13 +137,13 @@ class StringType extends ABIType<String> {
 
 	@override
 	String encode(String data) {
-		return new DynamicLengthBytes().encode(UTF8.encode(data));
+		return new DynamicLengthBytes().encode(utf8.encode(data));
 	}
 
   @override
   Tuple2<String, int> decode(String data) {
     var decodedBytes = new DynamicLengthBytes().decode(data);
-    return new Tuple2(UTF8.decode(decodedBytes.item1), decodedBytes.item2);
+    return new Tuple2(utf8.decode(decodedBytes.item1), decodedBytes.item2);
   }
 }
 

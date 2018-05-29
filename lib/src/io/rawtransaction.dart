@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:bignum/bignum.dart';
 import 'package:web3dart/src/utils/keys.dart' as crypto;
 import 'package:web3dart/src/utils/keys.dart';
 import 'package:web3dart/src/utils/rlp.dart' as rlp;
@@ -11,8 +10,8 @@ class RawTransaction {
 	final int gasPrice;
 	final int gasLimit;
 
-	final BigInteger to;
-	final BigInteger value; //amount
+	final BigInt to;
+	final BigInt value; //amount
 	final List<int> data;
 
   RawTransaction({this.nonce, this.gasPrice, this.gasLimit, this.to, this.value, this.data});
@@ -24,7 +23,7 @@ class RawTransaction {
 			list.add(rlp.toBuffer(nonce));
 			list.add(rlp.toBuffer(gasPrice));
 			list.add(rlp.toBuffer(gasLimit));
-			list.add(rlp.toBuffer(to ?? BigInteger.ZERO));
+			list.add(rlp.toBuffer(to ?? BigInt.zero));
 			list.add(rlp.toBuffer(value));
 			list.add(rlp.toBuffer(data ?? []));
 
@@ -43,7 +42,7 @@ class RawTransaction {
 
   Uint8List sign(Uint8List privateKey, int chainId) {
 		var encodedTransaction = encode(
-				new MsgSignature(BigInteger.ZERO, BigInteger.ZERO, chainId));
+				new MsgSignature(BigInt.zero, BigInt.zero, chainId));
 		var hashed = crypto.sha3digest.process(encodedTransaction);
 
 		var signature = crypto.sign(hashed, privateKey);

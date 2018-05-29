@@ -1,5 +1,5 @@
-import 'package:bignum/bignum.dart';
 import 'package:convert/convert.dart';
+import 'package:pointycastle/src/utils.dart' as pUtils;
 
 /// If present, removes the 0x from the start of a hex-string.
 String strip0x(String hex) {
@@ -8,7 +8,7 @@ String strip0x(String hex) {
 	return hex;
 }
 
-/// Converts the [number], which can either be a dart [int] or a [BigInteger],
+/// Converts the [number], which can either be a dart [int] or a [BigInt],
 /// into a hexadecimal representation. The number needs to be positive or zero.
 ///
 /// When [pad] is set to true, this method will prefix a zero so that the result
@@ -18,8 +18,8 @@ String toHex(dynamic number, {bool pad: false, bool include0x: false}) {
 	String toHexSimple() {
 		if (number is int)
 			return number.toRadixString(16);
-		else if (number is BigInteger)
-			return number.toString(16);
+		else if (number is BigInt)
+			return number.toRadixString(16);
 		else
 			throw new TypeError();
 	}
@@ -48,8 +48,10 @@ String bytesToHex(List<int> bytes, {bool include0x: false}) {
 /// Converts the given number, either a [int] or a [BigInteger] to a list of
 /// bytes representing the same value.
 List<int> numberToBytes(dynamic number) {
-	String hexString = toHex(number, pad: true);
+  if (number is BigInt)
+    return pUtils.encodeBigInt(number);
 
+	String hexString = toHex(number, pad: true);
 	return hex.decode(hexString);
 }
 
@@ -59,13 +61,12 @@ List<int> hexToBytes(String hexStr) {
 	return hex.decode(strip0x(hexStr));
 }
 
+///Converts the bytes from that list (big endian) to a BigInt.
+BigInt bytesToInt(List<int> bytes) => pUtils.decodeBigInt(bytes);
 
-///Converts the bytes from that list to a BigInteger.
-BigInteger bytesToInt(List<int> bytes) {
-	return new BigInteger.fromBytes(1, bytes);
-}
+List<int> intToBytes(BigInt number) => pUtils.encodeBigInt(number);
 
-///Takes the hexadecimal input and creates a BigInteger.
-BigInteger hexToInt(String hex) {
-	return new BigInteger(strip0x(hex), 16);
+///Takes the hexadecimal input and creates a BigInt.
+BigInt hexToInt(String hex) {
+  return BigInt.parse(strip0x(hex), radix: 16);
 }

@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:bignum/bignum.dart';
 import 'package:convert/convert.dart';
 import 'package:web3dart/src/utils/numbers.dart';
 
@@ -53,15 +52,15 @@ Uint8List toBuffer(dynamic data) {
 		return data;
 
 	if (data is String) {
-		print("Notice: Tried to rlp-encode a string. Thats not supported yet. Go edit library:web3dart/src/utils/rlp.dart, line 57 if you need it");
+		print("Notice: Tried to rlp-encode a string. Thats not supported yet. Go edit library:web3dart/src/utils/rlp.dart, line 55 if you need it");
 		return new Uint8List.fromList([]); //TODO RLP encode strings
 	} else if (data is int) {
 		if (data == 0)
 			return new Uint8List(0);
 
 		return new Uint8List.fromList(numberToBytes(data));
-	} else if (data is BigInteger) {
-		if (data.equals(BigInteger.ZERO))
+	} else if (data is BigInt) {
+		if (data == BigInt.zero)
 			return new Uint8List(0);
 
 		return new Uint8List.fromList(numberToBytes(data));

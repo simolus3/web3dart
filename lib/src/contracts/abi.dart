@@ -132,8 +132,8 @@ class ContractABI {
 		}
 	}
 
-	static ContractABI parseFromJSON(String json, String name) {
-		var data = JSON.decode(json);
+	static ContractABI parseFromJSON(String encoded, String name) {
+		var data = json.decode(encoded);
 
 		var functions = new List<ContractFunction>();
 
@@ -226,7 +226,7 @@ class ContractFunction {
 			throw new ArgumentError.value(params.length, "params", "Must match function parameters");
 
 		//First four bytes to identify the function with its parameters
-		var startHash = crypto.sha3(UTF8.encode(encodeName())).sublist(0, 4);
+		var startHash = crypto.sha3(utf8.encode(encodeName())).sublist(0, 4);
 
 		/*
 		We first have to encode every parameter that has a static length. For
@@ -261,7 +261,7 @@ class ContractFunction {
 		parameters.where((p) => p.type.isDynamic).forEach((param) {
 			var index = parameters.indexOf(param);
 
-			finishedEncodings[index] = new UintType().encode(currentOffset);
+			finishedEncodings[index] = new UintType().encode(new BigInt.from(currentOffset));
 
 			var firstDynamicEncoding = dynamicEncodings.first;
 			dynamicEncodings.removeAt(0);

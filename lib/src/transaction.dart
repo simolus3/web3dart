@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:bignum/bignum.dart';
 import 'package:meta/meta.dart';
 import 'package:web3dart/src/io/rawtransaction.dart';
 import 'package:web3dart/src/utils/credentials.dart';
@@ -63,7 +62,7 @@ class Transaction {
 	/// the deployed contract with the specified parameters and send the specified
 	/// amount of Ether to the contract.
 	FinalizedTransaction prepareForPaymentCall(DeployedContract contract, ContractFunction function, List<dynamic> params, EtherAmount amount) {
-		bool isNoAmount = amount.getInWei == BigInteger.ZERO;
+		bool isNoAmount = amount.getInWei == BigInt.zero;
 
 		if (!isNoAmount && !function.isPayable)
 			throw new Exception("Can't send Ether to to function that is not payable");
@@ -82,7 +81,7 @@ class Transaction {
 class FinalizedTransaction {
 
 	final Transaction base;
-	final BigInteger receiver;
+	final BigInt receiver;
 	final EtherAmount value;
 	final List<int> data;
 
@@ -93,7 +92,7 @@ class FinalizedTransaction {
 		this._function = function;
 	}
 
-	BigInteger _getSenderAddress() => base._keys.address;
+	BigInt _getSenderAddress() => base._keys.address;
 
 	Future<RawTransaction> _asRaw(Web3Client client) async {
 		var sender = _getSenderAddress();
@@ -101,7 +100,7 @@ class FinalizedTransaction {
 		var nonce = base._forceNonce ?? await client.getTransactionCount(
 				numbers.toHex(sender, pad: true, include0x: true));
 
-		var gasPrice = (base._gasPrice ?? await client.getGasPrice()).getInWei.intValue();
+		var gasPrice = (base._gasPrice ?? await client.getGasPrice()).getInWei.toInt();
 
 		return new RawTransaction(
 			nonce: nonce,

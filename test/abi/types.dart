@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:convert' show utf8;
 
 import 'package:test/test.dart';
 import 'package:web3dart/src/contracts/types/arrays.dart';
@@ -10,17 +10,17 @@ const Map<bool, String> _BOOL_ENCODED = const {
 	true: "0000000000000000000000000000000000000000000000000000000000000001",
 };
 
-const Map<int, String> _UINT_ENCODED = const {
-	0: "0000000000000000000000000000000000000000000000000000000000000000",
-	9223372036854775807: "0000000000000000000000000000000000000000000000007fffffffffffffff",
-	0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff: "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+Map<BigInt, String> _UINT_ENCODED = {
+	BigInt.zero: "0000000000000000000000000000000000000000000000000000000000000000",
+	new BigInt.from(0x7fffffffffffffff): "0000000000000000000000000000000000000000000000007fffffffffffffff",
+  BigInt.parse("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", radix: 16): "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 };
 
-const Map<int, String> _INT_ENCODED = const {
-	0: "0000000000000000000000000000000000000000000000000000000000000000",
-	9223372036854775807: "0000000000000000000000000000000000000000000000007fffffffffffffff",
-	-9223372036854775808: "ffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000",
-	-1: "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+Map<BigInt, String> _INT_ENCODED = {
+	BigInt.zero: "0000000000000000000000000000000000000000000000000000000000000000",
+	new BigInt.from(9223372036854775807): "0000000000000000000000000000000000000000000000007fffffffffffffff",
+	new BigInt.from(-9223372036854775808): "ffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000",
+	new BigInt.from(-1): "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 };
 
 void testEncode<T>(ABIType<T> type, Map<T, String> data) {
@@ -68,7 +68,7 @@ void main() {
 			expect(new StaticLengthBytes(6).encode([0, 1, 2, 3, 4, 5]),
 					equals("0001020304050000000000000000000000000000000000000000000000000000"));
 			expect(new StaticLengthBytes(1).encode([0]), equals("0" * 64));
-			expect(new StaticLengthBytes(4).encode(UTF8.encode("dave")), equals("6461766500000000000000000000000000000000000000000000000000000000"));
+			expect(new StaticLengthBytes(4).encode(utf8.encode("dave")), equals("6461766500000000000000000000000000000000000000000000000000000000"));
 		});
 	});
 
@@ -93,9 +93,9 @@ void main() {
 			expect(() => new UintType(M: 1024), throwsArgumentError);
 			expect(() => new UintType(M: -8), throwsArgumentError);
 
-			expect(() => new UintType(M: 8).encode(1 << 9), throwsArgumentError);
-			expect(() => new UintType().encode(-1), throwsArgumentError);
-			expect(() => new UintType().encode(1 << 257), throwsArgumentError);
+			expect(() => new UintType(M: 8).encode(BigInt.one << 9), throwsArgumentError);
+			expect(() => new UintType().encode(new BigInt.from(-1)), throwsArgumentError);
+			expect(() => new UintType().encode(BigInt.one << 257), throwsArgumentError);
 		});
 
 		test("Invalid static byte arrays can't be created", () {
