@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+ - New APIs allowing for a simpler access to wallets, credentials and addresses
+ - More examples in the README
+
 ## 0.2.1
 - More solidity types, not with encoding.
 

@@ -69,10 +69,10 @@ class CryptoKitty {
 Future main() async {
 	var httpClient = new Client();
 	var ethClient = new Web3Client(_URL, httpClient);
-	var credentials = Credentials.fromHexPrivateKey(_PRIVATE_KEY);
+	var credentials = Credentials.fromPrivateKeyHex(_PRIVATE_KEY);
 
 	var kittiesABI = ContractABI.parseFromJSON(_CRYPTO_KITTIES_ABI_EXTRACT, "CryptoKittens");
-	var kittiesContract = new DeployedContract(kittiesABI, _KITTY_ADDRESS, ethClient, credentials);
+	var kittiesContract = new DeployedContract(kittiesABI, new EthereumAddress(_KITTY_ADDRESS), ethClient, credentials);
 
 	var getKittyFn = kittiesContract.findFunctionsByName("getKitty").first;
 

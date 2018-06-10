@@ -5,18 +5,18 @@ import 'package:web3dart/src/contracts/types/arrays.dart';
 import 'package:web3dart/src/contracts/types/integers.dart';
 import 'package:web3dart/src/contracts/types/type.dart';
 
-const Map<bool, String> _BOOL_ENCODED = const {
+const Map<bool, String> _boolEncoded = const {
 	false: "0000000000000000000000000000000000000000000000000000000000000000",
 	true: "0000000000000000000000000000000000000000000000000000000000000001",
 };
 
-Map<BigInt, String> _UINT_ENCODED = {
+Map<BigInt, String> _uintEncoded = {
 	BigInt.zero: "0000000000000000000000000000000000000000000000000000000000000000",
 	new BigInt.from(0x7fffffffffffffff): "0000000000000000000000000000000000000000000000007fffffffffffffff",
   BigInt.parse("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", radix: 16): "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 };
 
-Map<BigInt, String> _INT_ENCODED = {
+Map<BigInt, String> _intEncoded = {
 	BigInt.zero: "0000000000000000000000000000000000000000000000000000000000000000",
 	new BigInt.from(9223372036854775807): "0000000000000000000000000000000000000000000000007fffffffffffffff",
 	new BigInt.from(-9223372036854775808): "ffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000",
@@ -53,15 +53,15 @@ void main() {
 
 	group("Encode", () {
 		test("bools", () {
-			testEncode(boolType, _BOOL_ENCODED);
+			testEncode(boolType, _boolEncoded);
 		});
 
 		test("uints", () {
-			testEncode(uint256Type, _UINT_ENCODED);
+			testEncode(uint256Type, _uintEncoded);
 		});
 
 		test("ints", () {
-			testEncode(int256Type, _INT_ENCODED);
+			testEncode(int256Type, _intEncoded);
 		});
 
 		test("static bytes", () {
@@ -74,15 +74,15 @@ void main() {
 
 	group("Decode", () {
 		test("bools", () {
-			testDecode(boolType, _BOOL_ENCODED);
+			testDecode(boolType, _boolEncoded);
 		});
 
 		test("uints", () {
-			testDecode(uint256Type, _UINT_ENCODED);
+			testDecode(uint256Type, _uintEncoded);
 		});
 
 		test("ints", () {
-			testDecode(int256Type, _INT_ENCODED);
+			testDecode(int256Type, _intEncoded);
 		});
 	});
 

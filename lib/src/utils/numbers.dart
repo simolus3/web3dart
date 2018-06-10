@@ -1,5 +1,5 @@
 import 'package:convert/convert.dart';
-import 'package:pointycastle/src/utils.dart' as pUtils;
+import 'package:pointycastle/src/utils.dart' as p_utils;
 
 /// If present, removes the 0x from the start of a hex-string.
 String strip0x(String hex) {
@@ -12,9 +12,12 @@ String strip0x(String hex) {
 /// into a hexadecimal representation. The number needs to be positive or zero.
 ///
 /// When [pad] is set to true, this method will prefix a zero so that the result
-/// will have an even length. When [include0x] is set to true, the output will
-/// have "0x" prepended to it.
-String toHex(dynamic number, {bool pad: false, bool include0x: false}) {
+/// will have an even length. Further, if [forcePadLen] is not null and the
+/// result has a length smaller than [forcePadLen], the rest will be left-padded
+/// with zeroes. Note that [forcePadLen] refers to the string length, meaning
+/// that one byte has a length of 2. When [include0x] is set to true, the 
+/// output wil have "0x" prepended to it after any padding is done.
+String toHex(dynamic number, {bool pad = false, bool include0x = false, int forcePadLen}) {
 	String toHexSimple() {
 		if (number is int)
 			return number.toRadixString(16);
@@ -26,9 +29,11 @@ String toHex(dynamic number, {bool pad: false, bool include0x: false}) {
 
 	var hexString = toHexSimple();
 	if (pad && !hexString.length.isEven)
-		hexString = "0" + hexString;
+		hexString = "0$hexString";
+  if (forcePadLen != null)
+    hexString = hexString.padLeft(forcePadLen, "0");
 	if (include0x)
-		hexString = "0x" + hexString;
+		hexString = "0x$hexString";
 
 	return hexString;
 }
@@ -40,18 +45,18 @@ String toHex(dynamic number, {bool pad: false, bool include0x: false}) {
 /// The outcome of this function will prefix a 0 if it would otherwise not be
 /// of even length. If [include0x] is set, it will prefix "0x" to the hexadecimal
 /// representation.
-String bytesToHex(List<int> bytes, {bool include0x: false}) {
+String bytesToHex(List<int> bytes, {bool include0x = false}) {
   return (include0x ? "0x" : "") + hex.encode(bytes);
 }
 
 
-/// Converts the given number, either a [int] or a [BigInteger] to a list of
+/// Converts the given number, either a [int] or a [BigInt] to a list of
 /// bytes representing the same value.
 List<int> numberToBytes(dynamic number) {
   if (number is BigInt)
-    return pUtils.encodeBigInt(number);
+    return p_utils.encodeBigInt(number);
 
-	String hexString = toHex(number, pad: true);
+	var hexString = toHex(number, pad: true);
 	return hex.decode(hexString);
 }
 
@@ -62,9 +67,9 @@ List<int> hexToBytes(String hexStr) {
 }
 
 ///Converts the bytes from that list (big endian) to a BigInt.
-BigInt bytesToInt(List<int> bytes) => pUtils.decodeBigInt(bytes);
+BigInt bytesToInt(List<int> bytes) => p_utils.decodeBigInt(bytes);
 
-List<int> intToBytes(BigInt number) => pUtils.encodeBigInt(number);
+List<int> intToBytes(BigInt number) => p_utils.encodeBigInt(number);
 
 ///Takes the hexadecimal input and creates a BigInt.
 BigInt hexToInt(String hex) {

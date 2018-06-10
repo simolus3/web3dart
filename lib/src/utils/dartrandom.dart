@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'numbers.dart' as numbers;
-
 import 'package:pointycastle/api.dart';
+
+import 'numbers.dart' as numbers;
 
 /// Utility to use dart:math's Random class to generate numbers used by
 /// pointycastle.

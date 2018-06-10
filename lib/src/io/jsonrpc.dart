@@ -20,8 +20,7 @@ class JsonRPC {
 	/// the data from the server will be returned. If not, an RPCError will be
 	/// thrown. Other errors might be thrown if an IO-Error occurs.
 	Future<RPCResponse> call(String function, [List<dynamic> params]) async {
-		if (params == null)
-			params = [];
+		params ??= [];
 
 		var requestPayload = {
 			"jsonrpc": "2.0",
@@ -43,7 +42,7 @@ class JsonRPC {
 
 			int code = error["code"];
 			String message = error["message"];
-			dynamic errorData = error["data"];
+			var errorData = error["data"];
 
 			throw new RPCError(code, message, errorData);
 		}
@@ -72,7 +71,8 @@ class RPCError implements Exception {
 
 	const RPCError(this.errorCode, this.message, this.data);
 
-	String toString() {
+	@override
+  String toString() {
 		return "RPCError: got code $errorCode with msg \"$message\".";
 	}
 }

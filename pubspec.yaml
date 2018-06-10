@@ -1,6 +1,6 @@
 name: web3dart
 description: Dart library to connect to Ethereum clients. Allows you to send transactions and build DApps in Dart.
-version: 0.3.0
+version: 0.4.0
 author: simolus3 <simolus3@gmail.com>
 homepage: https://github.com/simolus3/web3dart
 
@@ -13,6 +13,7 @@ dependencies:
   meta: "^1.1.2"
   http: "^0.11.3+16"
   tuple: "^1.0.1"
+  uuid: "^1.0.0"
 
 dev_dependencies:
   test: ^0.12.0

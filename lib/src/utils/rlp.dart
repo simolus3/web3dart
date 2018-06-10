@@ -8,7 +8,7 @@ import 'package:web3dart/src/utils/numbers.dart';
 
 Uint8List encode(dynamic input) {
 	if (input is List && !(input is Uint8List)) {
-		var output = new List<Uint8List>();
+		var output = <Uint8List>[];
 		for (var data in input) {
 			output.add(encode(data));
 		}
@@ -30,7 +30,7 @@ Uint8List encodeLength(int length, int offset) {
 	if (length < 56) {
 		return new Uint8List.fromList([length + offset]);
 	} else {
-		var hexLen = _intToHex(length);
+		var hexLen = toHex(length, pad: true);
 		var lLength = hexLen.length ~/ 2;
 
 		return _concat([new Uint8List.fromList([offset + 55 + lLength]), new Uint8List.fromList(hex.decode(hexLen))]);
@@ -38,11 +38,9 @@ Uint8List encodeLength(int length, int offset) {
 }
 
 Uint8List _concat(List<Uint8List> lists) {
-	var list = new List<int>();
+	var list = <int>[];
 
-	for (var data in lists) {
-		list.addAll(data);
-	}
+  lists.forEach(list.addAll);
 
 	return new Uint8List.fromList(list);
 }
@@ -52,7 +50,7 @@ Uint8List toBuffer(dynamic data) {
 		return data;
 
 	if (data is String) {
-		print("Notice: Tried to rlp-encode a string. Thats not supported yet. Go edit library:web3dart/src/utils/rlp.dart, line 55 if you need it");
+		print("Notice: Tried to rlp-encode a string. Thats not supported yet. Go edit library:web3dart/src/utils/rlp.dart, line 53 if you need it");
 		return new Uint8List.fromList([]); //TODO RLP encode strings
 	} else if (data is int) {
 		if (data == 0)
@@ -69,13 +67,4 @@ Uint8List toBuffer(dynamic data) {
 	}
 
 	throw new TypeError();
-}
-
-String _intToHex(int i) {
-	var hex = toHex(i);
-	if (hex.length % 2 != 0) {
-		hex = '0' + hex;
-	}
-
-	return hex;
 }

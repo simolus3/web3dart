@@ -9,6 +9,7 @@ class DynamicLengthArrayType<T> extends ABIType<List<T>> {
 
 	final ABIType<T> type;
 
+  @override
   final bool isDynamic = true;
 
   DynamicLengthArrayType(this.type);
@@ -18,7 +19,7 @@ class DynamicLengthArrayType<T> extends ABIType<List<T>> {
 
   @override
   String encode(List<T> data) {
-		int size = data.length;
+		var size = data.length;
 
 		var sizeEncoded = new UintType().encode(new BigInt.from(size));
 		var dataEncoded = new StaticLengthArrayType(type, size).encode(data);
@@ -30,9 +31,8 @@ class DynamicLengthArrayType<T> extends ABIType<List<T>> {
     var decodedLength = new UintType().decodeRest(data);
 
     var length = decodedLength.item1.toInt();
-    data = decodedLength.item2;
 
-    var decoded = new StaticLengthArrayType(type, length).decode(data);
+    var decoded = new StaticLengthArrayType(type, length).decode(decodedLength.item2);
     return new Tuple2(decoded.item1, decoded.item2 + decodedLength.item3);
   }
 }
@@ -42,14 +42,16 @@ class StaticLengthArrayType<T> extends ABIType<List<T>> {
 	final ABIType<T> type;
 	final int length;
 
-	bool get isDynamic => type.isDynamic && length > 0;
-	String get name => "${type.name}[$length]";
+	@override
+  bool get isDynamic => type.isDynamic && length > 0;
+	@override
+  String get name => "${type.name}[$length]";
 
 	StaticLengthArrayType(this.type, this.length);
 
   @override
   String encode(List<T> data) {
-  	StringBuffer buffer = new StringBuffer();
+  	var buffer = new StringBuffer();
 
   	for (var element in data) {
   		buffer.write(type.encode(element));
@@ -59,14 +61,15 @@ class StaticLengthArrayType<T> extends ABIType<List<T>> {
   }
   @override
   Tuple2<List<T>, int> decode(String data) {
-  	var list = new List<T>();
+  	var list = <T>[];
   	var totalLength = 0;
   	
-    for (int i = 0; i < length; i++) {
-    	var decodedPart = type.decodeRest(data);
+    var modifiedData = data;
+    for (var i = 0; i < length; i++) {
+    	var decodedPart = type.decodeRest(modifiedData);
 
     	list.add(decodedPart.item1);
-    	data = decodedPart.item2;
+    	modifiedData = decodedPart.item2;
 			totalLength += decodedPart.item3;
 		}
 		
@@ -78,19 +81,21 @@ class StaticLengthBytes extends ABIType<List<int>> {
 
 	final int length;
 
-	final bool isDynamic = false;
-	String get name => "bytes$length";
+	@override
+  final bool isDynamic = false;
+	@override
+  String get name => "bytes$length";
 
-	StaticLengthBytes(this.length, {bool ignoreLength: false}) {
+	StaticLengthBytes(this.length, {bool ignoreLength = false}) {
 		if (!ignoreLength && (length <= 0 || length > 32))
 			throw new ArgumentError("Length of static byte array must be between 0 and 32, was $length");
 	}
 
 	@override
-	String encode(List<int> bytes) {
-		if (bytes.length != length)
-			throw new ArgumentError("Length of bytes did not match. (Expected $length, got ${bytes.length})");
-		var encoded = numbers.bytesToHex(bytes);
+	String encode(List<int> data) {
+		if (data.length != length)
+			throw new ArgumentError("Length of bytes did not match. (Expected $length, got ${data.length})");
+		var encoded = numbers.bytesToHex(data);
 
 		return encoded + ("0" * (calculatePadLen(encoded.length)));
 	}
@@ -99,16 +104,18 @@ class StaticLengthBytes extends ABIType<List<int>> {
   Tuple2<List<int>, int> decode(String data) {
     var encodedLength = (calculatePadLen(length * 2) + length * 2) ~/ 2;
 
-    data = data.substring(0, length * 2); //rest is right-padded with 0
-    var bytes = numbers.hexToBytes(data);
+    var modifiedData = data.substring(0, length * 2); //rest is right-padded with 0
+    var bytes = numbers.hexToBytes(modifiedData);
     return new Tuple2(bytes, encodedLength);
   }
 }
 
 class DynamicLengthBytes extends ABIType<List<int>> {
 
-	final bool isDynamic = true;
-	final String name = "bytes";
+	@override
+  final bool isDynamic = true;
+	@override
+  final String name = "bytes";
 
 	@override
 	String encode(List<int> bytes) {

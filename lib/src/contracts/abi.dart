@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:web3dart/src/contracts/types/arrays.dart';
 import 'package:web3dart/src/contracts/types/integers.dart';
 import 'package:web3dart/src/contracts/types/type.dart';
-import 'package:web3dart/src/utils/keys.dart' as crypto;
+import 'package:web3dart/src/utils/crypto.dart' as crypto;
 import 'package:web3dart/src/utils/numbers.dart' as numbers;
 import 'package:web3dart/web3dart.dart';
 
@@ -18,13 +18,21 @@ class DeployedContract {
 	/// transactions when calling this contract.
 	final ContractABI abi;
 	/// The Ethereum address at which this contract is reachable.
-	final String address;
+	final EthereumAddress address;
 
+  /// The client that will be used to send transactions or method calls.
 	final Web3Client client;
+  /// The credentials specify from which address transactions or calls will be
+  /// made.
 	final Credentials auth;
 
+  /// Creates a new contract instance in the libary based on the given abi at
+  /// the specified [address]. The contract needs to be deployed on the Ethereum
+  /// net the [client] is connected to. The [auth] parameter controlls the 
+  /// address used to send transactions or calls.
 	DeployedContract(this.abi, this.address, this.client, this.auth);
 
+  /// Get a list of all functions defined by the contract ABI.
 	List<ContractFunction> get functions => abi.functions;
 
 	/// Finds all external or public functions defined by the contract that have
@@ -43,9 +51,9 @@ class DeployedContract {
 
 class ContractABI {
 
-	static RegExp _MATCH_ARRAY = new RegExp(r"^(.+)\[(\d*)\]$");
-	static RegExp _ARRAY_INDEX = new RegExp(r"(?=.*)(\d)+(?=\]$)");
-	static RegExp _BEFORE_ARRAY = new RegExp(r"(.*)(?=\[)");
+	static RegExp _matchArray = new RegExp(r"^(.+)\[(\d*)\]$");
+	static RegExp _arrayIndex = new RegExp(r"(?=.*)(\d)+(?=\]$)");
+	static RegExp _beforeArray = new RegExp(r"(.*)(?=\[)");
 
 	/// Name of the contract
 	final String name;
@@ -57,25 +65,26 @@ class ContractABI {
 
 	static _ContractFunctionMutability _parseMutability(String m) {
 		switch (m) {
-			case "pure": return _ContractFunctionMutability.PURE;
-			case "view": return _ContractFunctionMutability.VIEW;
-			case "nonpayable": return _ContractFunctionMutability.NONPAYABLE;
-			case "payable": return _ContractFunctionMutability.PAYABLE;
+			case "pure": return _ContractFunctionMutability.pure;
+			case "view": return _ContractFunctionMutability.view;
+			case "nonpayable": return _ContractFunctionMutability.nonPayable;
+			case "payable": return _ContractFunctionMutability.payable;
 			default: throw new ArgumentError.value("Unknown mutability", "m", m);
 		}
 	}
 
 	static _ContractFunctionType _parseType(String t) {
 		switch (t) {
-			case "function": return _ContractFunctionType.FUNCTION;
-			case "constructor": return _ContractFunctionType.CONSTRUCTOR;
-			case "default": return _ContractFunctionType.DEFAULT;
+			case "function": return _ContractFunctionType.function;
+			case "constructor": return _ContractFunctionType.constructor;
+			case "default": return _ContractFunctionType.defaultConstr;
 			default: throw new ArgumentError.value("Unknown type", "t", t);
 		}
 	}
 
 	static List<FunctionParameter> parseParameters(List<dynamic> data) {
-		if (data == null || data.isEmpty) return [];
+		if (data == null || data.isEmpty) 
+      return [];
 
 		var elements = <FunctionParameter>[];
 
@@ -91,11 +100,11 @@ class ContractABI {
 
 	static ABIType parseType(String type) {
 		//TODO Tuples
-		if (_MATCH_ARRAY.hasMatch(type)) {
-			ABIType parsedType = parseType(_BEFORE_ARRAY.firstMatch(type).group(0));
+		if (_matchArray.hasMatch(type)) {
+			var parsedType = parseType(_beforeArray.firstMatch(type).group(0));
 
-			if (_ARRAY_INDEX.hasMatch(type)) { //fixed length array
-				int length = int.parse(_ARRAY_INDEX.firstMatch(type).group(0));
+			if (_arrayIndex.hasMatch(type)) { //fixed length array
+				var length = int.parse(_arrayIndex.firstMatch(type).group(0));
 				return new StaticLengthArrayType(parsedType, length);
 			}
 
@@ -105,7 +114,7 @@ class ContractABI {
 		if (type.startsWith("uint")) {
 			if (type.length == 4) //just uint
 				return new UintType();
-			int M = int.parse(type.substring(4));
+			var M = int.parse(type.substring(4));
 			return new UintType(M: M);
 		} else if (type.startsWith("int")) {
 			//TODO
@@ -117,7 +126,7 @@ class ContractABI {
 			if (type.length == 5) //just bytes
 				return new DynamicLengthBytes();
 
-			int length = int.parse(type.substring(5));
+			var length = int.parse(type.substring(5));
 			return new StaticLengthBytes(length);
 		}
 		
@@ -135,15 +144,16 @@ class ContractABI {
 	static ContractABI parseFromJSON(String encoded, String name) {
 		var data = json.decode(encoded);
 
-		var functions = new List<ContractFunction>();
+		var functions = <ContractFunction>[];
 
 		for (var element in data) {
 			String name = element["name"];
-			_ContractFunctionMutability mutability = _parseMutability(element["stateMutability"]);
+			var mutability = _parseMutability(element["stateMutability"]);
 
 			var type = element["type"];
-			if (type == "event") continue;
-			_ContractFunctionType tp = _parseType(type);
+			if (type == "event") 
+        continue;
+			var tp = _parseType(type);
 
 			var inputs = parseParameters(element["inputs"]);
 			var outputs = parseParameters(element["outputs"]);
@@ -176,34 +186,34 @@ class ContractFunction {
 
 	/// Returns true if this is the default function of a contract, which can be
 	/// called when no other functions fit to an request.
-	bool get isDefault => _type == _ContractFunctionType.DEFAULT;
+	bool get isDefault => _type == _ContractFunctionType.defaultConstr;
 	/// Returns true if this function is an constructor of the contract it belongs
 	/// to. Mind that this library does currently not support deploying new
 	/// contracts on the blockchain, it only supports calling functions of
 	/// existing contracts.
-	bool get isConstructor => _type == _ContractFunctionType.CONSTRUCTOR;
+	bool get isConstructor => _type == _ContractFunctionType.constructor;
 
 	/// Returns true if this function is constant, i.e. it cannot modify the state
 	/// of the blockchain when called. This allows the function to be called
 	/// without sending Ether or gas as the connected client can compute it
 	/// locally, no expensive mining will be required.
-	bool get isConstant => _mutability == _ContractFunctionMutability.VIEW ||
-			_mutability == _ContractFunctionMutability.PURE;
+	bool get isConstant => _mutability == _ContractFunctionMutability.view ||
+			_mutability == _ContractFunctionMutability.pure;
 
 	/// Returns true if this function can be used to send Ether to a smart
 	/// contract that the contract will actually keep. Normally, all Ether sent
 	/// with a transaction will be used to pay for gas fees and the rest will be
 	/// sent back. Here however, the Ether (minus the fees) will be kept by the
 	/// contract.
-	bool get isPayable => _mutability == _ContractFunctionMutability.PAYABLE;
+	bool get isPayable => _mutability == _ContractFunctionMutability.payable;
 
 	ContractFunction(this.name, this.parameters, {
 		this.outputs=const [],
-		_ContractFunctionType type = _ContractFunctionType.FUNCTION,
-		_ContractFunctionMutability mutability = _ContractFunctionMutability.NONPAYABLE
+		_ContractFunctionType type = _ContractFunctionType.function,
+		_ContractFunctionMutability mutability = _ContractFunctionMutability.nonPayable
 	}) {
-		this._type = type;
-		this._mutability = mutability;
+		_type = type;
+		_mutability = mutability;
 	}
 
 	/// Encodes a call to this function with the specified parameters for a
@@ -235,10 +245,10 @@ class ContractFunction {
 		()
 		 */
 
-		List<String> finishedEncodings = [];
-		List<String> dynamicEncodings = [];
+		var finishedEncodings = [];
+		var dynamicEncodings = [];
 
-		for (int i = 0; i < parameters.length; i++) {
+		for (var i = 0; i < parameters.length; i++) {
 			var parameter = parameters[i];
 			var value = params[i];
 
@@ -257,9 +267,9 @@ class ContractFunction {
 		//First, calculate the size (in bytes) of the first part of the data, which
 		//only includes static encodings and the relative positions for the dynamic
 		//data.
-		int currentOffset = finishedEncodings.fold(0, (a, s) => a + s.length ~/ 2);
-		parameters.where((p) => p.type.isDynamic).forEach((param) {
-			var index = parameters.indexOf(param);
+		var currentOffset = finishedEncodings.fold(0, (a, s) => a + s.length ~/ 2);
+    for (var param in parameters.where((p) => p.type.isDynamic)) {
+      var index = parameters.indexOf(param);
 
 			finishedEncodings[index] = new UintType().encode(new BigInt.from(currentOffset));
 
@@ -268,7 +278,7 @@ class ContractFunction {
 
 			finishedEncodings.add(firstDynamicEncoding);
 			currentOffset += firstDynamicEncoding.length ~/ 2;
-		});
+    }
 
 		return numbers.bytesToHex(startHash, include0x: true) + finishedEncodings.join();
 	}
@@ -290,33 +300,33 @@ class ContractFunction {
 	/// [outputs] are. For the conversions between dart types and solidity types,
 	/// see the documentation for [encodeCall].
 	dynamic decodeReturnValues(String data) {
-		data = numbers.strip0x(data);
+		var modifiedData = numbers.strip0x(data);
 
-		var decoded = new List<dynamic>();
+		var decoded = <dynamic>[];
 
 		for (var param in outputs) {
 			if (param.type.isDynamic) {
 				decoded.add(null); //will be decoded later
-				var decodedRaw = new UintType().decodeRest(data);
+				var decodedRaw = new UintType().decodeRest(modifiedData);
 
-				data = decodedRaw.item2; //remaining data
+				modifiedData = decodedRaw.item2; //remaining data
 			} else {
-				var decodedRaw = param.type.decodeRest(data);
+				var decodedRaw = param.type.decodeRest(modifiedData);
 
 				decoded.add(decodedRaw.item1);
-				data = decodedRaw.item2; //remaining data
+				modifiedData = decodedRaw.item2; //remaining data
 			}
 		}
 
 		//now that the data only consists of the dynamic data, decode it
-		for (int i = 0; i < outputs.length; i++) {
+		for (var i = 0; i < outputs.length; i++) {
 			var param = outputs[i];
 
 			if (param.type.isDynamic) {
 				var decodedRaw = param.type.decodeRest(data);
 
 				decoded[i] = decodedRaw.item1;
-				data = decodedRaw.item2;
+				modifiedData = decodedRaw.item2;
 			}
 		}
 
@@ -325,11 +335,11 @@ class ContractFunction {
 }
 
 enum _ContractFunctionType {
-	FUNCTION, CONSTRUCTOR, DEFAULT
+	function, constructor, defaultConstr
 }
 
 enum _ContractFunctionMutability {
-	PURE, VIEW, NONPAYABLE, PAYABLE
+	pure, view, nonPayable, payable
 }
 
 /// The parameter of a function with its name and the expected type.

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 import 'package:web3dart/src/io/rawtransaction.dart';
-import 'package:web3dart/src/utils/credentials.dart';
 import "package:web3dart/src/utils/numbers.dart" as numbers;
 import 'package:web3dart/web3dart.dart';
 
@@ -27,12 +26,12 @@ class Transaction {
 	/// library will query [Web3Client.getGasPrice] and use that value, which
 	/// should result in your transaction being handled reasonably fast.
 	Transaction({@required Credentials keys, @required int maximumGas, EtherAmount gasPrice}) {
-			this._keys = keys;
-			this._maxGas = maximumGas;
-			this._gasPrice = gasPrice;
+			_keys = keys;
+			_maxGas = maximumGas;
+			_gasPrice = gasPrice;
 
-			if (this._maxGas == 0)
-				this._gasPrice = new EtherAmount.zero();
+			if (_maxGas == 0)
+				_gasPrice = new EtherAmount.zero();
 	}
 
 	/// Forces this transaction to use the specified nonce.
@@ -44,12 +43,12 @@ class Transaction {
 	/// by the sender before finalizing this transaction, so that the field will
 	/// be set automatically. However, you can also set the field manually if you
 	/// need to.
-	void forceNonce(int nonce) => this._forceNonce = nonce;
+	void forceNonce(int nonce) => _forceNonce = nonce;
 
 	/// Configures this transaction so that it will send the specified amount of
 	/// Ether to the account at the address specified in to.
-	FinalizedTransaction prepareForSimpleTransaction(String to, EtherAmount amount) {
-		return new FinalizedTransaction._(this, numbers.hexToInt(to), amount, []);
+	FinalizedTransaction prepareForSimpleTransaction(EthereumAddress to, EtherAmount amount) {
+		return new FinalizedTransaction._(this, to.number, amount, []);
 	}
 
 	/// Configures this transaction so that it will call the specified function
@@ -62,14 +61,14 @@ class Transaction {
 	/// the deployed contract with the specified parameters and send the specified
 	/// amount of Ether to the contract.
 	FinalizedTransaction prepareForPaymentCall(DeployedContract contract, ContractFunction function, List<dynamic> params, EtherAmount amount) {
-		bool isNoAmount = amount.getInWei == BigInt.zero;
+		var isNoAmount = amount.getInWei == BigInt.zero;
 
 		if (!isNoAmount && !function.isPayable)
 			throw new Exception("Can't send Ether to to function that is not payable");
 
 		var data = numbers.hexToBytes(function.encodeCall(params));
 		return new FinalizedTransaction._(
-				this, numbers.hexToInt(contract.address), amount, data,
+				this, contract.address.number, amount, data,
 				isConst: function.isConstant && isNoAmount, function: function);
 	}
 
@@ -89,16 +88,11 @@ class FinalizedTransaction {
 	ContractFunction _function;
 
 	FinalizedTransaction._(this.base, this.receiver, this.value, this.data, {this.isConst = false, ContractFunction function}) {
-		this._function = function;
+		_function = function;
 	}
 
-	BigInt _getSenderAddress() => base._keys.address;
-
 	Future<RawTransaction> _asRaw(Web3Client client) async {
-		var sender = _getSenderAddress();
-
-		var nonce = base._forceNonce ?? await client.getTransactionCount(
-				numbers.toHex(sender, pad: true, include0x: true));
+		var nonce = base._forceNonce ?? await client.getTransactionCount(base._keys.address);
 
 		var gasPrice = (base._gasPrice ?? await client.getGasPrice()).getInWei.toInt();
 
