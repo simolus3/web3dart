@@ -14,8 +14,8 @@ import 'package:web3dart/src/utils/dartrandom.dart';
 
 import 'numbers.dart' as numbers;
 
-final ECDomainParameters _params = new ECCurve_secp256k1();
-final BigInt _halfCurveOrder = _params.n ~/ BigInt.two;
+final ECDomainParameters params = new ECCurve_secp256k1();
+final BigInt _halfCurveOrder = params.n ~/ BigInt.two;
 
 const int _shaBytes = 256 ~/ 8;
 final SHA3Digest sha3digest = new SHA3Digest(_shaBytes * 8);
@@ -39,7 +39,7 @@ Uint8List sha3(Uint8List input) {
 BigInt generateNewPrivateKey(Random random) {
 	var generator = new ECKeyGenerator();
 
-	var keyParams = new ECKeyGeneratorParameters(_params);
+	var keyParams = new ECKeyGeneratorParameters(params);
 
 	generator.init(new ParametersWithRandom(keyParams, new DartRandom(random)));
 
@@ -52,7 +52,7 @@ BigInt generateNewPrivateKey(Random random) {
 /// Ethereum uses.
 Uint8List privateKeyToPublic(Uint8List privateKey) {
 	var privateKeyNum = numbers.bytesToInt(privateKey);
-	var p = _params.G * privateKeyNum;
+	var p = params.G * privateKeyNum;
 
 	//skip the type flag, https://github.com/ethereumjs/ethereumjs-util/blob/master/index.js#L319
 	return p.getEncoded(false).sublist(1);
@@ -71,7 +71,7 @@ Uint8List publicKeyToAddress(Uint8List publicKey) {
 MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 	var digest = new SHA256Digest();
 	var signer = new ECDSASigner(null, new HMac(digest, 64));
-	var key = new ECPrivateKey(numbers.bytesToInt(privateKey), _params);
+	var key = new ECPrivateKey(numbers.bytesToInt(privateKey), params);
 
 	signer.init(true, new PrivateKeyParameter(key));
 	ECSignature sig = signer.generateSignature(messageHash);
@@ -86,7 +86,7 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 	https://github.com/web3j/web3j/blob/master/crypto/src/main/java/org/web3j/crypto/ECDSASignature.java#L27
 	 */
 	if (sig.s.compareTo(_halfCurveOrder) > 0) {
-		var canonicalisedS = _params.n - sig.s;
+		var canonicalisedS = params.n - sig.s;
 		sig = new ECSignature(sig.r, canonicalisedS);
 	}
 
@@ -97,7 +97,7 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 	//https://github.com/web3j/web3j/blob/master/crypto/src/main/java/org/web3j/crypto/Sign.java
 	var recId = -1;
 	for (var i = 0; i < 4; i++) {
-		var k = _recoverFromSignature(i, sig, messageHash, _params);
+		var k = _recoverFromSignature(i, sig, messageHash, params);
 		if (k == publicKey) {
 			recId = i;
 			break;
