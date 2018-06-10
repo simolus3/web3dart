@@ -11,7 +11,7 @@ const String _KITTY_ADDRESS = "0x06012c8cf97BEaD5deAe237070F9587f8E7A266d";
 
 class CryptoKitty {
 
-	final int id;
+	final BigInt id;
 
 	bool isGestating;
 	bool isReady;
@@ -44,15 +44,15 @@ class CryptoKitty {
 	int genes;
 
 	CryptoKitty.fromResponse(this.id, dynamic data) {
-		this.isGestating = data[0];
-		this.isReady = data[1];
+		isGestating = data[0];
+		isReady = data[1];
 
-		this.siringWithId = data[4];
-		this.birthTime= new DateTime.fromMillisecondsSinceEpoch(data[5] * 1000);
-		this.matronId = data[7];
-		this.sireId = data[6];
-		this.generation = data[8];
-		this.genes = data[9];
+		siringWithId = data[4];
+		birthTime= new DateTime.fromMillisecondsSinceEpoch((data[5] as BigInt).toInt() * 1000);
+		matronId = data[7];
+		sireId = data[6];
+		generation = data[8];
+		genes = data[9];
 	}
 
 	@override
@@ -60,8 +60,8 @@ class CryptoKitty {
 		var gestating = (isGestating ? "" : "not ") + "gestating, matron is #$matronId";
 		var ready = (isReady ? "" : "not ") + "ready";
 
-		return "CryptoKitten #$id, born at $birthTime: $gestating; $ready " +
-			"parents: matron = #$matronId, sire: $sireId, generation: $generation " +
+		return "CryptoKitten #$id, born at $birthTime: $gestating; $ready " 
+			"parents: matron = #$matronId, sire: $sireId, generation: $generation "
 			"genes: $genes";
 	}
 }
@@ -76,7 +76,7 @@ Future main() async {
 
 	var getKittyFn = kittiesContract.findFunctionsByName("getKitty").first;
 
-	var mrsWikiLeaksId = 363461;
+	var mrsWikiLeaksId = new BigInt.from(363461);
 
 	var kittenResponse = await new Transaction(keys: credentials, maximumGas: 0)
 			.prepareForCall(kittiesContract, getKittyFn, [mrsWikiLeaksId])

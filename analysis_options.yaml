@@ -2,7 +2,6 @@ analyzer:
   strong-mode: true
   exclude:
     - example/*.dart
-    - lib/src/contracts/**
 #   exclude:
 #     - path/to/excluded/files/**
 

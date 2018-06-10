@@ -8,8 +8,10 @@ class UintType extends ABIType<BigInt> {
   ///multiple of 8.
 	final int M;
 
-	final bool isDynamic = false;
-	String get name => "uint$M";
+	@override
+  final bool isDynamic = false;
+	@override
+  String get name => "uint$M";
 
 	BigInt get maxValue => (BigInt.one << M) - BigInt.one;
 
@@ -40,8 +42,10 @@ class IntType extends ABIType<BigInt> {
 
 	final int M;
 
-	final bool isDynamic = false;
-	String get name => "int$M";
+	@override
+  final bool isDynamic = false;
+	@override
+  String get name => "int$M";
 
 	BigInt get maxValue => (BigInt.one << (M - 1)) - BigInt.one;
 	BigInt get minValue => -(BigInt.one << (M - 1));
@@ -83,7 +87,8 @@ class IntType extends ABIType<BigInt> {
 
 class AddressType extends UintType {
 
-	final String name = "address";
+	@override
+  final String name = "address";
 
 	AddressType() : super(M: 160);
 
@@ -91,14 +96,16 @@ class AddressType extends UintType {
 
 class BoolType extends ABIType<bool> {
 
-	static final String _ENCODE_TRUE = ("0" * 63) + "1";
-	static final String _ENCODE_FALSE = "0" * 64;
-
-	final String name = "bool";
-	final bool isDynamic = false;
+	static final String _encodeTrue = ("0" * 63) + "1";
+	static final String _encodeFalse = "0" * 64;
 
 	@override
-	String encode(bool data) => data ? _ENCODE_TRUE : _ENCODE_FALSE;
+  final String name = "bool";
+	@override
+  final bool isDynamic = false;
+
+	@override
+	String encode(bool data) => data ? _encodeTrue : _encodeFalse;
 
   @override
   Tuple2<bool, int> decode(String data) {

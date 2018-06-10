@@ -23,7 +23,7 @@ void main() {
 	group('Function names and parameters', () {
 		test("with simple functions", () {
 			expect(baz.encodeName(), equals("baz(uint32,bool)"));
-			expect(baz.encodeCall([69, true]), equals("0xcdcd77c0"
+			expect(baz.encodeCall([new BigInt.from(69), true]), equals("0xcdcd77c0"
 					 "0000000000000000000000000000000000000000000000000000000000000045"
 					 "0000000000000000000000000000000000000000000000000000000000000001")
 			);

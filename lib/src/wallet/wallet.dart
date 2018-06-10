@@ -251,7 +251,7 @@ class Wallet {
       ..addAll(dk.sublist(16, 32))
       ..addAll(ciphertext);
     
-    return numbers.bytesToHex(crypto.sha3(macBody));
+    return numbers.bytesToHex(crypto.sha3(new Uint8List.fromList(macBody)));
   }
 
   static CTRStreamCipher _initCipher(bool forEncryption, List<int> key, List<int> iv) {
