@@ -149,7 +149,7 @@ class ContractABI {
 		for (var element in data) {
 
 		  // ignore non-functions
-		  if (element["type"] != 'function') {
+			if (element["type"] != 'function') {
 				continue;
 			}
 
