@@ -256,7 +256,6 @@ class ContractFunction {
 		var dynamicEncodings = [];
 
 		for (var i = 0; i < parameters.length; i++) {
-
 			var parameter = parameters[i];
 			var value = params[i];
 
