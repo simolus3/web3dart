@@ -171,7 +171,7 @@ class Web3Client {
 	/// Returns a hash of the transaction which, after the transaction has been
 	/// included in a mined block, can be used to obtain detailed information
 	/// about the transaction.
-	Future<List<int>> sendRawTransaction(Credentials cred, RawTransaction transaction, {int chainId = 1}) {
+	Future<List<int>> sendRawTransaction(Credentials cred, RawTransaction transaction, {int chainId}) {
 		var data = transaction.sign(numbers.numberToBytes(cred.privateKey), chainId);
 
 		return _makeRPCCall("eth_sendRawTransaction", [numbers.bytesToHex(data, include0x: true)])
@@ -187,7 +187,7 @@ class Web3Client {
 	/// calculate this call if it was included in a mined block.
 	/// This function allows specifying a custom block mined in the past to get
 	/// historical data. By default, [BlockNum.current] will be used.
-	Future<dynamic> call(Credentials cred, RawTransaction transaction, ContractFunction decoder, {BlockNum atBlock}) {
+	Future<List<dynamic>> call(Credentials cred, RawTransaction transaction, ContractFunction decoder, {BlockNum atBlock, int chainId}) {
 		String intToHex(dynamic d) => numbers.toHex(d, pad: true, include0x: true);
 
 		var data = {
