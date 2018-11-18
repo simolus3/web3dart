@@ -61,19 +61,21 @@ class Transaction {
 	/// the deployed contract with the specified parameters and send the specified
 	/// amount of Ether to the contract.
 	FinalizedTransaction prepareForPaymentCall(DeployedContract contract, ContractFunction function, List<dynamic> params, EtherAmount amount) {
+
 		var isNoAmount = amount.getInWei == BigInt.zero;
 
 		if (!isNoAmount && !function.isPayable)
 			throw new Exception("Can't send Ether to to function that is not payable");
 
 		var data = numbers.hexToBytes(function.encodeCall(params));
+
 		return new FinalizedTransaction._(
 				this, contract.address.number, amount, data,
 				isConst: function.isConstant && isNoAmount, function: function);
 	}
 
 	FinalizedTransaction prepareCustomTransaction(String to, EtherAmount amount, List<int> data) {
-		return new FinalizedTransaction._(this, numbers.hexToInt(to), amount, data);
+		return new FinalizedTransaction._(this, to != null ? numbers.hexToInt(to) : to, amount, data);
 	}
 }
 
@@ -107,21 +109,21 @@ class FinalizedTransaction {
 	}
 
 	/// Sends this transaction to the Ethereum client.
-	Future<List<int>> send(Web3Client client) {
+	Future<List<int>> send(Web3Client client, {int chainId = 1}) {
 		return _asRaw(client).then((raw) {
-			return client.sendRawTransaction(base._keys, raw);
+			return client.sendRawTransaction(base._keys, raw, chainId: chainId);
 		});
 	}
 
 	/// Sends this transaction to be executed immediately without modifying the
 	/// state of the Blockchain. The data returned by the called contract will
 	/// be returned here immediately as well.
-	Future<dynamic> call(Web3Client client) {
+	Future<List<dynamic>> call(Web3Client client, {int chainId = 1}) {
 		if (!isConst)
 			throw new Exception("Tried to call a transaction that modifys state");
 
 		return _asRaw(client).then((raw) {
-			return client.call(base._keys, raw, _function);
+			return client.call(base._keys, raw, _function, chainId: chainId);
 		});
 	}
 }
