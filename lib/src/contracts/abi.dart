@@ -129,7 +129,6 @@ class ContractABI {
 			var length = int.parse(type.substring(5));
 			return new StaticLengthBytes(length);
 		}
-
 		//Names that only have a single name
 		switch (type) {
 			case "string": return new StringType();
@@ -148,7 +147,7 @@ class ContractABI {
 
 		for (var element in data) {
 
-		  // ignore non-functions
+			// ignore non-functions
 			if (element["type"] != 'function') {
 				continue;
 			}
@@ -238,7 +237,6 @@ class ContractFunction {
 	///
 	/// Other types are not supported at the moment.
 	String encodeCall(List<dynamic> params) {
-
 		if (params.length != parameters.length)
 			throw new ArgumentError.value(params.length, "params", "Must match function parameters");
 
