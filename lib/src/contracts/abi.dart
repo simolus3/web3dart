@@ -147,17 +147,13 @@ class ContractABI {
 
 		for (var element in data) {
 
-			// ignore non-functions
-			if (element["type"] != 'function') {
+			var type = element["type"];
+			if (type == "event")
 				continue;
-			}
 
 			String name = element["name"];
 			var mutability = _parseMutability(element["stateMutability"]);
 
-			var type = element["type"];
-			if (type == "event")
-        continue;
 			var tp = _parseType(type);
 
 			var inputs = parseParameters(element["inputs"]);
