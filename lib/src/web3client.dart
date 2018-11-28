@@ -250,6 +250,8 @@ class BlockNum {
 
 	const BlockNum._(this.useAbsolute, this.blockNum);
 
+  bool get isPending => !useAbsolute && blockNum == 2;
+
 	/// Use the state of the blockchain at the block specified.
 	static BlockNum exact(int i) {
 		return new BlockNum._(true, i);
