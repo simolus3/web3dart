@@ -148,13 +148,16 @@ class Wallet {
   /// Creates a new wallet wrapping the specified [credentials] by encrypting
   /// the private key with the [password]. The [random] instance, which should
   /// be cryptographically secure, is used to generate encryption keys.
-  static Wallet createNew(Credentials credentials, String password, Random random) {
+  /// You can configure the parameter N of the scrypt algorithm if you need to.
+  /// The default value for [scryptN] is 8192. Be aware that this N must be a
+  /// power of two.
+  static Wallet createNew(Credentials credentials, String password,
+    Random random, {int scryptN = 8192}) {
     var passwordBytes = utf8.encode(password);
     var dartRandom = new DartRandom(random);
 
     var salt = dartRandom.nextBytes(32);
-    // TODO Maybe we should let the user controll these parameters?
-    var derivator = new _ScryptKeyDerivator(32, 8192, 8, 1, salt);
+    var derivator = new _ScryptKeyDerivator(32, scryptN, 8, 1, salt);
 
     var uuid = new Uint8List(16);
     uuidParser.v4(buffer: uuid);
