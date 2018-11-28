@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'package:web3dart/conversions.dart';
 import 'package:web3dart/src/io/rawtransaction.dart';
 import "package:web3dart/src/utils/numbers.dart" as numbers;
 import 'package:web3dart/web3dart.dart';
@@ -126,4 +127,41 @@ class FinalizedTransaction {
 			return client.call(base._keys, raw, _function, chainId: chainId);
 		});
 	}
+}
+
+class TransactionInformation {
+	String blockHash;
+	int blockNumber;
+	EthereumAddress from;
+	int gas;
+	int gasPrice;
+	String hash;
+	List<int> input;
+	int nonce;
+	EthereumAddress to;
+	int transactionIndex;
+	EtherAmount value;
+	int v;
+	List<int> r;
+	List<int> s;
+
+	TransactionInformation.fromMap(Map<String, dynamic> map) :
+			blockHash = map['blockHash'],
+			blockNumber = map['blockNumber'] != null ?
+				int.parse(map['blockNumber']) :
+				null,
+			from = EthereumAddress(map['from']),
+			gas = int.parse(map['gas']),
+			gasPrice = int.parse(map['gasPrice']),
+			hash = map['hash'],
+			input = hexToBytes(map['input']),
+			nonce = int.parse(map['nonce']),
+			to = map['to'] != null ? EthereumAddress(map['to']) : null,
+			transactionIndex = map['transactionIndex'] != null ?
+				int.parse(map['transactionIndex']) :
+				null,
+			value = EtherAmount.inWei(BigInt.parse(map['value'])),
+			v = int.parse(map['v']),
+			r = hexToBytes(map['r']),
+			s = hexToBytes(map['s']);
 }

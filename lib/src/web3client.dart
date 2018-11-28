@@ -156,6 +156,13 @@ class Web3Client {
 				.then((s) => numbers.hexToInt(s)).then((d) => d.toInt());
 	}
 
+	/// Returns the information about a transaction requested by transaction hash
+	/// [transactionHash].
+	Future<TransactionInformation> getTransactionByHash(String transactionHash) {
+		return _makeRPCCall("eth_getTransactionByHash", [transactionHash])
+				.then((s) => TransactionInformation.fromMap(s));
+	}
+
 	/// Gets the code of a contract at the specified [address]
 	///
 	/// This function allows specifying a custom block mined in the past to get
