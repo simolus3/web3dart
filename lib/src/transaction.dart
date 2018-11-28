@@ -130,29 +130,42 @@ class FinalizedTransaction {
 }
 
 class TransactionInformation {
-	String blockHash;
-	int blockNumber;
-	EthereumAddress from;
-	int gas;
-	int gasPrice;
-	String hash;
-	List<int> input;
-	int nonce;
-	EthereumAddress to;
+
+	/// The hash of the block containing this transaction. If this transaction has
+	/// not been mined yet and is thus in no block, it will be `null`
+	final String blockHash;
+
+	/// [BlockNum] of the block containing this transaction. `null` when it's
+	/// pending
+	final BlockNum blockNumber;
+
+	final EthereumAddress from;
+	final int gas;
+	final EtherAmount gasPrice;
+	final String hash;
+	final List<int> input;
+	final int nonce;
+
+	/// Address of the receiver. `null` when its a contract creation transaction
+	final EthereumAddress to;
+
+	/// Integer of the transaction's index position in the block. `null` when it's
+	/// pending.
 	int transactionIndex;
-	EtherAmount value;
-	int v;
-	List<int> r;
-	List<int> s;
+
+	final EtherAmount value;
+	final int v;
+	final List<int> r;
+	final List<int> s;
 
 	TransactionInformation.fromMap(Map<String, dynamic> map) :
 			blockHash = map['blockHash'],
 			blockNumber = map['blockNumber'] != null ?
-				int.parse(map['blockNumber']) :
-				null,
+			BlockNum.exact(int.parse(map['blockNumber'])) :
+			BlockNum.pending(),
 			from = EthereumAddress(map['from']),
 			gas = int.parse(map['gas']),
-			gasPrice = int.parse(map['gasPrice']),
+			gasPrice = EtherAmount.inWei(BigInt.parse(map['gasPrice'])),
 			hash = map['hash'],
 			input = hexToBytes(map['input']),
 			nonce = int.parse(map['nonce']),
