@@ -28,7 +28,7 @@ class DeployedContract {
 
   /// Creates a new contract instance in the libary based on the given abi at
   /// the specified [address]. The contract needs to be deployed on the Ethereum
-  /// net the [client] is connected to. The [auth] parameter controlls the 
+  /// net the [client] is connected to. The [auth] parameter controlls the
   /// address used to send transactions or calls.
 	DeployedContract(this.abi, this.address, this.client, this.auth);
 
@@ -83,7 +83,7 @@ class ContractABI {
 	}
 
 	static List<FunctionParameter> parseParameters(List<dynamic> data) {
-		if (data == null || data.isEmpty) 
+		if (data == null || data.isEmpty)
       return [];
 
 		var elements = <FunctionParameter>[];
@@ -129,7 +129,6 @@ class ContractABI {
 			var length = int.parse(type.substring(5));
 			return new StaticLengthBytes(length);
 		}
-		
 		//Names that only have a single name
 		switch (type) {
 			case "string": return new StringType();
@@ -147,12 +146,14 @@ class ContractABI {
 		var functions = <ContractFunction>[];
 
 		for (var element in data) {
+
+			var type = element["type"];
+			if (type == "event")
+				continue;
+
 			String name = element["name"];
 			var mutability = _parseMutability(element["stateMutability"]);
 
-			var type = element["type"];
-			if (type == "event") 
-        continue;
 			var tp = _parseType(type);
 
 			var inputs = parseParameters(element["inputs"]);
@@ -299,7 +300,7 @@ class ContractFunction {
 	/// The type of what this function returns is thus dependent from what it
 	/// [outputs] are. For the conversions between dart types and solidity types,
 	/// see the documentation for [encodeCall].
-	dynamic decodeReturnValues(String data) {
+	List<dynamic> decodeReturnValues(String data) {
 		var modifiedData = numbers.strip0x(data);
 
 		var decoded = <dynamic>[];
