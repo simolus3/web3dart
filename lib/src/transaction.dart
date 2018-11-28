@@ -161,8 +161,8 @@ class TransactionInformation {
 	TransactionInformation.fromMap(Map<String, dynamic> map) :
 			blockHash = map['blockHash'],
 			blockNumber = map['blockNumber'] != null ?
-			BlockNum.exact(int.parse(map['blockNumber'])) :
-			BlockNum.pending(),
+				BlockNum.exact(int.parse(map['blockNumber'])) :
+				BlockNum.pending(),
 			from = EthereumAddress(map['from']),
 			gas = int.parse(map['gas']),
 			gasPrice = EtherAmount.inWei(BigInt.parse(map['gasPrice'])),
