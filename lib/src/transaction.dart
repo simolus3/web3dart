@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'package:web3dart/conversions.dart';
 import 'package:web3dart/src/io/rawtransaction.dart';
 import "package:web3dart/src/utils/numbers.dart" as numbers;
 import 'package:web3dart/web3dart.dart';
@@ -126,4 +127,54 @@ class FinalizedTransaction {
 			return client.call(base._keys, raw, _function, chainId: chainId);
 		});
 	}
+}
+
+class TransactionInformation {
+
+	/// The hash of the block containing this transaction. If this transaction has
+	/// not been mined yet and is thus in no block, it will be `null`
+	final String blockHash;
+
+	/// [BlockNum] of the block containing this transaction. `null` when it's
+	/// pending
+	final BlockNum blockNumber;
+
+	final EthereumAddress from;
+	final int gas;
+	final EtherAmount gasPrice;
+	final String hash;
+	final List<int> input;
+	final int nonce;
+
+	/// Address of the receiver. `null` when its a contract creation transaction
+	final EthereumAddress to;
+
+	/// Integer of the transaction's index position in the block. `null` when it's
+	/// pending.
+	int transactionIndex;
+
+	final EtherAmount value;
+	final int v;
+	final List<int> r;
+	final List<int> s;
+
+	TransactionInformation.fromMap(Map<String, dynamic> map) :
+			blockHash = map['blockHash'],
+			blockNumber = map['blockNumber'] != null ?
+				BlockNum.exact(int.parse(map['blockNumber'])) :
+				BlockNum.pending(),
+			from = EthereumAddress(map['from']),
+			gas = int.parse(map['gas']),
+			gasPrice = EtherAmount.inWei(BigInt.parse(map['gasPrice'])),
+			hash = map['hash'],
+			input = hexToBytes(map['input']),
+			nonce = int.parse(map['nonce']),
+			to = map['to'] != null ? EthereumAddress(map['to']) : null,
+			transactionIndex = map['transactionIndex'] != null ?
+				int.parse(map['transactionIndex']) :
+				null,
+			value = EtherAmount.inWei(BigInt.parse(map['value'])),
+			v = int.parse(map['v']),
+			r = hexToBytes(map['r']),
+			s = hexToBytes(map['s']);
 }
