@@ -324,7 +324,7 @@ class ContractFunction {
 			var param = outputs[i];
 
 			if (param.type.isDynamic) {
-				var decodedRaw = param.type.decodeRest(data);
+				var decodedRaw = param.type.decodeRest(modifiedData);
 
 				decoded[i] = decodedRaw.item1;
 				modifiedData = decodedRaw.item2;
