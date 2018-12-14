@@ -44,3 +44,4 @@ out/
 .idea_modules/
 
 .idea/markdown-navigator.xml
+.idea/*
