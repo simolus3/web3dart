@@ -111,7 +111,7 @@ class FinalizedTransaction {
 
 	/// Sends this transaction to the Ethereum client.
 	Future<List<int>> send(Web3Client client, {int chainId = 1, bool useNetworkIdAsChainId = false}) async {
-	  var _chainId = useNetworkIdAsChainId ? await client.getNetworkId() : chainId;
+	  	var _chainId = useNetworkIdAsChainId ? await client.getNetworkId() : chainId;
 
 		return _asRaw(client).then((raw) {
 			return client.sendRawTransaction(base._keys, raw, chainId: _chainId);
@@ -125,7 +125,7 @@ class FinalizedTransaction {
 		if (!isConst)
 			throw new Exception("Tried to call a transaction that modifys state");
 
-    var _chainId = useNetworkIdAsChainId ? await client.getNetworkId() : chainId;
+    		var _chainId = useNetworkIdAsChainId ? await client.getNetworkId() : chainId;
 
 		return _asRaw(client).then((raw) {
 			return client.call(base._keys, raw, _function, chainId: _chainId);
