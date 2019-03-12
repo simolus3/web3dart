@@ -2,30 +2,29 @@ import 'package:test/test.dart';
 import 'package:web3dart/web3dart.dart';
 
 void main() {
+  group('Loading and unlocking wallets', () {
+    test('with pbkdf2', () {
+      final wallet = Wallet.fromJson(testWallets[0], password);
 
-  group("Loading and unlocking wallets", () {
-    test("with pbkdf2", () {
-      var wallet = Wallet.fromJson(testWallets[0], password);
+      expect(wallet.credentials.address.hexNo0x, equals(resultAddress));
+    });
+
+    test('with scrypt', () {
+      final wallet = Wallet.fromJson(testWallets[0], password);
 
       expect(wallet.credentials.address.hexNo0x, equals(resultAddress));
     });
 
-    test("with scrypt", () {
-      var wallet = Wallet.fromJson(testWallets[0], password);
-
-      expect(wallet.credentials.address.hexNo0x, equals(resultAddress));
-    });
-  
-    test("with wrong password", () {
-      expect(() => Wallet.fromJson(testWallets[0], password.toUpperCase()), throwsArgumentError);
+    test('with wrong password', () {
+      expect(() => Wallet.fromJson(testWallets[0], password.toUpperCase()),
+          throwsArgumentError);
     });
   });
-
 }
 
 // Test vectors taken from https://github.com/ethereum/wiki/wiki/Web3-Secret-Storage-Definition
 List<String> testWallets = [
-  """ 
+  ''' 
 {
     "crypto" : {
         "cipher" : "aes-128-ctr",
@@ -45,8 +44,8 @@ List<String> testWallets = [
     "id" : "3198bc9c-6672-5ab3-d995-4942343ae5b6",
     "version" : 3
 }
-  """,
-  """
+  ''',
+  '''
 {
     "crypto" : {
         "cipher" : "aes-128-ctr",
@@ -67,8 +66,8 @@ List<String> testWallets = [
     "id" : "3198bc9c-6672-5ab3-d995-4942343ae5b6",
     "version" : 3
 }
-  """
+  '''
 ];
 
-String resultAddress = "008aeeda4d805471df9b2a5b0f38a0c3bcba786b";
-String password = "testpassword";
+String resultAddress = '008aeeda4d805471df9b2a5b0f38a0c3bcba786b';
+String password = 'testpassword';
