@@ -152,7 +152,7 @@ class Wallet {
     final derivator = _ScryptKeyDerivator(32, scryptN, 8, 1, salt);
 
     final uuid = Uint8List(16);
-    uuidParser.v4(buffer: uuid);
+    uuidParser.v4buffer(uuid);
 
     final iv = dartRandom.nextBytes(128 ~/ 8);
 
