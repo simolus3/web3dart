@@ -122,7 +122,8 @@ class DynamicLengthBytes extends ABIType<List<int>> {
   String encode(List<int> bytes) {
     final length = bytes.length;
 
-    final dataEncoded = StaticLengthBytes(length, ignoreLength: true).encode(bytes);
+    final dataEncoded =
+        StaticLengthBytes(length, ignoreLength: true).encode(bytes);
     return UintType().encode(BigInt.from(length)) + dataEncoded;
   }
 
@@ -133,7 +134,8 @@ class DynamicLengthBytes extends ABIType<List<int>> {
     final length = decodedLength.item1.toInt();
     data = decodedLength.item2;
 
-    final decodedBytes = StaticLengthBytes(length, ignoreLength: true).decode(data);
+    final decodedBytes =
+        StaticLengthBytes(length, ignoreLength: true).decode(data);
     return Tuple2(decodedBytes.item1, decodedBytes.item2 + decodedLength.item3);
   }
 }

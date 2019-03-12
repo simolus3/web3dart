@@ -102,18 +102,14 @@ void main() {
 
   group('Parameter validation', () {
     test("Invalid uints can't be created", () {
-      expect(
-          () => UintType(M: 54), throwsArgumentError); //not divisible by 8
+      expect(() => UintType(M: 54), throwsArgumentError); //not divisible by 8
       expect(() => UintType(M: 0), throwsArgumentError);
       expect(() => UintType(M: 1024), throwsArgumentError);
       expect(() => UintType(M: -8), throwsArgumentError);
 
-      expect(() => UintType(M: 8).encode(BigInt.one << 9),
-          throwsArgumentError);
-      expect(() => UintType().encode(BigInt.from(-1)),
-          throwsArgumentError);
-      expect(
-          () => UintType().encode(BigInt.one << 257), throwsArgumentError);
+      expect(() => UintType(M: 8).encode(BigInt.one << 9), throwsArgumentError);
+      expect(() => UintType().encode(BigInt.from(-1)), throwsArgumentError);
+      expect(() => UintType().encode(BigInt.one << 257), throwsArgumentError);
     });
 
     test("Invalid static byte arrays can't be created", () {

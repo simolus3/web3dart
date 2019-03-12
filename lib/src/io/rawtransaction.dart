@@ -51,7 +51,8 @@ class RawTransaction {
 
     final signature = crypto.sign(hashed, privateKey);
     final vWithChain = signature.v + (chainId << 1) + 8;
-    final updatedSignature = crypto.MsgSignature(signature.r, signature.s, vWithChain);
+    final updatedSignature =
+        crypto.MsgSignature(signature.r, signature.s, vWithChain);
 
     return encode(updatedSignature);
   }

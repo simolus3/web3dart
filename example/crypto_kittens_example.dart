@@ -51,8 +51,8 @@ class CryptoKitty {
     isReady = data[1] as bool;
 
     siringWithId = data[4] as int;
-    birthTime = DateTime.fromMillisecondsSinceEpoch(
-        (data[5] as BigInt).toInt() * 1000);
+    birthTime =
+        DateTime.fromMillisecondsSinceEpoch((data[5] as BigInt).toInt() * 1000);
     matronId = data[7] as int;
     sireId = data[6] as int;
     generation = data[8] as int;

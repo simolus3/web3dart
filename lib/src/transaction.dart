@@ -70,13 +70,11 @@ class Transaction {
     final isNoAmount = amount.getInWei == BigInt.zero;
 
     if (!isNoAmount && !function.isPayable)
-      throw Exception(
-          "Can't send Ether to to function that is not payable");
+      throw Exception("Can't send Ether to to function that is not payable");
 
     final data = numbers.hexToBytes(function.encodeCall(params));
 
-    return FinalizedTransaction._(
-        this, contract.address.number, amount, data,
+    return FinalizedTransaction._(this, contract.address.number, amount, data,
         isConst: function.isConstant && isNoAmount, function: function);
   }
 

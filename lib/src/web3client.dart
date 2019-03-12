@@ -84,8 +84,8 @@ class Web3Client {
     final data = await _makeRPCCall<dynamic>('eth_syncing');
 
     if (data is Map) {
-      return SyncInformation._(
-          data['startingBlock'] as int, data['currentBlock'] as int, data['highestBlock'] as int);
+      return SyncInformation._(data['startingBlock'] as int,
+          data['currentBlock'] as int, data['highestBlock'] as int);
     } else
       return SyncInformation._(null, null, null);
   }
@@ -155,7 +155,8 @@ class Web3Client {
   Future<int> getTransactionCount(EthereumAddress address, {BlockNum atBlock}) {
     final blockParam = _getBlockParam(atBlock);
 
-    return _makeRPCCall<String>('eth_getTransactionCount', [address.hex, blockParam])
+    return _makeRPCCall<String>(
+            'eth_getTransactionCount', [address.hex, blockParam])
         .then(numbers.hexToInt)
         .then((d) => d.toInt());
   }
@@ -163,7 +164,8 @@ class Web3Client {
   /// Returns the information about a transaction requested by transaction hash
   /// [transactionHash].
   Future<TransactionInformation> getTransactionByHash(String transactionHash) {
-    return _makeRPCCall<Map<String, dynamic>>('eth_getTransactionByHash', [transactionHash])
+    return _makeRPCCall<Map<String, dynamic>>(
+            'eth_getTransactionByHash', [transactionHash])
         .then((s) => TransactionInformation.fromMap(s));
   }
 
@@ -172,7 +174,8 @@ class Web3Client {
   /// This function allows specifying a custom block mined in the past to get
   /// historical data. By default, [BlockNum.current] will be used.
   Future<List<int>> getCode(EthereumAddress address, {BlockNum atBlock}) {
-    return _makeRPCCall<String>('eth_getCode', [address.hex, _getBlockParam(atBlock)])
+    return _makeRPCCall<String>(
+            'eth_getCode', [address.hex, _getBlockParam(atBlock)])
         .then(numbers.hexToBytes);
   }
 
@@ -188,9 +191,8 @@ class Web3Client {
     final data =
         transaction.sign(numbers.numberToBytes(cred.privateKey), chainId);
 
-    return _makeRPCCall<String>('eth_sendRawTransaction', [
-      numbers.bytesToHex(data, include0x: true)
-    ]).then(numbers.hexToBytes);
+    return _makeRPCCall<String>('eth_sendRawTransaction',
+        [numbers.bytesToHex(data, include0x: true)]).then(numbers.hexToBytes);
   }
 
   /// Executes the transaction, which should be calling a method in a smart

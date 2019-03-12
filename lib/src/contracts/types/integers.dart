@@ -24,8 +24,7 @@ class UintType extends ABIType<BigInt> {
   @override
   String encode(BigInt data) {
     if (data > maxValue)
-      throw ArgumentError(
-          'Value to encode must be <= $maxValue, got $data');
+      throw ArgumentError('Value to encode must be <= $maxValue, got $data');
     if (data.isNegative)
       throw ArgumentError('Tried to encode negative number as an uint');
 
@@ -35,7 +34,8 @@ class UintType extends ABIType<BigInt> {
   }
 
   @override
-  Tuple2<BigInt, int> decode(String data) => Tuple2(numbers.hexToInt(data.substring(0, 64)), 32);
+  Tuple2<BigInt, int> decode(String data) =>
+      Tuple2(numbers.hexToInt(data.substring(0, 64)), 32);
 }
 
 class IntType extends ABIType<BigInt> {

@@ -250,7 +250,9 @@ class ContractFunction {
           params.length, 'params', 'Must match function parameters');
 
     //First four bytes to identify the function with its parameters
-    final startHash = crypto.sha3(Uint8List.fromList(utf8.encode(encodeName()))).sublist(0, 4);
+    final startHash = crypto
+        .sha3(Uint8List.fromList(utf8.encode(encodeName())))
+        .sublist(0, 4);
 
     /*
 		We first have to encode every parameter that has a static length. For
@@ -281,12 +283,12 @@ class ContractFunction {
     //First, calculate the size (in bytes) of the first part of the data, which
     //only includes static encodings and the relative positions for the dynamic
     //data.
-    var currentOffset = finishedEncodings.fold<int>(0, (a, s) => a + s.length ~/ 2);
+    var currentOffset =
+        finishedEncodings.fold<int>(0, (a, s) => a + s.length ~/ 2);
     for (var param in parameters.where((p) => p.type.isDynamic)) {
       final index = parameters.indexOf(param);
 
-      finishedEncodings[index] =
-          UintType().encode(BigInt.from(currentOffset));
+      finishedEncodings[index] = UintType().encode(BigInt.from(currentOffset));
 
       final firstDynamicEncoding = dynamicEncodings.first;
       dynamicEncodings.removeAt(0);

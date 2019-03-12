@@ -11,8 +11,7 @@ void main() {
     FunctionParameter('flag', BoolType()),
   ]);
   final bar = ContractFunction('bar', [
-    FunctionParameter(
-        'xy', StaticLengthArrayType(StaticLengthBytes(3), 2)),
+    FunctionParameter('xy', StaticLengthArrayType(StaticLengthBytes(3), 2)),
   ]);
 
   final sam = ContractFunction('sam', [

@@ -63,8 +63,7 @@ Uint8List numberToBytes(dynamic number) {
 /// sequence.
 Uint8List hexToBytes(String hexStr) {
   final bytes = hex.decode(strip0x(hexStr));
-  if (bytes is Uint8List)
-    return bytes;
+  if (bytes is Uint8List) return bytes;
 
   return Uint8List.fromList(bytes);
 }

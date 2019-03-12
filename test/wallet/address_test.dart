@@ -35,8 +35,7 @@ void main() {
       expect(
           () => EthereumAddress('\$627306090abaB3A6e1400e9345bC60c78a8BEf57'),
           throwsArgumentError);
-      expect(
-          () => EthereumAddress('0x7306090abaB3A6e1400e9345bC60c78a8BEf57'),
+      expect(() => EthereumAddress('0x7306090abaB3A6e1400e9345bC60c78a8BEf57'),
           throwsArgumentError);
     });
 
