@@ -2,6 +2,7 @@
 /// transactions.
 library crypto;
 
+import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -15,9 +16,9 @@ import 'package:pointycastle/signers/ecdsa_signer.dart';
 import 'package:pointycastle/digests/sha3.dart';
 import 'package:pointycastle/digests/sha256.dart';
 import 'package:convert/convert.dart';
-
 // ignore: implementation_imports
 import 'package:pointycastle/src/utils.dart' as p_utils;
+import 'package:web3dart/src/utils/typed_data.dart';
 
 // no part directive because there is no reason to export this
 import 'src/crypto/random_bridge.dart';
