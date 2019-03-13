@@ -9,7 +9,7 @@ class EthereumAddress {
   final Uint8List _addressBytes;
 
   /// An ethereum address from the raw address bytes.
-  EthereumAddress(this._addressBytes): assert(_addressBytes.length == 20);
+  EthereumAddress(this._addressBytes) : assert(_addressBytes.length == 20);
 
   /// Constructs an Ethereum address from a public key. The address is formed by
   /// the last 20 bytes of the keccak hash of the public key.
@@ -25,10 +25,12 @@ class EthereumAddress {
   /// chars, the address must be valid according to [EIP 55](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md).
   factory EthereumAddress.fromString(String hex, {bool enforceEip55 = false}) {
     if (!_basicAddress.hasMatch(hex)) {
-      throw ArgumentError.value(hex, 'address', 'Must be a hex string with a length of 40, optionally prefixed with "0x"');
+      throw ArgumentError.value(hex, 'address',
+          'Must be a hex string with a length of 40, optionally prefixed with "0x"');
     }
 
-    if (!enforceEip55 && (hex.toUpperCase() == hex ||hex.toLowerCase() == hex)) {
+    if (!enforceEip55 &&
+        (hex.toUpperCase() == hex || hex.toLowerCase() == hex)) {
       return EthereumAddress(hexToBytes(hex));
     }
 
@@ -50,11 +52,13 @@ class EthereumAddress {
 
   /// A hexadecimal representation of this address, padded to a length of 40
   /// characters or 20 bytes, and prefixed with "0x".
-  String get hex => bytesToHex(_addressBytes, include0x: true, forcePadLength: 40);
+  String get hex =>
+      bytesToHex(_addressBytes, include0x: true, forcePadLength: 40);
 
   /// A hexadecimal representation of this address, padded to a length of 40
   /// characters or 20 bytes, but not prefixed with "0x".
-  String get hexNo0x => bytesToHex(_addressBytes, include0x: false, forcePadLength: 40);
+  String get hexNo0x =>
+      bytesToHex(_addressBytes, include0x: false, forcePadLength: 40);
 
   /// Returns this address in a hexadecimal representation, like with [hex].
   /// The hexadecimal characters A-F in the address will be in lower- or
@@ -81,13 +85,12 @@ class EthereumAddress {
 
   @override
   bool operator ==(other) {
-    return identical(this, other) || (other is EthereumAddress && other.hex == hex);
+    return identical(this, other) ||
+        (other is EthereumAddress && other.hex == hex);
   }
 
   @override
   int get hashCode {
     return hex.hashCode;
   }
-
-
 }

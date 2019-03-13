@@ -30,12 +30,20 @@ void main() {
 
   test('produces a valid signature', () {
     // https://github.com/ethereumjs/ethereumjs-util/blob/8ffe697fafb33cefc7b7ec01c11e3a7da787fe0e/test/index.js#L523
-    final hashedPayload = hexToBytes('82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28');
-    final privKey = hexToBytes('3c9229289a6125f7fdf1885a77bb12c37a8d3b4962d936f7e3084dece32a3ca1');
+    final hashedPayload = hexToBytes(
+        '82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28');
+    final privKey = hexToBytes(
+        '3c9229289a6125f7fdf1885a77bb12c37a8d3b4962d936f7e3084dece32a3ca1');
     final sig = sign(hashedPayload, privKey);
 
-    expect(sig.r, hexToInt('99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9'));
-    expect(sig.s, hexToInt('129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca66'));
+    expect(
+        sig.r,
+        hexToInt(
+            '99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9'));
+    expect(
+        sig.s,
+        hexToInt(
+            '129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca66'));
     expect(sig.v, 27);
   });
 }
