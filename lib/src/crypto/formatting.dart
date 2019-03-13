@@ -16,7 +16,7 @@ String strip0x(String hex) {
 /// will be expanded with zeroes until the desired length is reached. The "0x"
 /// prefix does not count for the length.
 String bytesToHex(List<int> bytes,
-    {bool include0x = false, int forcePadLength}) {
+    {bool include0x = false, int forcePadLength, bool padToEvenLength = false}) {
   var encoded = hex.encode(bytes);
 
   if (forcePadLength != null) {
@@ -24,6 +24,10 @@ String bytesToHex(List<int> bytes,
 
     final padding = forcePadLength - encoded.length;
     encoded = ('0' * padding) + encoded;
+  }
+
+  if (padToEvenLength && encoded.length % 2 != 0) {
+    encoded = '0$encoded';
   }
 
   return (include0x ? '0x' : '') + hex.encode(bytes);

@@ -4,5 +4,5 @@ dart:
 
 dart_task:
   - dartfmt
-  - dartanalyzer: '--fatal-infos --fatal-warnings'
+  - dartanalyzer: '--fatal-infos --fatal-warnings .'
   - test
