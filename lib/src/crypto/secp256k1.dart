@@ -1,37 +1,21 @@
-import 'dart:math';
-import 'dart:typed_data';
+part of 'package:web3dart/crypto.dart';
 
-import 'package:pointycastle/api.dart';
-import 'package:pointycastle/digests/sha256.dart';
-import 'package:pointycastle/digests/sha3.dart';
-import 'package:pointycastle/ecc/api.dart';
-import 'package:pointycastle/ecc/curves/secp256k1.dart';
-import 'package:pointycastle/key_generators/api.dart';
-import 'package:pointycastle/key_generators/ec_key_generator.dart';
-import 'package:pointycastle/macs/hmac.dart';
-import 'package:pointycastle/signers/ecdsa_signer.dart';
-import 'package:web3dart/src/utils/dartrandom.dart';
+final ECDomainParameters _params = ECCurve_secp256k1();
+final BigInt _halfCurveOrder = _params.n >> 1;
 
-import 'numbers.dart' as numbers;
-
-final ECDomainParameters params = ECCurve_secp256k1();
-final BigInt _halfCurveOrder = params.n ~/ BigInt.two;
-
-const int _shaBytes = 256 ~/ 8;
-final SHA3Digest sha3digest = SHA3Digest(_shaBytes * 8);
-
-/// Signatures used to sign Ethereum transactions and messages.
-class MsgSignature {
-  final BigInt r;
-  final BigInt s;
-  final int v;
-
-  MsgSignature(this.r, this.s, this.v);
+/// Generates a public key for the given private key using the ecdsa curve which
+/// Ethereum uses.
+Uint8List privateKeyBytesToPublic(Uint8List privateKey) {
+  return privateKeyToPublic(bytesToInt(privateKey));
 }
 
-Uint8List sha3(Uint8List input) {
-  sha3digest.reset();
-  return sha3digest.process(input);
+/// Generates a public key for the given private key using the ecdsa curve which
+/// Ethereum uses.
+Uint8List privateKeyToPublic(BigInt privateKey) {
+  final p = _params.G * privateKey;
+
+  //skip the type flag, https://github.com/ethereumjs/ethereumjs-util/blob/master/index.js#L319
+  return Uint8List.view(p.getEncoded(false).buffer, 1);
 }
 
 /// Generates a new private key using the random instance provided. Please make
@@ -39,23 +23,13 @@ Uint8List sha3(Uint8List input) {
 BigInt generateNewPrivateKey(Random random) {
   final generator = ECKeyGenerator();
 
-  final keyParams = ECKeyGeneratorParameters(params);
+  final keyParams = ECKeyGeneratorParameters(_params);
 
-  generator.init(ParametersWithRandom(keyParams, DartRandom(random)));
+  generator.init(ParametersWithRandom(keyParams, RandomBridge(random)));
 
   final key = generator.generateKeyPair();
   final privateKey = key.privateKey as ECPrivateKey;
   return privateKey.d;
-}
-
-/// Generates a public key for the given private key using the ecdsa curve which
-/// Ethereum uses.
-Uint8List privateKeyToPublic(Uint8List privateKey) {
-  final privateKeyNum = numbers.bytesToInt(privateKey);
-  final p = params.G * privateKeyNum;
-
-  //skip the type flag, https://github.com/ethereumjs/ethereumjs-util/blob/master/index.js#L319
-  return Uint8List.view(p.getEncoded(false).buffer, 1);
 }
 
 /// Constructs the Ethereum address associated with the given public key by
@@ -67,11 +41,20 @@ Uint8List publicKeyToAddress(Uint8List publicKey) {
   return Uint8List.view(hashed.buffer, _shaBytes - 20);
 }
 
+/// Signatures used to sign Ethereum transactions and messages.
+class MsgSignature {
+  final BigInt r;
+  final BigInt s;
+  final int v;
+
+  MsgSignature(this.r, this.s, this.v);
+}
+
 /// Signs the hashed data in [messageHash] using the given private key.
 MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
   final digest = SHA256Digest();
   final signer = ECDSASigner(null, HMac(digest, 64));
-  final key = ECPrivateKey(numbers.bytesToInt(privateKey), params);
+  final key = ECPrivateKey(bytesToInt(privateKey), _params);
 
   signer.init(true, PrivateKeyParameter(key));
   var sig = signer.generateSignature(messageHash) as ECSignature;
@@ -86,18 +69,18 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 	https://github.com/web3j/web3j/blob/master/crypto/src/main/java/org/web3j/crypto/ECDSASignature.java#L27
 	 */
   if (sig.s.compareTo(_halfCurveOrder) > 0) {
-    final canonicalisedS = params.n - sig.s;
+    final canonicalisedS = _params.n - sig.s;
     sig = ECSignature(sig.r, canonicalisedS);
   }
 
-  final publicKey = numbers.bytesToInt(privateKeyToPublic(privateKey));
+  final publicKey = bytesToInt(privateKeyBytesToPublic(privateKey));
 
   //Implementation for calculating v naively taken from there, I don't understand
   //any of this.
   //https://github.com/web3j/web3j/blob/master/crypto/src/main/java/org/web3j/crypto/Sign.java
   var recId = -1;
   for (var i = 0; i < 4; i++) {
-    final k = _recoverFromSignature(i, sig, messageHash, params);
+    final k = _recoverFromSignature(i, sig, messageHash, _params);
     if (k == publicKey) {
       recId = i;
       break;
@@ -127,7 +110,7 @@ BigInt _recoverFromSignature(
   final R = _decompressKey(x, (recId & 1) == 1, params.curve);
   if (!(R * n).isInfinity) return null;
 
-  final e = numbers.bytesToInt(msg);
+  final e = bytesToInt(msg);
 
   final eInv = (BigInt.zero - e) % n;
   final rInv = sig.r.modInverse(n);
@@ -137,13 +120,13 @@ BigInt _recoverFromSignature(
   final q = (params.G * eInvrInv) + (R * srInv);
 
   final bytes = q.getEncoded(false);
-  return numbers.bytesToInt(bytes.sublist(1));
+  return bytesToInt(bytes.sublist(1));
 }
 
 ECPoint _decompressKey(BigInt xBN, bool yBit, ECCurve c) {
   List<int> x9IntegerToBytes(BigInt s, int qLength) {
     //https://github.com/bcgit/bc-java/blob/master/core/src/main/java/org/bouncycastle/asn1/x9/X9IntegerConverter.java#L45
-    final bytes = numbers.intToBytes(s);
+    final bytes = intToBytes(s);
 
     if (qLength < bytes.length) {
       return bytes.sublist(0, bytes.length - qLength);

@@ -2,15 +2,14 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:pointycastle/api.dart';
-
-import 'numbers.dart' as numbers;
+import 'package:web3dart/crypto.dart';
 
 /// Utility to use dart:math's Random class to generate numbers used by
 /// pointycastle.
-class DartRandom implements SecureRandom {
+class RandomBridge implements SecureRandom {
   Random dartRandom;
 
-  DartRandom(this.dartRandom);
+  RandomBridge(this.dartRandom);
 
   @override
   String get algorithmName => 'DartRandom';
@@ -22,7 +21,7 @@ class DartRandom implements SecureRandom {
 
     // Generate a number from the full bytes. Then, prepend a smaller number
     // covering the remaining bits.
-    final main = numbers.bytesToInt(nextBytes(fullBytes));
+    final main = bytesToInt(nextBytes(fullBytes));
     final additional = dartRandom.nextInt(1 << remainingBits);
     return main + (BigInt.from(additional) << (fullBytes * 8));
   }
