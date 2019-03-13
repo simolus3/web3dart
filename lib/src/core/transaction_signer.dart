@@ -73,7 +73,7 @@ class TransactionSigner {
 
     final encoded = uint8ListFromList(
         rlp.encode(_encodeToRlp(transaction, innerSignature)));
-    final signature = await c.signToSignature(encoded);
+    final signature = await c.signToSignature(encoded, chainId: chainId);
 
     return uint8ListFromList(rlp.encode(_encodeToRlp(transaction, signature)));
   }

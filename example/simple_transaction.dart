@@ -18,7 +18,10 @@ void main() async {
     credentials,
     Transaction(
       to: EthereumAddress.fromHex('0xC914Bb2ba888e3367bcecEb5C2d99DF7C7423706'),
-      value: EtherAmount.fromUnitAndValue(EtherUnit.ether, 50),
+      gasPrice: EtherAmount.inWei(BigInt.one),
+      maxGas: 100000,
+      value: EtherAmount.fromUnitAndValue(EtherUnit.ether, 1),
     ),
+    fetchChainIdFromNetworkId: false,
   );
 }

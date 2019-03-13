@@ -11,14 +11,19 @@ class TransactionInformation {
 
   /// The sender of this transaction.
   final EthereumAddress from;
+
   /// How many units of gas have been used in this transaction.
   final int gas;
+
   /// The amount of Ether that was used to pay for one unit of gas.
   final EtherAmount gasPrice;
+
   /// A hash of this transaction, in hexadecimal representation.
   final String hash;
+
   /// The data sent with this transaction.
   final Uint8List input;
+
   /// The nonce of this transaction. A nonce is incremented per sender and
   /// transaction to make sure the same transaction can't be sent more than
   /// once.
@@ -33,6 +38,7 @@ class TransactionInformation {
 
   /// The amount of Ether sent with this transaction.
   final EtherAmount value;
+
   /// A cryptographic recovery id which can be used to verify the authenticity
   /// of this transaction together with the signature [r] and [s]
   final int v;
@@ -50,7 +56,9 @@ class TransactionInformation {
         hash = map['hash'] as String,
         input = hexToBytes(map['input'] as String),
         nonce = int.parse(map['nonce'] as String),
-        to = map['to'] != null ? EthereumAddress.fromHex(map['to'] as String) : null,
+        to = map['to'] != null
+            ? EthereumAddress.fromHex(map['to'] as String)
+            : null,
         transactionIndex = map['transactionIndex'] != null
             ? int.parse(map['transactionIndex'] as String)
             : null,

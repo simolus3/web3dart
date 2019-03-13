@@ -194,8 +194,8 @@ class Web3Client {
         chainId: chainId,
         loadChainIdFromNetwork: fetchChainIdFromNetworkId);
 
-    return _makeRPCCall(
-        'eth_sendRawTransaction', [bytesToHex(data, include0x: true, padToEvenLength: true)]);
+    return _makeRPCCall('eth_sendRawTransaction',
+        [bytesToHex(data, include0x: true, padToEvenLength: true)]);
   }
 
   /*
