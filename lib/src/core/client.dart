@@ -45,8 +45,7 @@ class Web3Client {
   }
 
   /// Constructs a new [Credentials] with the provided [privateKey] by using
-  /// an [EthPrivateKey]. When [enableBackgroundIsolate] is true, this will
-  /// happen on a background isolate instead of blocking the main / UI thread.
+  /// an [EthPrivateKey].
   Future<Credentials> credentialsFromPrivateKey(String privateKey) {
     return _operations.privateKeyFromHex(privateKey);
   }
@@ -203,6 +202,15 @@ class Web3Client {
   /// about the transaction.
   Future<String> sendTransaction(Credentials cred, Transaction transaction,
       {int chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
+    final signed = await signTransaction(cred, transaction,
+        chainId: chainId, fetchChainIdFromNetworkId: fetchChainIdFromNetworkId);
+
+    return _makeRPCCall('eth_sendRawTransaction',
+        [bytesToHex(signed, include0x: true, padToEvenLength: true)]);
+  }
+
+  Future<Uint8List> signTransaction(Credentials cred, Transaction transaction,
+      {int chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
     final signingInput = await _fillMissingData(
       credentials: cred,
       transaction: transaction,
@@ -211,10 +219,7 @@ class Web3Client {
       client: this,
     );
 
-    final signed = await _operations.signTransaction(signingInput);
-
-    return _makeRPCCall('eth_sendRawTransaction',
-        [bytesToHex(signed, include0x: true, padToEvenLength: true)]);
+    return _operations.signTransaction(signingInput);
   }
 
   /*
@@ -243,4 +248,8 @@ class Web3Client {
       return decoder.decodeReturnValues(data);
     });
   }*/
+
+  void dispose() {
+    _operations.stop();
+  }
 }

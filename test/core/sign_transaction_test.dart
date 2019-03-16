@@ -15,13 +15,14 @@ void main() {
       value: EtherAmount.inWei(BigInt.from(10)),
     );
 
-    final signature = await TransactionSigner()
-        .sign(credentials: credentials, transaction: transaction, chainId: 1);
+    final client = Web3Client(null, null);
+    final signature = await client.signTransaction(credentials, transaction);
 
-    print(bytesToHex(signature));
+    expect(bytesToHex(signature),
+        'f85d80010a94c914bb2ba888e3367bceceb5c2d99df7c74237060a8025a0a78c2f8b0f95c33636b2b1b91d3d23844fba2ec1b2168120ad64b84565b94bcda0365ecaff22197e3f21816cf9d428d695087ad3a8b7f93456cd48311d71402578');
   });
 
-  // https://github.com/ethereum/EIPs/issues/155
+  // example from https://github.com/ethereum/EIPs/issues/155
   test('signs eip 155 transaction', () async {
     final credentials = EthPrivateKey.fromHex(
         '0x4646464646464646464646464646464646464646464646464646464646464646');
@@ -34,8 +35,8 @@ void main() {
       value: EtherAmount.inWei(BigInt.from(1000000000000000000)),
     );
 
-    final signature = await TransactionSigner()
-        .sign(credentials: credentials, transaction: transaction, chainId: 1);
+    final client = Web3Client(null, null);
+    final signature = await client.signTransaction(credentials, transaction);
 
     expect(
         bytesToHex(signature),

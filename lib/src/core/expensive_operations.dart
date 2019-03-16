@@ -29,6 +29,10 @@ class _ExpensiveOperations {
     _ready.complete(true);
   }
 
+  void stop() {
+    _executor.stop();
+  }
+
   Future<EthPrivateKey> privateKeyFromHex(String privateKey) async {
     return await _sendOperation(
         _ExpensiveOperationType.privateKeyFromHex, privateKey) as EthPrivateKey;
@@ -124,6 +128,7 @@ class _BackgroundIsolateExecutor implements _Executor {
   Stream get responses => _responsesController.stream;
 
   SendPort _sendPort;
+  // ignore: unused_field
   Isolate _isolate;
 
   @override
@@ -141,6 +146,7 @@ class _BackgroundIsolateExecutor implements _Executor {
 
   @override
   void stop() {
+    // todo figure out how to stop _isolate
     requests.close();
     _responsesController.close();
   }

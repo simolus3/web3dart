@@ -24,4 +24,6 @@ void main() async {
     ),
     fetchChainIdFromNetworkId: false,
   );
+
+  client.dispose();
 }
