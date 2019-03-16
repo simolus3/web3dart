@@ -9,13 +9,22 @@ class Web3Client {
 
   final JsonRPC _jsonRpc;
 
+  _ExpensiveOperations _operations;
+
   ///Whether errors, handled or not, should be printed to the console.
   bool printErrors = false;
 
   /// Starts a client that connects to a JSON rpc API, available at [url]. The
   /// [httpClient] will be used to send requests to the rpc server.
-  Web3Client(String url, Client httpClient)
-      : _jsonRpc = JsonRPC(url, httpClient);
+  /// If [enableBackgroundIsolate] is true (defaults to false), expensive
+  /// methods like [credentialsFromPrivateKey] or [sendTransaction] will use
+  /// a background isolate instead of blocking the main thread. This feature
+  /// is experimental at the moment.
+  Web3Client(String url, Client httpClient,
+      {bool enableBackgroundIsolate = false})
+      : _jsonRpc = JsonRPC(url, httpClient) {
+    _operations = _ExpensiveOperations(enableBackgroundIsolate);
+  }
 
   Future<T> _makeRPCCall<T>(String function, [List<dynamic> params]) async {
     try {
@@ -33,6 +42,13 @@ class Web3Client {
 
   String _getBlockParam(BlockNum block) {
     return (block ?? _defaultBlock).toBlockParam();
+  }
+
+  /// Constructs a new [Credentials] with the provided [privateKey] by using
+  /// an [EthPrivateKey]. When [enableBackgroundIsolate] is true, this will
+  /// happen on a background isolate instead of blocking the main / UI thread.
+  Future<Credentials> credentialsFromPrivateKey(String privateKey) {
+    return _operations.privateKeyFromHex(privateKey);
   }
 
   /// Returns the version of the client we're sending requests to.
@@ -187,20 +203,23 @@ class Web3Client {
   /// about the transaction.
   Future<String> sendTransaction(Credentials cred, Transaction transaction,
       {int chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
-    final data = await TransactionSigner().sign(
-        credentials: cred,
-        transaction: transaction,
-        client: this,
-        chainId: chainId,
-        loadChainIdFromNetwork: fetchChainIdFromNetworkId);
+    final signingInput = await _fillMissingData(
+      credentials: cred,
+      transaction: transaction,
+      chainId: chainId,
+      loadChainIdFromNetwork: fetchChainIdFromNetworkId,
+      client: this,
+    );
+
+    final signed = await _operations.signTransaction(signingInput);
 
     return _makeRPCCall('eth_sendRawTransaction',
-        [bytesToHex(data, include0x: true, padToEvenLength: true)]);
+        [bytesToHex(signed, include0x: true, padToEvenLength: true)]);
   }
 
   /*
   /// Executes the transaction, which should be calling a method in a smart
-  /// contract deployed on the blockchain, without modifying the blockchain.
+  /// contract deployed on the blockchain, without modifying any state.
   ///
   /// For method calls that don't write to the blockchain or otherwise change
   /// its state, the connected client can compute the call locally and return

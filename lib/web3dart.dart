@@ -1,6 +1,7 @@
 library web3dart;
 
 import 'dart:async';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:http/http.dart';
@@ -21,3 +22,4 @@ part 'src/core/sync_information.dart';
 part 'src/core/transaction.dart';
 part 'src/core/transaction_information.dart';
 part 'src/core/transaction_signer.dart';
+part 'src/core/expensive_operations.dart';

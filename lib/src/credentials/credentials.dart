@@ -54,6 +54,7 @@ abstract class Credentials {
 /// Credentials that can sign payloads with an Ethereum private key.
 class EthPrivateKey extends Credentials {
   final Uint8List privateKey;
+  EthereumAddress _cachedAddress;
 
   EthPrivateKey(this.privateKey);
 
@@ -61,8 +62,8 @@ class EthPrivateKey extends Credentials {
 
   @override
   Future<EthereumAddress> extractAddress() async {
-    final address = publicKeyToAddress(privateKeyBytesToPublic(privateKey));
-    return EthereumAddress(address);
+    return _cachedAddress ??= EthereumAddress(
+        publicKeyToAddress(privateKeyBytesToPublic(privateKey)));
   }
 
   @override

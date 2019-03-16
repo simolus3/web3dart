@@ -6,9 +6,9 @@ const String privateKey =
 const String rpcUrl = 'http://localhost:7545';
 
 void main() async {
-  final client = Web3Client(rpcUrl, Client());
+  final client = Web3Client(rpcUrl, Client(), enableBackgroundIsolate: true);
 
-  final credentials = EthPrivateKey.fromHex(privateKey);
+  final credentials = await client.credentialsFromPrivateKey(privateKey);
   final address = await credentials.extractAddress();
 
   print(address.hexEip55);
