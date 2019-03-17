@@ -1,9 +1,9 @@
 library web3dart;
 
 import 'dart:async';
-import 'dart:isolate';
 import 'dart:typed_data';
 
+import 'package:isolate/isolate.dart';
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 

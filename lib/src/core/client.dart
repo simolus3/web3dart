@@ -249,7 +249,7 @@ class Web3Client {
     });
   }*/
 
-  void dispose() {
-    _operations.stop();
+  Future<void> dispose() async {
+    await _operations.stop();
   }
 }

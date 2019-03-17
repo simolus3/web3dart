@@ -7,6 +7,12 @@ const _globalSign = sign;
 abstract class Credentials {
   static const _messagePrefix = '\u0019Ethereum Signed Message:\n';
 
+  /// Whether these [Credentials] are safe to be copied to another isolate and
+  /// can operate there.
+  /// If this getter returns true, the client might chose to perform the
+  /// expensive signing operations on another isolate.
+  bool get isolateSafe => false;
+
   /// Loads the ethereum address specified by these credentials.
   Future<EthereumAddress> extractAddress();
 
@@ -59,6 +65,9 @@ class EthPrivateKey extends Credentials {
   EthPrivateKey(this.privateKey);
 
   EthPrivateKey.fromHex(String hex) : privateKey = hexToBytes(hex);
+
+  @override
+  final bool isolateSafe = true;
 
   @override
   Future<EthereumAddress> extractAddress() async {

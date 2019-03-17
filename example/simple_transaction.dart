@@ -25,5 +25,5 @@ void main() async {
     fetchChainIdFromNetworkId: false,
   );
 
-  client.dispose();
+  await client.dispose();
 }
