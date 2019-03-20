@@ -2,9 +2,5 @@ language: dart
 dart:
   - stable
 
-dart_task:
-  - dartfmt
-  - dartanalyzer: '--fatal-infos --fatal-warnings .'
-  - test
-
+script: tool/build.sh
 after_success: 'bash <(curl -s https://codecov.io/bash) -f lcov.info'
