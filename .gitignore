@@ -45,3 +45,7 @@ out/
 
 .idea/markdown-navigator.xml
 .idea/*
+
+# Generated test coverage
+coverage.json
+lcov.info
