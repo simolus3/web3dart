@@ -15,7 +15,7 @@ class FixedBytes extends AbiType<Uint8List> {
   void encode(Uint8List data, LengthTrackingByteSink buffer) {
     final paddingBytes = calculatePadLength(length);
 
-    buffer..add(Uint8List(paddingBytes))..add(data);
+    buffer..add(data)..add(Uint8List(paddingBytes));
   }
 
   @override

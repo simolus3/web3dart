@@ -13,6 +13,7 @@ import 'crypto.dart';
 import 'src/utils/length_tracking_byte_sink.dart';
 import 'src/utils/typed_data.dart';
 
+part 'src/contracts/abi/abi.dart';
 part 'src/contracts/abi/arrays.dart';
 part 'src/contracts/abi/integers.dart';
 part 'src/contracts/abi/tuple.dart';

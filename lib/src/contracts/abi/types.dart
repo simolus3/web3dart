@@ -58,3 +58,64 @@ class DecodingResult<T> {
             other.bytesRead == bytesRead);
   }
 }
+
+// some ABI types that are easy to construct because they have a fixed name
+const Map<String, AbiType> _easyTypes = {
+  'uint': UintType(),
+  'int': IntType(),
+  'address': AddressType(),
+  'bool': BoolType(),
+  'function': FunctionType(),
+  'bytes': DynamicBytes(),
+  'string': StringType(),
+};
+
+final RegExp _trailingDigits = RegExp(r'^(?:\D|\d)*\D(\d*)$');
+final RegExp _array = RegExp(r'^(.*)\[(\d*)\]$');
+final RegExp _tuple = RegExp(r'^\((.*)\)$');
+
+int _trailingNumber(String str) {
+  final match = _trailingDigits.firstMatch(str);
+  return int.parse(match.group(1));
+}
+
+/// Parses an ABI type from its [AbiType.name].
+@visibleForTesting
+AbiType parseAbiType(String name) {
+  if (_easyTypes.containsKey(name))
+    return _easyTypes[name];
+  
+  final arrayMatch = _array.firstMatch(name);
+  if (arrayMatch != null) {
+    final type = parseAbiType(arrayMatch.group(1));
+    final length = arrayMatch.group(2);
+
+    if (length.isEmpty) { // T[], dynamic length then
+      return DynamicLengthArray(type: type);
+    } else {
+      return FixedLengthArray(type: type, length: int.parse(length));
+    }
+  }
+
+  final tupleMatch = _tuple.firstMatch(name);
+  if (tupleMatch != null) {
+    final inner = tupleMatch.group(1);
+    final types = <AbiType>[];
+
+    for (var typeDesc in inner.split(',')) {
+      types.add(parseAbiType(typeDesc));
+    }
+
+    return TupleType(types);
+  }
+
+  if (name.startsWith('uint')) {
+    return UintType(length: _trailingNumber(name));
+  } else if (name.startsWith('int')) {
+    return IntType(length: _trailingNumber(name));
+  } else if (name.startsWith('bytes')) {
+    return FixedBytes(_trailingNumber(name));
+  }
+
+  throw ArgumentError('Could not parse abi type with name: $name');
+}

@@ -1,0 +1,66 @@
+import 'dart:convert';
+
+import 'package:test_api/test_api.dart';
+import 'package:web3dart/contracts.dart';
+import 'package:web3dart/src/utils/typed_data.dart';
+
+void main() {
+  final baz = const ContractFunction('baz', [
+    FunctionParameter('number', UintType(length: 32)),
+    FunctionParameter('flag', BoolType()),
+  ]);
+  final bar = const ContractFunction('bar', [
+    FunctionParameter(
+      'xy',
+      FixedLengthArray(type: FixedBytes(3), length: 2),
+    ),
+  ]);
+
+  final sam = const ContractFunction('sam', [
+    FunctionParameter('b1', DynamicBytes()),
+    FunctionParameter('b2', BoolType()),
+    FunctionParameter('b3', DynamicLengthArray(type: UintType()))
+  ], outputs: [
+    FunctionParameter('b1', DynamicBytes()),
+    FunctionParameter('b2', BoolType()),
+    FunctionParameter('b3', DynamicLengthArray(type: UintType()))
+  ]);
+
+  group('Function names and parameters', () {
+    test('with simple functions', () {
+      expect(baz.encodeName(), equals('baz(uint32,bool)'));
+      expect(
+          baz.encodeCall([BigInt.from(69), true]),
+          '0xcdcd77c0'
+              '0000000000000000000000000000000000000000000000000000000000000045'
+              '0000000000000000000000000000000000000000000000000000000000000001');
+
+      expect(bar.encodeName(), equals('bar(bytes3[2])'));
+      expect(
+          bar.encodeCall([
+            [
+              uint8ListFromList(utf8.encode('abc')),
+              uint8ListFromList(utf8.encode('def')),
+            ]
+          ]),
+          '0xfce353f6'
+              '6162630000000000000000000000000000000000000000000000000000000000'
+              '6465660000000000000000000000000000000000000000000000000000000000');
+
+      expect(
+          sam.encodeCall([
+            uint8ListFromList(utf8.encode('dave')),
+            true,
+            [BigInt.from(1), BigInt.from(2), BigInt.from(3)]
+          ]),
+              '0xa5643bf20000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000464617665000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003');
+
+      expect(
+          sam
+              .decodeReturnValues(
+                  '0x0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000464617665000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003')
+              .first,
+          equals(utf8.encode('dave')));
+    });
+  });
+}
