@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:typed_data/typed_buffers.dart';
 
 class LengthTrackingByteSink extends ByteConversionSinkBase {
-
   final Uint8Buffer _buffer = Uint8Buffer();
   int _length = 0;
 
@@ -29,5 +28,4 @@ class LengthTrackingByteSink extends ByteConversionSinkBase {
   void close() {
     // no-op, never used
   }
-
 }

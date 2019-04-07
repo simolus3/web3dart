@@ -51,8 +51,7 @@ class _ScryptKeyDerivator extends _KeyDerivator {
 
   @override
   Uint8List deriveKey(Uint8List password) {
-    final impl = scrypt.Scrypt()
-      ..init(ScryptParameters(n, r, p, dklen, salt));
+    final impl = scrypt.Scrypt()..init(ScryptParameters(n, r, p, dklen, salt));
 
     return impl.process(password);
   }
@@ -179,8 +178,10 @@ class Wallet {
               'Invalid prf supplied with the pdf: was ${derParams["prf"]}, expected hmac-sha256');
         }
 
-        derivator = _PBDKDF2KeyDerivator(derParams['c'] as int,
-            Uint8List.fromList(hexToBytes(derParams['salt'] as String)), derParams['dklen'] as int);
+        derivator = _PBDKDF2KeyDerivator(
+            derParams['c'] as int,
+            Uint8List.fromList(hexToBytes(derParams['salt'] as String)),
+            derParams['dklen'] as int);
 
         break;
       case 'scrypt':
@@ -215,7 +216,8 @@ class Wallet {
       throw ArgumentError(
           'Wallet file uses ${crypto["cipher"]} as cipher, but only aes-128-ctr is supported.');
     }
-    final iv = Uint8List.fromList(hexToBytes(crypto['cipherparams']['iv'] as String));
+    final iv =
+        Uint8List.fromList(hexToBytes(crypto['cipherparams']['iv'] as String));
 
     // Decrypt the private key
 

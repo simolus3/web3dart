@@ -72,14 +72,14 @@ void main() {
   });
 
   group('booleans', () {
-    final falseEncoded = '0000000000000000000000000000000000000000000000000000000000000000';
-    final trueEncoded = '0000000000000000000000000000000000000000000000000000000000000001';
+    final falseEncoded =
+        '0000000000000000000000000000000000000000000000000000000000000000';
+    final trueEncoded =
+        '0000000000000000000000000000000000000000000000000000000000000001';
 
     test('encode', () {
-      expectEncodes(const BoolType(), false,
-          falseEncoded);
-      expectEncodes(const BoolType(), true,
-          trueEncoded);
+      expectEncodes(const BoolType(), false, falseEncoded);
+      expectEncodes(const BoolType(), true, trueEncoded);
     });
 
     test('decode', () {
