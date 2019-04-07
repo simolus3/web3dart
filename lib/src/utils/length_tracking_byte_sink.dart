@@ -24,6 +24,10 @@ class LengthTrackingByteSink extends ByteConversionSinkBase {
     _length++;
   }
 
+  void setRange(int start, int end, List<int> content) {
+    _buffer.setRange(start, end, content);
+  }
+
   @override
   void close() {
     // no-op, never used

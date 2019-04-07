@@ -45,6 +45,16 @@ class UintType extends _IntTypeBase {
       ..add(bytes);
   }
 
+  void encodeReplace(
+      int startIndex, BigInt data, LengthTrackingByteSink buffer) {
+    final bytes = intToBytes(data);
+    final padLen = calculatePadLength(bytes.length);
+
+    buffer
+      ..setRange(startIndex, startIndex + padLen, Uint8List(padLen))
+      ..setRange(startIndex + padLen, startIndex + sizeUnitBytes, bytes);
+  }
+
   @override
   BigInt _decode32Bytes(Uint8List data) {
     // The padded zeroes won't make a difference when parsing so we can ignore
