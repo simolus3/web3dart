@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:web3dart/src/utils/length_tracking_byte_sink.dart';
 import 'package:web3dart/src/utils/rlp.dart';
 import 'package:test_api/test_api.dart';
 

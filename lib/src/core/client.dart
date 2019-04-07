@@ -209,6 +209,7 @@ class Web3Client {
         [bytesToHex(signed, include0x: true, padToEvenLength: true)]);
   }
 
+  /// Signs the [transaction] with the credentials [cred].
   Future<Uint8List> signTransaction(Credentials cred, Transaction transaction,
       {int chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
     final signingInput = await _fillMissingData(

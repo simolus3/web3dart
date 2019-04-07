@@ -1,39 +1,7 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:meta/meta.dart';
-import 'package:typed_data/typed_buffers.dart';
 import 'package:web3dart/crypto.dart';
-
-@visibleForTesting
-class LengthTrackingByteSink extends ByteConversionSinkBase {
-
-  final Uint8Buffer _buffer = Uint8Buffer();
-  int _length = 0;
-
-  int get length => _length;
-
-  Uint8List asBytes() {
-    return _buffer.buffer.asUint8List(0, _length);
-  }
-
-  @override
-  void add(List<int> chunk) {
-    _buffer.addAll(chunk);
-    _length += chunk.length;
-  }
-
-  void addByte(int byte) {
-    _buffer.add(byte);
-    _length++;
-  }
-
-  @override
-  void close() {
-    // no-op, never used
-  }
-
-}
+import 'package:web3dart/src/utils/length_tracking_byte_sink.dart';
 
 void encodeString(Uint8List string, LengthTrackingByteSink builder) {
   // For a single byte in [0x00, 0x7f], that byte is its own RLP encoding

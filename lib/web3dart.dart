@@ -13,6 +13,7 @@ import 'json_rpc.dart';
 import 'src/utils/rlp.dart' as rlp;
 import 'src/utils/typed_data.dart';
 
+export 'contracts.dart';
 export 'credentials.dart';
 
 part 'src/core/amount.dart';

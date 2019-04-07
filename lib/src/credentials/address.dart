@@ -6,10 +6,14 @@ class EthereumAddress {
   static final RegExp _basicAddress =
       RegExp(r'^(0x)?[0-9a-f]{40}', caseSensitive: false);
 
+  /// The length of an ethereum address, in bytes.
+  static const addressByteLength = 20;
+
   final Uint8List addressBytes;
 
   /// An ethereum address from the raw address bytes.
-  EthereumAddress(this.addressBytes) : assert(addressBytes.length == 20);
+  EthereumAddress(this.addressBytes)
+      : assert(addressBytes.length == addressByteLength);
 
   /// Constructs an Ethereum address from a public key. The address is formed by
   /// the last 20 bytes of the keccak hash of the public key.

@@ -22,8 +22,6 @@ const _lowerCaseToEip55 = {
 };
 
 void main() {
-  test('can be parsed from sring', () {});
-
   group('accepts and parses EIP 55', () {
     _lowerCaseToEip55.forEach((lower, eip55) {
       test('parses $lower -> $eip55', () {
