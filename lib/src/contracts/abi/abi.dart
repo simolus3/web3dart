@@ -83,6 +83,8 @@ class DeployedContract {
       functions.where((t) => t.isConstructor);
 }
 
+/// Defines the abi of a deployed Ethereum contract. The abi contains
+/// information about the functions defined in that contract.
 class ContractAbi {
   /// Name of the contract
   final String name;
@@ -128,12 +130,42 @@ class ContractAbi {
     final elements = <FunctionParameter>[];
     for (var entry in data) {
       final name = entry['name'] as String;
-      final type = parseAbiType(entry['type'] as String);
+      final typeName = entry['type'] as String;
 
-      elements.add(FunctionParameter(name, type));
+      if (typeName.contains('tuple')) {
+        final components = entry['components'] as List;
+        elements.add(_parseTuple(name, typeName, _parseParams(components)));
+      } else {
+        final type = parseAbiType(entry['type'] as String);
+        elements.add(FunctionParameter(name, type));
+      }
     }
 
     return elements;
+  }
+
+  static CompositeFunctionParameter _parseTuple(
+      String name, String typeName, List<FunctionParameter> components) {
+    // The type will have the form tuple[3][]...[1], where the indices after the
+    // tuple indicate that the type is part of an array.
+    assert(RegExp(r'^tuple(?:\[\d*\])*$').hasMatch(typeName),
+        '$typeName is an invalid tuple type');
+
+    final arrayLengths = <int>[];
+    var remainingName = typeName;
+
+    while (remainingName != 'tuple') {
+      final arrayMatch = _array.firstMatch(remainingName);
+      remainingName = arrayMatch.group(1);
+
+      final insideSquareBrackets = arrayMatch.group(2);
+      if (insideSquareBrackets.isEmpty)
+        arrayLengths.insert(0, null);
+      else
+        arrayLengths.insert(0, int.parse(insideSquareBrackets));
+    }
+
+    return CompositeFunctionParameter(name, components, arrayLengths);
   }
 }
 
@@ -202,7 +234,7 @@ class ContractFunction {
   /// * uint<x> and int<x> will accept a dart int
   ///
   /// Other types are not supported at the moment.
-  String encodeCall(List<dynamic> params) {
+  Uint8List encodeCall(List<dynamic> params) {
     if (params.length != parameters.length)
       throw ArgumentError.value(
           params.length, 'params', 'Must match function parameters');
@@ -214,7 +246,7 @@ class ContractFunction {
     TupleType(parameters.map((param) => param.type).toList())
         .encode(params, sink);
 
-    return bytesToHex(sink.asBytes(), include0x: true);
+    return sink.asBytes();
   }
 
   /// Encodes the name of the function and its required parameters.
@@ -248,4 +280,51 @@ class FunctionParameter<T> {
   final AbiType<T> type;
 
   const FunctionParameter(this.name, this.type);
+}
+
+/// A function parameter that includes other named parameter instead of just
+/// wrapping single types.
+///
+/// Consider this contract:
+/// ```solidity
+/// pragma solidity >=0.4.19 <0.7.0;
+/// pragma experimental ABIEncoderV2;
+///
+/// contract Test {
+///   struct S { uint a; uint[] b; T[] c; }
+///   struct T { uint x; uint y; }
+///   function f(S memory s, T memory t, uint a) public;
+///   function g() public returns (S memory s, T memory t, uint a);
+/// }
+/// ```
+/// For the parameter `s` in the function `f`, we still want to know the names
+/// of the components in the tuple. Simply knowing that it's a tuple is not
+/// enough. Similarly, we want to know the names of the parameters of `T` in
+/// `S.c`.
+class CompositeFunctionParameter extends FunctionParameter<dynamic> {
+  final List<FunctionParameter> components;
+
+  /// If the composite type is wrapped in arrays, contains the length of these
+  /// arrays. For instance, given a struct `S`, the type `S[3][][4]` would be
+  /// represented with a [CompositeFunctionParameter] that has the components of
+  /// `S` and [arrayLengths] of `[3, null, 4]`.
+  final List<int> arrayLengths;
+
+  CompositeFunctionParameter(String name, this.components, this.arrayLengths)
+      : super(name, _constructType(components, arrayLengths));
+
+  static AbiType<dynamic> _constructType(
+      List<FunctionParameter> components, List<int> arrayLengths) {
+    AbiType type = TupleType(components.map((c) => c.type).toList());
+
+    for (var len in arrayLengths) {
+      if (len != null) {
+        type = FixedLengthArray(type: type, length: len);
+      } else {
+        type = DynamicLengthArray(type: type);
+      }
+    }
+
+    return type;
+  }
 }

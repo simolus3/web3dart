@@ -82,15 +82,15 @@ int _trailingNumber(String str) {
 /// Parses an ABI type from its [AbiType.name].
 @visibleForTesting
 AbiType parseAbiType(String name) {
-  if (_easyTypes.containsKey(name))
-    return _easyTypes[name];
-  
+  if (_easyTypes.containsKey(name)) return _easyTypes[name];
+
   final arrayMatch = _array.firstMatch(name);
   if (arrayMatch != null) {
     final type = parseAbiType(arrayMatch.group(1));
     final length = arrayMatch.group(2);
 
-    if (length.isEmpty) { // T[], dynamic length then
+    if (length.isEmpty) {
+      // T[], dynamic length then
       return DynamicLengthArray(type: type);
     } else {
       return FixedLengthArray(type: type, length: int.parse(length));

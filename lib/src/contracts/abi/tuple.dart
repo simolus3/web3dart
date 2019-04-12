@@ -76,7 +76,8 @@ class TupleType extends AbiType<List<dynamic>> {
 
     for (var type in types) {
       if (type.isDynamic) {
-        final positionResult = const UintType().decode(buffer, offset + headersLength);
+        final positionResult =
+            const UintType().decode(buffer, offset + headersLength);
         headersLength += positionResult.bytesRead;
 
         final position = positionResult.data.toInt();

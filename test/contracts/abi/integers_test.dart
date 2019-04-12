@@ -44,12 +44,12 @@ void main() {
   group('ints', () {
     _intEncoded.forEach((i, val) {
       test('encode $i as $val', () {
-        expectEncodes(IntType(), i, val);
+        expectEncodes(const IntType(), i, val);
       });
 
       test('decodes $val as $i', () {
         final bytes = hexToBytes(val).buffer;
-        expect(IntType().decode(bytes, 0), DecodingResult(i, 32));
+        expect(const IntType().decode(bytes, 0), DecodingResult(i, 32));
       });
     });
   });
