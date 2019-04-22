@@ -10,6 +10,7 @@ class Web3Client {
   final JsonRPC _jsonRpc;
 
   _ExpensiveOperations _operations;
+  _FilterEngine _filters;
 
   ///Whether errors, handled or not, should be printed to the console.
   bool printErrors = false;
@@ -24,6 +25,7 @@ class Web3Client {
       {bool enableBackgroundIsolate = false})
       : _jsonRpc = JsonRPC(url, httpClient) {
     _operations = _ExpensiveOperations(enableBackgroundIsolate);
+    _filters = _FilterEngine(_jsonRpc);
   }
 
   Future<T> _makeRPCCall<T>(String function, [List<dynamic> params]) async {
@@ -228,6 +230,44 @@ class Web3Client {
     return _operations.signTransaction(signingInput);
   }
 
+  /// Listens for new blocks that are added to the chain. The stream will emit
+  /// the hexadecimal hash of the block after it has been added.
+  ///
+  /// {@template web3dart:filter_streams_behavior}
+  /// The stream can only be listened to once. The subscription must be disposed
+  /// properly when no longer used. Failing to do so causes a memory leak in
+  /// your application and uses unnecessary resources on the connected node.
+  /// {@endtemplate}
+  /// See also:
+  /// - [hexToBytes] and [hexToInt], which can transform hex strings into a byte
+  /// or integer representation.
+  Stream<String> addedBlocks() {
+    return _filters.addFilter(_NewBlockFilter());
+  }
+
+  /// Listens for pending transactions as they are received by the connected
+  /// node. The stream will emit the hexadecimal hash of the pending
+  /// transaction.
+  ///
+  /// {@macro web3dart:filter_streams_behavior}
+  /// See also:
+  /// - [hexToBytes] and [hexToInt], which can transform hex strings into a byte
+  /// or integer representation.
+  Stream<String> pendingTransactions() {
+    return _filters.addFilter(_PendingTransactionsFilter());
+  }
+
+  /// Listens for logs emitted from transactions. The [options] can be used to
+  /// apply additional filters.
+  ///
+  /// {@macro web3dart:filter_streams_behavior}
+  /// See also:
+  /// - https://solidity.readthedocs.io/en/develop/contracts.html#events, which
+  /// explains more about how events are encoded.
+  Stream<FilterEvent> events(FilterOptions options) {
+    return _filters.addFilter(_EventFilter(options));
+  }
+
   /*
   /// Executes the transaction, which should be calling a method in a smart
   /// contract deployed on the blockchain, without modifying any state.
@@ -255,7 +295,10 @@ class Web3Client {
     });
   }*/
 
+  /// Closes resources managed by this client, such as the optional background
+  /// isolate for calculations and managed streams.
   Future<void> dispose() async {
     await _operations.stop();
+    await _filters.dispose();
   }
 }
