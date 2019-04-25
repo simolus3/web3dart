@@ -58,7 +58,8 @@ class FilterOptions {
   final EthereumAddress address;
 
   /// The topics that must be present in the event to be included in this
-  /// filter.
+  /// filter. The topics must be represented as a hexadecimal value prefixed
+  /// with "0x". The encoding must have an even number of digits.
   ///
   /// Topics are order-dependent. A transaction with a log with topics \[A, B\]
   /// will be matched by the following topic filters:
@@ -79,6 +80,16 @@ class FilterOptions {
   final List<List<String>> topics;
 
   FilterOptions({this.fromBlock, this.toBlock, this.address, this.topics});
+
+  FilterOptions.events(
+      {@required DeployedContract contract,
+      @required ContractEvent event,
+      this.fromBlock,
+      this.toBlock})
+      : address = contract.address,
+        topics = [
+          [bytesToHex(event.signature, padToEvenLength: true, include0x: true)]
+        ];
 }
 
 /// A log event emitted in a transaction.
@@ -184,7 +195,7 @@ class _EventFilter extends _Filter<FilterEvent> {
       blockNum: hexToInt(log['blockNumber'] as String).toInt(),
       address: EthereumAddress.fromHex(log['address'] as String),
       data: log['data'] as String,
-      topics: log['topics'] as List<String>,
+      topics: (log['topics'] as List).cast<String>(),
     );
   }
 }
@@ -266,8 +277,9 @@ class _FilterEngine {
   }
 
   Future dispose({Duration timeout = _defaultTimeout}) async {
-    await Future.forEach(_filters, uninstall).timeout(timeout);
     _ticker?.cancel();
+    final remainingFilters = List.of(_filters);
+    await Future.forEach(remainingFilters, uninstall).timeout(timeout);
   }
 }
 

@@ -28,7 +28,9 @@ class Transaction {
 
   /// The nonce of this transaction. A nonce is incremented per sender and
   /// transaction to make sure the same transaction can't be sent more than
-  /// once. If null, it will be determined by checking how many transactions
+  /// once.
+  ///
+  /// If null, it will be determined by checking how many transactions
   /// have already been sent by [from].
   final int nonce;
 
@@ -40,6 +42,19 @@ class Transaction {
       this.value,
       this.data,
       this.nonce});
+
+  /// Constructs a transaction that can be used to call a contract function.
+  Transaction.callContract({
+    @required DeployedContract contract,
+    @required ContractFunction function,
+    @required List<dynamic> parameters,
+    this.from,
+    this.maxGas,
+    this.gasPrice,
+    this.value,
+    this.nonce,
+  })  : to = contract.address,
+        data = function.encodeCall(parameters);
 
   Transaction copyWith(
       {EthereumAddress from,

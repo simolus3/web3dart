@@ -7,6 +7,7 @@ import 'package:isolate/isolate.dart';
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 
+import 'contracts.dart';
 import 'credentials.dart';
 import 'crypto.dart';
 import 'json_rpc.dart';

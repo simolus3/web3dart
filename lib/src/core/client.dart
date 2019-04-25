@@ -230,6 +230,40 @@ class Web3Client {
     return _operations.signTransaction(signingInput);
   }
 
+  /// Calls a [function] defined in the smart [contract] and returns it's
+  /// result.
+  ///
+  /// The connected node must be able to calculate the result locally, which
+  /// means that the call can't write any data to the blockchain. Doing that
+  /// would require a transaction which can be sent via [sendTransaction].
+  /// As no data will be written, you can use the [sender] to specify any
+  /// Ethereum address that would call that function. To use the address of a
+  /// credential, call [Credentials.extractAddress].
+  ///
+  /// This function allows specifying a custom block mined in the past to get
+  /// historical data. By default, [BlockNum.current] will be used.
+  Future<List<dynamic>> call({
+    EthereumAddress sender,
+    @required DeployedContract contract,
+    @required ContractFunction function,
+    @required List<dynamic> params,
+    BlockNum atBlock,
+  }) {
+    final data = {
+      'to': contract.address.hex,
+      'data': bytesToHex(function.encodeCall(params),
+          include0x: true, padToEvenLength: true),
+    };
+
+    if (sender != null)
+      data['from'] = sender.hex;
+
+    return _makeRPCCall<String>('eth_call', [data, _getBlockParam(atBlock)])
+        .then((data) {
+      return function.decodeReturnValues(data);
+    });
+  }
+
   /// Listens for new blocks that are added to the chain. The stream will emit
   /// the hexadecimal hash of the block after it has been added.
   ///
@@ -267,33 +301,6 @@ class Web3Client {
   Stream<FilterEvent> events(FilterOptions options) {
     return _filters.addFilter(_EventFilter(options));
   }
-
-  /*
-  /// Executes the transaction, which should be calling a method in a smart
-  /// contract deployed on the blockchain, without modifying any state.
-  ///
-  /// For method calls that don't write to the blockchain or otherwise change
-  /// its state, the connected client can compute the call locally and return
-  /// the given data without consuming any gas that would be required to
-  /// calculate this call if it was included in a mined block.
-  /// This function allows specifying a custom block mined in the past to get
-  /// historical data. By default, [BlockNum.current] will be used.
-  Future<List<dynamic>> call(
-      Credentials cred, RawTransaction transaction, ContractFunction decoder,
-      {BlockNum atBlock, int chainId}) {
-    String intToHex(dynamic d) => numbers.toHex(d, pad: true, include0x: true);
-
-    final data = {
-      'from': cred.address.hex,
-      'to': intToHex(transaction.to),
-      'data': numbers.bytesToHex(transaction.data, include0x: true),
-    };
-
-    return _makeRPCCall<String>('eth_call', [data, _getBlockParam(atBlock)])
-        .then((data) {
-      return decoder.decodeReturnValues(data);
-    });
-  }*/
 
   /// Closes resources managed by this client, such as the optional background
   /// isolate for calculations and managed streams.

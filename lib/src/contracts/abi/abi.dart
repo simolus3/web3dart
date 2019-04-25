@@ -43,6 +43,10 @@ const Map<String, StateMutability> _mutabilityNames = {
   'payable': StateMutability.payable,
 };
 
+String _encodeParameters(Iterable<FunctionParameter> params) {
+  return params.map((p) => p.type.name).join(',');
+}
+
 /// Helper class that defines a contract with a known ABI that has been deployed
 /// on a Ethereum blockchain.
 ///
@@ -61,6 +65,9 @@ class DeployedContract {
   /// Get a list of all functions defined by the contract ABI.
   List<ContractFunction> get functions => abi.functions;
 
+  /// A list of all events defined in the contract ABI.
+  List<ContractEvent> get events => abi.events;
+
   /// Finds all external or public functions defined by the contract that have
   /// the given name. As solidity supports function overloading, this will
   /// return a list as only a combination of name and types will uniquely find
@@ -75,6 +82,12 @@ class DeployedContract {
   /// will throw.
   ContractFunction function(String name) =>
       functions.singleWhere((f) => f.name == name);
+
+  /// Finds the event defined by the contract that has the matching [name].
+  ///
+  /// If no, or more than one event matches that name, this method will throw.
+  ContractEvent event(String name) =>
+    events.singleWhere((e) => e.name == name);
 
   /// Finds all methods that are constructors of this contract.
   ///
@@ -92,19 +105,30 @@ class ContractAbi {
   /// All functions (including constructors) that the ABI of the contract
   /// defines.
   final List<ContractFunction> functions;
+  final List<ContractEvent> events;
 
-  ContractAbi(this.name, this.functions);
+  ContractAbi(this.name, this.functions, this.events);
 
   factory ContractAbi.fromJson(String jsonData, String name) {
     final data = json.decode(jsonData);
     final functions = <ContractFunction>[];
+    final events = <ContractEvent>[];
 
     for (var element in data) {
-      // events are not supported yet
       final type = element['type'] as String;
-      if (type == 'event') continue;
-
       final name = element['name'] as String;
+
+      if (type == 'event') {
+        final anonymous = element['anonymous'] as bool;
+        final components = <EventComponent>[];
+
+        for (var entry in element['inputs']) {
+          components.add(EventComponent(
+              _parseParam(entry as Map), entry['indexed'] as bool));
+        }
+
+        events.add(ContractEvent(anonymous, name, components));
+      }
 
       final mutability = _mutabilityNames[element['stateMutability']];
       final parsedType = _functionTypeNames[element['type']];
@@ -121,7 +145,7 @@ class ContractAbi {
       ));
     }
 
-    return ContractAbi(name, functions);
+    return ContractAbi(name, functions, events);
   }
 
   static List<FunctionParameter> _parseParams(List data) {
@@ -129,19 +153,23 @@ class ContractAbi {
 
     final elements = <FunctionParameter>[];
     for (var entry in data) {
-      final name = entry['name'] as String;
-      final typeName = entry['type'] as String;
-
-      if (typeName.contains('tuple')) {
-        final components = entry['components'] as List;
-        elements.add(_parseTuple(name, typeName, _parseParams(components)));
-      } else {
-        final type = parseAbiType(entry['type'] as String);
-        elements.add(FunctionParameter(name, type));
-      }
+      elements.add(_parseParam(entry as Map));
     }
 
     return elements;
+  }
+
+  static FunctionParameter _parseParam(Map entry) {
+    final name = entry['name'] as String;
+    final typeName = entry['type'] as String;
+
+    if (typeName.contains('tuple')) {
+      final components = entry['components'] as List;
+      return _parseTuple(name, typeName, _parseParams(components));
+    } else {
+      final type = parseAbiType(entry['type'] as String);
+      return FunctionParameter(name, type);
+    }
   }
 
   static CompositeFunctionParameter _parseTuple(
@@ -255,7 +283,7 @@ class ContractFunction {
   /// although this method will not apply the hash and just return the name
   /// followed by the types of the parameters, like this: bar(bytes,string[])
   String encodeName() {
-    final parameterTypes = parameters.map((p) => p.type.name).join(',');
+    final parameterTypes = _encodeParameters(parameters);
     return '$name($parameterTypes)';
   }
 
@@ -272,6 +300,38 @@ class ContractFunction {
     final parsedData = tuple.decode(buffer, 0);
     return parsedData.data;
   }
+}
+
+/// An event that can be emitted by a smart contract during a transaction.
+class ContractEvent {
+  /// Whether this events was declared as anonymous in solidity.
+  final bool anonymous;
+  final String name;
+
+  /// A list of types that represent the parameters required to call this
+  /// function.
+  final List<EventComponent> components;
+
+  ContractEvent(this.anonymous, this.name, this.components);
+
+  Uint8List _signature;
+  Uint8List get signature {
+    if (_signature == null) {
+      final parameters = components.map((c) => c.parameter);
+      final encodedName = '$name(${_encodeParameters(parameters)})';
+
+      _signature = keccakUtf8(encodedName);
+    }
+
+    return _signature;
+  }
+}
+
+class EventComponent<T> {
+  final FunctionParameter<T> parameter;
+  final bool indexed;
+
+  EventComponent(this.parameter, this.indexed);
 }
 
 /// The parameter of a function with its name and the expected type.

@@ -23,6 +23,7 @@ Future<_SigningInput> _fillMissingData({
 
   // apply default values to null fields
   var modifiedTransaction = transaction.copyWith(
+    value: transaction.value ?? EtherAmount.zero(),
     maxGas: transaction.maxGas ?? 90000,
     from: transaction.from ?? await credentials.extractAddress(),
     data: transaction.data ?? Uint8List(0),
