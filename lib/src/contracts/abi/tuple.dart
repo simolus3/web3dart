@@ -22,7 +22,21 @@ class TupleType extends AbiType<List<dynamic>> {
   }
 
   @override
-  bool get isDynamic => types.any((t) => t.isDynamic);
+  EncodingLengthInfo get encodingLength {
+    var trackedLength = 0;
+
+    // tuples are dynamic iff any of their member types is dynamic. Otherwise,
+    // it's just all static members concatenated, together.
+    for (var type in types) {
+      final length = type.encodingLength;
+      if (length.isDynamic)
+        return const EncodingLengthInfo.dynamic();
+
+      trackedLength += length.length;
+    }
+
+    return EncodingLengthInfo(trackedLength);
+  }
 
   @override
   void encode(List data, LengthTrackingByteSink buffer) {
@@ -39,7 +53,7 @@ class TupleType extends AbiType<List<dynamic>> {
       final payload = data[i];
       final type = types[i];
 
-      if (type.isDynamic) {
+      if (type.encodingLength.isDynamic) {
         // just write a bunch of zeroes, we later have to encode the relative
         // offset here.
         dynamicHeaderPositions[i] = buffer.length;
@@ -56,7 +70,7 @@ class TupleType extends AbiType<List<dynamic>> {
 
     // now that the heads are written, write tails for the dynamic values
     for (var i = 0; i < data.length; i++) {
-      if (!types[i].isDynamic) continue;
+      if (!types[i].encodingLength.isDynamic) continue;
 
       // replace the 32 zero-bytes with the actual encoded offset
       const UintType().encodeReplace(
@@ -75,7 +89,7 @@ class TupleType extends AbiType<List<dynamic>> {
     var dynamicLength = 0;
 
     for (var type in types) {
-      if (type.isDynamic) {
+      if (type.encodingLength.isDynamic) {
         final positionResult =
             const UintType().decode(buffer, offset + headersLength);
         headersLength += positionResult.bytesRead;

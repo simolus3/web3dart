@@ -89,10 +89,3 @@ void main() async {
 
   await client.dispose();
 }
-
-Future listenForTransactions(
-    Web3Client client, DeployedContract contract) async {
-  final eventStream = client.events(FilterOptions(address: contractAddr));
-
-  await eventStream.take(3).listen(print).asFuture();
-}

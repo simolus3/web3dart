@@ -5,7 +5,8 @@ abstract class _IntTypeBase extends AbiType<BigInt> {
   final int length;
 
   @override
-  bool get isDynamic => false;
+  final EncodingLengthInfo encodingLength =
+      const EncodingLengthInfo(sizeUnitBytes);
 
   String get _namePrefix;
   @override
@@ -70,7 +71,8 @@ class AddressType extends AbiType<EthereumAddress> {
   static const _paddingLen = sizeUnitBytes - EthereumAddress.addressByteLength;
 
   @override
-  final bool isDynamic = false;
+  final EncodingLengthInfo encodingLength =
+      const EncodingLengthInfo(sizeUnitBytes);
 
   @override
   final String name = 'address';
@@ -97,7 +99,8 @@ class BoolType extends AbiType<bool> {
   const BoolType();
 
   @override
-  final bool isDynamic = false;
+  final EncodingLengthInfo encodingLength =
+      const EncodingLengthInfo(sizeUnitBytes);
 
   @override
   final String name = 'bool';

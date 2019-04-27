@@ -86,8 +86,7 @@ class DeployedContract {
   /// Finds the event defined by the contract that has the matching [name].
   ///
   /// If no, or more than one event matches that name, this method will throw.
-  ContractEvent event(String name) =>
-    events.singleWhere((e) => e.name == name);
+  ContractEvent event(String name) => events.singleWhere((e) => e.name == name);
 
   /// Finds all methods that are constructors of this contract.
   ///
@@ -315,6 +314,9 @@ class ContractEvent {
   ContractEvent(this.anonymous, this.name, this.components);
 
   Uint8List _signature;
+
+  /// The signature of this event, which is the keccak hash of the event's name
+  /// followed by it's components.
   Uint8List get signature {
     if (_signature == null) {
       final parameters = components.map((c) => c.parameter);
@@ -325,8 +327,44 @@ class ContractEvent {
 
     return _signature;
   }
+
+  /// Decodes the fields of this event from the event's [topics] and its [data]
+  /// payload.
+  ///
+  /// [components] of this event which are [EventComponent.indexed] will be
+  /// read from the topics, whereas non-indexed components will be read from the
+  /// data section of the event.
+  /// Indexed parameters which would take more than 32 bytes to encode are not
+  /// included in the result. Apart from that, the order of the data returned
+  /// is identical to the order of the [components].
+  List<dynamic> decodeResults(List<String> topics, String data) {
+    final topicOffset = anonymous ? 0 : 1;
+
+    // non-indexed parameters are decoded like a tuple
+    final notIndexed = components
+        .where((c) => !c.indexed)
+        .map((c) => c.parameter.type)
+        .toList();
+    final tuple = TupleType(notIndexed);
+
+    final decodedNotIndexed = tuple.decode(hexToBytes(data).buffer, 0);
+
+    var dataIndex = 0;
+    var topicIndex = topicOffset;
+
+    final result = [];
+    for (var component in components) {
+      if (component.indexed) {
+        
+      }
+    }
+
+    return result;
+  }
 }
 
+/// A [FunctionParameter] that is a component of an event. Contains additional
+/// information about whether the parameter is [indexed].
 class EventComponent<T> {
   final FunctionParameter<T> parameter;
   final bool indexed;

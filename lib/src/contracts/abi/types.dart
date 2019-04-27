@@ -17,12 +17,37 @@ abstract class AbiType<T> {
   /// its encoding depends on the content (like strings). See
   /// https://solidity.readthedocs.io/en/develop/abi-spec.html#formal-specification-of-the-encoding
   /// for a formal definition of which types are dynamic.
-  bool get isDynamic;
+  @Deprecated('use this is encodingLength.isDynamic instead')
+  bool get isDynamic => encodingLength.isDynamic;
+
+  /// Information about how long the encoding will be.
+  EncodingLengthInfo get encodingLength;
 
   /// Writes [data] into the [buffer].
   void encode(T data, LengthTrackingByteSink buffer);
 
   DecodingResult<T> decode(ByteBuffer buffer, int offset);
+}
+
+/// Information about whether the length of an encoding depends on the data
+/// (dynamic) or is fixed (static). If it's static, also contains information
+/// about the length of the encoding.
+@immutable
+class EncodingLengthInfo {
+
+  /// When this encoding length is not [isDynamic], the length (in bytes) of
+  /// an encoded payload. Otherwise null.
+  final int length;
+
+  /// Whether the length of the encoding will depend on the data being encoded.
+  ///
+  /// Types that have that property are called "dynamic types" in the solidity
+  /// abi encoding and are treated differently when being a part of a tuple or
+  /// an array.
+  bool get isDynamic => length == null;
+
+  const EncodingLengthInfo(this.length);
+  const EncodingLengthInfo.dynamic(): length = null;
 }
 
 /// Calculates the amount of padding bytes needed so that the length of the
