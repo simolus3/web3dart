@@ -8,16 +8,18 @@ class FixedBytes extends AbiType<Uint8List> {
   @override
   String get name => 'bytes$length';
 
+  // the encoding length does not depend on this.length, as it will always be
+  // padded to 32 bytes
   @override
-  EncodingLengthInfo get encodingLength {
-    final withPadding = length + calculatePadLength(length);
-    return EncodingLengthInfo(withPadding);
-  }
+  final EncodingLengthInfo encodingLength =
+      const EncodingLengthInfo(sizeUnitBytes);
 
   const FixedBytes(this.length) : assert(0 <= length && length <= 32);
 
   @override
   void encode(Uint8List data, LengthTrackingByteSink buffer) {
+    assert(data.length == length,
+        'Invalid length: Tried to encode ${data.length} bytes, but expected exactly $length');
     final paddingBytes = calculatePadLength(length);
 
     buffer..add(data)..add(Uint8List(paddingBytes));
@@ -25,10 +27,8 @@ class FixedBytes extends AbiType<Uint8List> {
 
   @override
   DecodingResult<Uint8List> decode(ByteBuffer buffer, int offset) {
-    final paddingOffset = sizeUnitBytes - length;
-
     return DecodingResult(
-      buffer.asUint8List(offset + paddingOffset, length),
+      buffer.asUint8List(offset, length),
       sizeUnitBytes,
     );
   }
