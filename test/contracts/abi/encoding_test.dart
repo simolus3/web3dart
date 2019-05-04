@@ -11,9 +11,8 @@ import 'package:web3dart/crypto.dart';
 import 'utils.dart';
 
 final testFiles = [
-//  'basic_abi_tests.json',
-//  'integers.json',
-  'tuples.json',
+  'basic_abi_tests.json',
+  'integers.json',
 ];
 
 void main() {
