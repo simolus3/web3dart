@@ -339,7 +339,7 @@ class EventComponent<T> {
   final FunctionParameter<T> parameter;
   final bool indexed;
 
-  EventComponent(this.parameter, this.indexed);
+  const EventComponent(this.parameter, this.indexed);
 }
 
 /// The parameter of a function with its name and the expected type.
