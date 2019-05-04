@@ -347,15 +347,33 @@ class ContractEvent {
         .toList();
     final tuple = TupleType(notIndexed);
 
-    final decodedNotIndexed = tuple.decode(hexToBytes(data).buffer, 0);
+    final decodedNotIndexed = tuple.decode(hexToBytes(data).buffer, 0).data;
 
+    // Merge indexed components (which are encoded as topics) and non-indexed
+    // components (which were already decoded in decodedNotIndexed) together
+    // into the result list.
     var dataIndex = 0;
     var topicIndex = topicOffset;
 
     final result = [];
     for (var component in components) {
       if (component.indexed) {
-        
+        // components that are bigger than 32 bytes when decoded, or have a
+        // dynamic type, are not included in [topics]. A hash of the data will
+        // be included instead. We can't decode these, so they will be skipped.
+        final length = component.parameter.type.encodingLength;
+        if (length.isDynamic || length.length > 32) {
+          topicIndex++;
+          continue;
+        }
+
+        final topicBuffer = hexToBytes(topics[topicIndex]).buffer;
+        result.add(component.parameter.type.decode(topicBuffer, 0).data);
+
+        topicIndex++;
+      } else {
+        result.add(decodedNotIndexed[dataIndex]);
+        dataIndex++;
       }
     }
 

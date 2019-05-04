@@ -45,9 +45,9 @@ void main() {
     expect(staticTuple.name, '(uint32,bool)');
   });
 
-  test('reports dynamic', () {
-    expect(dynamicTuple.isDynamic, true);
-    expect(staticTuple.isDynamic, false);
+  test('reports encoding length', () {
+    expect(dynamicTuple.encodingLength.isDynamic, true);
+    expect(staticTuple.encodingLength.length, 2 * sizeUnitBytes);
   });
 
   test('encodes values', () {

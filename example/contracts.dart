@@ -6,12 +6,12 @@ import 'package:path/path.dart' show join, dirname;
 
 const String rpcUrl = 'http://localhost:7545';
 const String privateKey =
-    'a2fd51b96dc55aeb14b30d55a6b3121c7b9c599500c1beb92a389c3377adc86e';
+    '85d2242ae1b7759934d4b0d4f0d62d666cf7d73e21dbd09d73c7de266b72a25a';
 
 final EthereumAddress contractAddr =
-    EthereumAddress.fromHex('0x9Af64C6D3A93D7f11426723dCDE850d667C994ca');
+    EthereumAddress.fromHex('0xf451659CF5688e31a31fC3316efbcC2339A490Fb');
 final EthereumAddress receiver =
-    EthereumAddress.fromHex('0xC914Bb2ba888e3367bcecEb5C2d99DF7C7423706');
+    EthereumAddress.fromHex('0x6c87E1a114C3379BEc929f6356c5263d62542C13');
 
 final File abiFile = File(join(dirname(Platform.script.path), 'abi.json'));
 
@@ -45,7 +45,7 @@ contract MetaCoin {
 	}
 }
 
-The compiled ABI of this contract is available at abi.json
+The ABI of this contract is available at abi.json
  */
 
 void main() async {
@@ -65,10 +65,17 @@ void main() async {
   final sendFunction = contract.function('sendCoin');
 
   // listen for the Transfer event when it's emitted by the contract above
-  client
+  final subscription = client
       .events(FilterOptions.events(contract: contract, event: transferEvent))
+      .take(1)
       .listen((event) {
-    print(event);
+    final decoded = transferEvent.decodeResults(event.topics, event.data);
+
+    final from = decoded[0] as EthereumAddress;
+    final to = decoded[1] as EthereumAddress;
+    final value = decoded[2] as BigInt;
+
+    print('$from sent $value MetaCoins to $to');
   });
 
   // check our balance in MetaCoins by calling the appropriate function
@@ -86,6 +93,9 @@ void main() async {
       parameters: [receiver, balance.first],
     ),
   );
+
+  await subscription.asFuture();
+  await subscription.cancel();
 
   await client.dispose();
 }
