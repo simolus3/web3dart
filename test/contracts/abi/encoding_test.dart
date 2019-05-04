@@ -11,7 +11,9 @@ import 'package:web3dart/crypto.dart';
 import 'utils.dart';
 
 final testFiles = [
-  'basic_abi_tests.json',
+//  'basic_abi_tests.json',
+//  'integers.json',
+  'tuples.json',
 ];
 
 void main() {
@@ -44,16 +46,24 @@ void main() {
 }
 
 /// Maps types from an Ethereum abi test vector to types that are understood by
-/// web3dart. [int] will be mapped to [BigInt], a [String] starting with "0x" to
-/// [Uint8List]. Strings starting with "@" will be interpreted as
-/// [EthereumAddress].
+/// web3dart:
+/// - [int] will be mapped to [BigInt]
+/// - a [String] starting with "0x" to [Uint8List]
+/// - Strings starting with "@" will be interpreted as [EthereumAddress]
+/// - Strings ending with "H" as [BigInt]
 dynamic _mapFromTest(dynamic input) {
   if (input is int)
     return BigInt.from(input);
-  if (input is String && input.startsWith('0x'))
-    return hexToBytes(input);
-  if (input is String && input.startsWith('@'))
-    return EthereumAddress.fromHex(input.substring(1));
+
+  if (input is String) {
+    if (input.startsWith('0x'))
+      return hexToBytes(input);
+    if (input.startsWith('@'))
+      return EthereumAddress.fromHex(input.substring(1));
+    if (input.endsWith('H'))
+      return BigInt.parse(input.substring(0, input.length - 1), radix: 16);
+  }
+
   if (input is List)
     return input.map(_mapFromTest).toList();
 

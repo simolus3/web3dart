@@ -51,7 +51,8 @@ class EncodingLengthInfo {
 }
 
 /// Calculates the amount of padding bytes needed so that the length of the
-/// padding plus the [bodyLength] is a multiplicative of [sizeUnitBytes].
+/// padding plus the [bodyLength] is a multiplicative of [sizeUnitBytes] but not
+/// zero.
 int calculatePadLength(int bodyLength) {
   assert(bodyLength >= 0);
 

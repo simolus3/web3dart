@@ -1,30 +1,30 @@
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:io';
 
-import 'package:web3dart/src/utils/length_tracking_byte_sink.dart';
+import 'package:path/path.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/src/utils/rlp.dart';
 import 'package:test_api/test_api.dart';
 
 void main() {
-  test('encodes short strings', () {
-    final builder = LengthTrackingByteSink();
-    encodeString(ascii.encode('dog'), builder);
+  final file = File(join('test', 'utils', 'rlp_test_vectors.json'));
+  final testContent = json.decode(file.readAsStringSync()) as Map;
 
-    expect(builder.asBytes(), [0x83].followedBy(ascii.encode('dog')));
-  });
+  for (var key in testContent.keys) {
+    test('$key', () {
+      final data = testContent[key];
+      final input = _mapTestData(data['in']);
+      final output = data['out'] as String;
 
-  test('encodes long strings', () {
-    final builder = LengthTrackingByteSink();
-    final payload = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit';
+      expect(bytesToHex(encode(input), include0x: true), output);
+    });
+  }
+}
 
-    encodeString(ascii.encode(payload), builder);
+dynamic _mapTestData(dynamic data) {
+  if (data is String && data.startsWith('#')) {
+    return BigInt.parse(data.substring(1));
+  }
 
-    expect(builder.asBytes(), [0xb8, 0x38].followedBy(ascii.encode(payload)));
-  });
-
-  test('encodes empty string', () {
-    final builder = LengthTrackingByteSink();
-    encodeString(Uint8List(0), builder);
-    expect(builder.asBytes(), [0x80]);
-  });
+  return data;
 }

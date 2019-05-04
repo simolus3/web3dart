@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/src/utils/length_tracking_byte_sink.dart';
+import 'package:web3dart/src/utils/typed_data.dart';
 
-void encodeString(Uint8List string, LengthTrackingByteSink builder) {
+void _encodeString(Uint8List string, LengthTrackingByteSink builder) {
   // For a single byte in [0x00, 0x7f], that byte is its own RLP encoding
   if (string.length == 1 && string[0] <= 0x7f) {
     builder.addByte(string[0]);
@@ -55,21 +57,23 @@ void encodeList(List list, LengthTrackingByteSink builder) {
 
 void _encodeInt(BigInt val, LengthTrackingByteSink builder) {
   if (val == BigInt.zero) {
-    encodeString(Uint8List(0), builder);
+    _encodeString(Uint8List(0), builder);
   } else {
-    encodeString(intToBytes(val), builder);
+    _encodeString(intToBytes(val), builder);
   }
 }
 
 void _encodeToBuffer(dynamic value, LengthTrackingByteSink builder) {
   if (value is Uint8List) {
-    encodeString(value, builder);
+    _encodeString(value, builder);
   } else if (value is List) {
     encodeList(value, builder);
   } else if (value is BigInt) {
     _encodeInt(value, builder);
   } else if (value is int) {
     _encodeInt(BigInt.from(value), builder);
+  } else if (value is String) {
+    _encodeString(uint8ListFromList(utf8.encode(value)), builder);
   } else {
     throw UnsupportedError('$value cannot be rlp-encoded');
   }
