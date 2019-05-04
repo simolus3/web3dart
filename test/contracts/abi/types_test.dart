@@ -1,6 +1,36 @@
 import 'package:test_api/test_api.dart';
 import 'package:web3dart/contracts.dart';
 
+final abiTypes = <String, AbiType>{
+  'uint256': const UintType(),
+  'int32': const IntType(length: 32),
+  'bool': const BoolType(),
+  'bytes16[]': const DynamicLengthArray(type: FixedBytes(16)),
+  'bytes[16]': const FixedLengthArray(type: DynamicBytes(), length: 16),
+  '(bool,uint8,string)':
+      const TupleType([BoolType(), UintType(length: 8), StringType()]),
+  '(uint256,(bool,bytes8)[6])[]': const DynamicLengthArray(
+    type: TupleType([
+      UintType(),
+      FixedLengthArray(
+        type: TupleType([
+          BoolType(),
+          FixedBytes(8),
+        ]),
+        length: 6,
+      ),
+    ]),
+  ),
+};
+
+final invalidTypes = [
+  'uint512',
+  'bööl',
+  '(uint,string',
+  'uint19',
+  'int32[three]'
+];
+
 void main() {
   test('calculates padding length', () {
     expect(calculatePadLength(0), 32);
@@ -10,6 +40,15 @@ void main() {
   });
 
   test('parses ABI types', () {
-    expect(parseAbiType('uint'), const UintType());
+    abiTypes.forEach((key, type) {
+      expect(parseAbiType(key), type, reason: 'parsAbiType($key)');
+      expect(type.name, key);
+    });
+  });
+
+  test('rejects invalid types', () {
+    for (var invalid in invalidTypes) {
+      expect(() => parseAbiType(invalid), throwsA(anything));
+    }
   });
 }

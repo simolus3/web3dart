@@ -107,4 +107,21 @@ class TupleType extends AbiType<List<dynamic>> {
 
     return DecodingResult(decoded, headersLength + dynamicLength);
   }
+
+  @override
+  int get hashCode => 37 * types.hashCode;
+
+  @override
+  bool operator ==(other) {
+    return identical(this, other) || (other is TupleType && _equalTypes(other));
+  }
+
+  bool _equalTypes(TupleType o) {
+    if (o.types.length != types.length) return false;
+
+    for (var i = 0; i < types.length; i++) {
+      if (types[i] != o.types[i]) return false;
+    }
+    return true;
+  }
 }

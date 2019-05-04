@@ -13,13 +13,6 @@ abstract class AbiType<T> {
   /// solidity ABI.
   String get name;
 
-  /// Whether this type is dynamic. A solidity type is dynamic if the length of
-  /// its encoding depends on the content (like strings). See
-  /// https://solidity.readthedocs.io/en/develop/abi-spec.html#formal-specification-of-the-encoding
-  /// for a formal definition of which types are dynamic.
-  @Deprecated('use this is encodingLength.isDynamic instead')
-  bool get isDynamic => encodingLength.isDynamic;
-
   /// Information about how long the encoding will be.
   EncodingLengthInfo get encodingLength;
 
@@ -104,6 +97,10 @@ int _trailingNumber(String str) {
   return int.parse(match.group(1));
 }
 
+final _openingParenthesis = '('.codeUnitAt(0);
+final _closingParenthesis = ')'.codeUnitAt(0);
+final _comma = ','.codeUnitAt(0);
+
 /// Parses an ABI type from its [AbiType.name].
 @visibleForTesting
 AbiType parseAbiType(String name) {
@@ -127,8 +124,32 @@ AbiType parseAbiType(String name) {
     final inner = tupleMatch.group(1);
     final types = <AbiType>[];
 
-    for (var typeDesc in inner.split(',')) {
-      types.add(parseAbiType(typeDesc));
+    // types are separated by a comma. However, we can't just inner.split(')
+    // because tuples might be nested: (bool, (uint, string))
+    var openParenthesises = 0;
+    final typeBuffer = StringBuffer();
+
+    for (var char in inner.codeUnits) {
+      if (char == _comma && openParenthesises == 0) {
+        types.add(parseAbiType(typeBuffer.toString()));
+        typeBuffer.clear();
+      } else {
+        typeBuffer.writeCharCode(char);
+
+        if (char == _openingParenthesis) {
+          openParenthesises++;
+        } else if (char == _closingParenthesis) {
+          openParenthesises--;
+        }
+      }
+    }
+
+    if (typeBuffer.isNotEmpty) {
+      if (openParenthesises != 0) {
+        throw ArgumentError(
+            'Could not parse abi type because of mismatched brackets: $name');
+      }
+      types.add(parseAbiType(typeBuffer.toString()));
     }
 
     return TupleType(types);

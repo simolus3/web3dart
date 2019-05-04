@@ -62,6 +62,15 @@ class UintType extends _IntTypeBase {
     // them.
     return bytesToInt(data);
   }
+
+  @override
+  int get hashCode => 31 * length;
+
+  @override
+  bool operator ==(other) {
+    return identical(this, other) ||
+        (other is UintType && other.length == length);
+  }
 }
 
 /// Solidity address type
@@ -87,6 +96,14 @@ class AddressType extends AbiType<EthereumAddress> {
     final addressBytes = buffer.asUint8List(
         offset + _paddingLen, EthereumAddress.addressByteLength);
     return DecodingResult(EthereumAddress(addressBytes), sizeUnitBytes);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  bool operator ==(other) {
+    return other.runtimeType == AddressType;
   }
 }
 
@@ -116,6 +133,14 @@ class BoolType extends AbiType<bool> {
     final value = (decoded[sizeUnitBytes - 1] & 1) == 1;
 
     return DecodingResult(value, sizeUnitBytes);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  bool operator ==(other) {
+    return other.runtimeType == BoolType;
   }
 }
 
@@ -158,5 +183,14 @@ class IntType extends _IntTypeBase {
     return negative
         ? (-(BigInt.one << length) + parsedAsUnsigned)
         : parsedAsUnsigned;
+  }
+
+  @override
+  int get hashCode => 37 * length;
+
+  @override
+  bool operator ==(other) {
+    return identical(this, other) ||
+        (other is IntType && other.length == length);
   }
 }

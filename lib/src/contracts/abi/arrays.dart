@@ -32,10 +32,28 @@ class FixedBytes extends AbiType<Uint8List> {
       sizeUnitBytes,
     );
   }
+
+  @override
+  int get hashCode => 29 * length;
+
+  @override
+  bool operator ==(other) {
+    return identical(this, other) ||
+        (other is FixedBytes && other.length == length);
+  }
 }
 
 class FunctionType extends FixedBytes {
-  const FunctionType() : super(24); // 20 bytes for address, 4 for function
+  // 20 bytes for address, 4 for function name
+  const FunctionType() : super(24);
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  bool operator ==(other) {
+    return other.runtimeType == FunctionType;
+  }
 }
 
 /// The solidity bytes type, which decodes byte arrays of arbitrary length.
@@ -69,6 +87,14 @@ class DynamicBytes extends AbiType<Uint8List> {
       sizeUnitBytes + length + padding,
     );
   }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  bool operator ==(other) {
+    return other.runtimeType == DynamicBytes;
+  }
 }
 
 /// The solidity string type, which utf-8 encodes strings
@@ -90,6 +116,14 @@ class StringType extends AbiType<String> {
     final bytesResult = const DynamicBytes().decode(buffer, offset);
 
     return DecodingResult(utf8.decode(bytesResult.data), bytesResult.bytesRead);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  bool operator ==(other) {
+    return other.runtimeType == StringType;
   }
 }
 
@@ -168,6 +202,17 @@ class FixedLengthArray<T> extends AbiType<List<T>> {
 
     return DecodingResult(decoded, headersLength + dynamicLength);
   }
+
+  @override
+  int get hashCode => 41 * length + 5 * type.hashCode;
+
+  @override
+  bool operator ==(other) {
+    return identical(this, other) ||
+        (other is FixedLengthArray &&
+            other.length == length &&
+            other.type == type);
+  }
 }
 
 /// The solidity T[] type for arrays with an dynamic length.
@@ -198,5 +243,14 @@ class DynamicLengthArray<T> extends AbiType<List<T>> {
 
     return DecodingResult(
         dataResult.data, lengthResult.bytesRead + dataResult.bytesRead);
+  }
+
+  @override
+  int get hashCode => 31 * type.hashCode;
+
+  @override
+  bool operator ==(other) {
+    return identical(this, other) ||
+        (other is DynamicLengthArray && other.type == type);
   }
 }
