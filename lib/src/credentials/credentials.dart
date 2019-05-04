@@ -66,6 +66,17 @@ class EthPrivateKey extends Credentials {
 
   EthPrivateKey.fromHex(String hex) : privateKey = hexToBytes(hex);
 
+  /// Creates a new, random private key from the [random] number generator.
+  ///
+  /// For security reasons, it is very important that the random generator used
+  /// is cryptographically secure. The private key could be reconstructed by
+  /// someone else otherwise. Just using [Random()] is a very bad idea! At least
+  /// use [Random.secure()].
+  factory EthPrivateKey.createRandom(Random random) {
+    final key = generateNewPrivateKey(random);
+    return EthPrivateKey(intToBytes(key));
+  }
+
   @override
   final bool isolateSafe = true;
 

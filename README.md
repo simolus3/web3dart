@@ -1,43 +1,39 @@
 # web3dart
-
-A library bringing Ethereum operations like transactions and smart contracts to dart. 
-This library is in development and has not been through a security audit.
-Be careful when using this library.
+A dart library that connects to interact with the Ethereum blockchain. It connects
+to an Ethereum node to send transactions, interact with smart contracts and much
+more!
 
 ### Features
-- Connect to a JSON-RPC Api, call common methods
-- Send valid and signed transactions to an Ethereum client
+- Connect to an Ethereum node with the rpc-api, call common methods
+- Send signed Ethereum transactions
 - Generate private keys, setup new Ethereum addresses
-- _(sort of)_ Send messages and function calls to smart contracts
+- Call functions on smart contracts and listen for contract events
 ### TODO
 - Code generation based on smart contract ABI for easier interaction
-- Smart Contract events
-- Encode all supported solidity types, although only tuple and (u)fixed,
+- Encode all supported solidity types, although only (u)fixed,
   which are not commonly used, are not supported at the moment.
 
 ## Usage
 
 ### Credentials and Wallets
+In order to send transactions on the Ethereum network, some credentials
+are required. The library supports raw private keys and v3 wallet files.
 
-In order to send transactions or call methods from constracts on the 
-Blockchain, a private key is required. In this libary, the `Credentials`
-class provides a small wrapper around the private key to derive the public
-key and the Ethereum Address from the private key.
 ```dart
 import 'dart:math'; //used for the random number generator
 
 import 'package:web3dart/web3dart.dart';
-
 // You can create Credentials from private keys
-Credentials fromHex = Credentials.fromPrivateKeyHex("c87509a[...]dc0d3");
+Credentials fromHex = EthPrivateKey.fromHex("c87509a[...]dc0d3");
 
 // Or generate a new key randomly
 var rng = new Random.secure();
-Credentials random = Credentials.createRandom(rng);
+Credentials random = EthPrivateKey.createRandom(random)(rng);
 
 // In either way, the library can derive the public key and the address
 // from a private key:
-var address = fromHex.address.hex;
+var address = await credentials.extractAddress();
+print(address.hex);
 ```
 
 Another way to obtain `Credentials` which the library uses to sign 
@@ -51,7 +47,7 @@ import 'package:web3dart/web3dart.dart';
 String content = new File("wallet.json").readAsStringSync();
 Wallet wallet = Wallet.fromJson(content, "testpassword");
 
-Credentials unlocked = wallet.credentials;
+Credentials unlocked = wallet.privateKey;
 // You can now use these credentials to sign transactions or messages
 ```
 You can also create Wallet files with this library. To do so, you first need
@@ -64,6 +60,10 @@ print(wallet.toJson());
 You can also write `wallet.toJson()` into a file which you can later open 
 with [MyEtherWallet](https://www.myetherwallet.com/#view-wallet-info) 
 (select Keystore / JSON File) or other Ethereum clients like geth.
+
+#### Custom credentials
+If you want to integrate `web3dart` with other wallet providers, you can implement
+`Credentials` and override the appropriate methods.
 
 ### Connecting to an RPC server
 The library won't send signed transactions to miners itself. Instead,
@@ -82,7 +82,7 @@ var apiUrl = "http://localhost:7545"; //Replace with your API
 var httpClient = new Client();
 var ethClient = new Web3Client(apiUrl, httpClient);
 
-var credentials = Credentials.fromPrivateKeyHex("...");
+var credentials = ethClient.credentialsFromPrivateKey("0x...");
 
 // You can now call rpc methods. This one will query the amount of Ether you own
 EtherAmount balance = ethClient.getBalance(credentials.address);
@@ -99,25 +99,26 @@ import 'package:web3dart/web3dart.dart';
 /// [...], you need to specify the url and your client, see example above
 var ethClient = new Web3Client(apiUrl, httpClient);
 
-var credentials = Credentials.fromPrivateKeyHex("...");
+var credentials = ethClient.credentialsFromPrivateKey("0x...");
 
-// Set up a new transaction that will use the gas price recommended by the
-// rpc client the libary is connected to
-Transaction transaction = new Transaction(
-  keys: credentials, maximumGas: 100000
+await client.sendTransaction(
+  credentials,
+  Transaction(
+    to: EthereumAddress.fromHex('0xC91...3706'),
+    gasPrice: EtherAmount.inWei(BigInt.one),
+    maxGas: 100000,
+    value: EtherAmount.fromUnitAndValue(EtherUnit.ether, 1),
+  ),
 );
-// Lets make the transaction actually do something: Send 0.3 Ether to the 
-// address specified.
-transaction.prepareForSimpleTransaction(
-  new EthereumAddress("0x[...]"), // your target address 
-  EtherAmount.fromUnitAndValue(EtherUnit.finney, 300)
-).send(ethClient);
 ```
+Missing data, like the gas price, the sender and a transaction nonce will be
+obtained from the connected node when not explicitly specified. If you only need
+the signed transaction but don't intend to send it, you can use 
+`client.signTransaction`.
 
 ### Smart contracts
-The library contains some very basic and limited support for calling methods
-on smart contracts deployed on an Ethereum blockchain. 
-See [`example/crypto_kittens_example.dart`](https://github.com/simolus3/web3dart/blob/master/example/crypto_kittens_example.dart)
+The library can parse the abi of a smart contract and send data to it. It can also
+listen for events emitted by smart contracts. See [this file](https://github.com/simolus3/web3dart/blob/development/example/contracts.dart)
 for an example.
 
 ## Feature requests and bugs
