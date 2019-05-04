@@ -43,12 +43,14 @@ class EncodingLengthInfo {
 }
 
 /// Calculates the amount of padding bytes needed so that the length of the
-/// padding plus the [bodyLength] is a multiplicative of [sizeUnitBytes] but not
-/// zero.
-int calculatePadLength(int bodyLength) {
+/// padding plus the [bodyLength] is a multiplicative of [sizeUnitBytes]. If
+/// [allowEmpty] (defaults to false) is true, an empty length is allowed.
+/// Otherwise an empty [bodyLength] will be given a full [sizeUnitBytes]
+/// padding.
+int calculatePadLength(int bodyLength, {bool allowEmpty = false}) {
   assert(bodyLength >= 0);
 
-  if (bodyLength == 0) return sizeUnitBytes;
+  if (bodyLength == 0 && !allowEmpty) return sizeUnitBytes;
 
   final remainder = bodyLength % sizeUnitBytes;
   return remainder == 0 ? 0 : sizeUnitBytes - remainder;

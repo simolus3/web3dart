@@ -34,8 +34,10 @@ final invalidTypes = [
 void main() {
   test('calculates padding length', () {
     expect(calculatePadLength(0), 32);
+    expect(calculatePadLength(0, allowEmpty: true), 0);
     expect(calculatePadLength(32), 0);
     expect(calculatePadLength(5), 27);
+    expect(calculatePadLength(5, allowEmpty: true), 27);
     expect(calculatePadLength(40), 24);
   });
 

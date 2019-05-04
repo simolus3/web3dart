@@ -70,7 +70,7 @@ class DynamicBytes extends AbiType<Uint8List> {
   void encode(Uint8List data, LengthTrackingByteSink buffer) {
     const UintType().encode(BigInt.from(data.length), buffer);
 
-    final padding = calculatePadLength(data.length);
+    final padding = calculatePadLength(data.length, allowEmpty: true);
 
     buffer..add(data)..add(Uint8List(padding));
   }
@@ -79,7 +79,7 @@ class DynamicBytes extends AbiType<Uint8List> {
   DecodingResult<Uint8List> decode(ByteBuffer buffer, int offset) {
     final lengthResult = const UintType().decode(buffer, offset);
     final length = lengthResult.data.toInt();
-    final padding = calculatePadLength(length);
+    final padding = calculatePadLength(length, allowEmpty: true);
 
     // first 32 bytes are taken for the encoded size, read from there
     return DecodingResult(
