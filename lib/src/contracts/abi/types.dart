@@ -34,7 +34,6 @@ abstract class AbiType<T> {
 /// about the length of the encoding.
 @immutable
 class EncodingLengthInfo {
-
   /// When this encoding length is not [isDynamic], the length (in bytes) of
   /// an encoded payload. Otherwise null.
   final int length;
@@ -47,7 +46,7 @@ class EncodingLengthInfo {
   bool get isDynamic => length == null;
 
   const EncodingLengthInfo(this.length);
-  const EncodingLengthInfo.dynamic(): length = null;
+  const EncodingLengthInfo.dynamic() : length = null;
 }
 
 /// Calculates the amount of padding bytes needed so that the length of the

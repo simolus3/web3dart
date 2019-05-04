@@ -29,8 +29,7 @@ class TupleType extends AbiType<List<dynamic>> {
     // it's just all static members concatenated, together.
     for (var type in types) {
       final length = type.encodingLength;
-      if (length.isDynamic)
-        return const EncodingLengthInfo.dynamic();
+      if (length.isDynamic) return const EncodingLengthInfo.dynamic();
 
       trackedLength += length.length;
     }

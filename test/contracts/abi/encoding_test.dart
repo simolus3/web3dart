@@ -52,20 +52,17 @@ void main() {
 /// - Strings starting with "@" will be interpreted as [EthereumAddress]
 /// - Strings ending with "H" as [BigInt]
 dynamic _mapFromTest(dynamic input) {
-  if (input is int)
-    return BigInt.from(input);
+  if (input is int) return BigInt.from(input);
 
   if (input is String) {
-    if (input.startsWith('0x'))
-      return hexToBytes(input);
+    if (input.startsWith('0x')) return hexToBytes(input);
     if (input.startsWith('@'))
       return EthereumAddress.fromHex(input.substring(1));
     if (input.endsWith('H'))
       return BigInt.parse(input.substring(0, input.length - 1), radix: 16);
   }
 
-  if (input is List)
-    return input.map(_mapFromTest).toList();
+  if (input is List) return input.map(_mapFromTest).toList();
 
   return input;
 }

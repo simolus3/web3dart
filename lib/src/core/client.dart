@@ -255,8 +255,7 @@ class Web3Client {
           include0x: true, padToEvenLength: true),
     };
 
-    if (sender != null)
-      data['from'] = sender.hex;
+    if (sender != null) data['from'] = sender.hex;
 
     return _makeRPCCall<String>('eth_call', [data, _getBlockParam(atBlock)])
         .then((data) {
