@@ -79,6 +79,7 @@ class ContractAbi {
         }
 
         events.add(ContractEvent(anonymous, name, components));
+        continue;
       }
 
       final mutability = _mutabilityNames[element['stateMutability']];
@@ -153,7 +154,10 @@ class ContractFunction {
   /// The name of the function. Can be empty if it's an constructor or the
   /// default function.
   final String name;
-  final ContractFunctionType _type;
+
+  /// The type of the contract function, determines whether this [isConstant] or
+  /// [isConstructor].
+  final ContractFunctionType type;
 
   /// A list of types that represent the parameters required to call this
   /// function.
@@ -162,32 +166,33 @@ class ContractFunction {
   /// The return types of this function.
   final List<FunctionParameter> outputs;
 
-  final StateMutability _mutability;
+  /// The mutability of this function, determines whether this function is going
+  /// to read or write to the blockchain when called.
+  final StateMutability mutability;
 
   /// Returns true if this is the default function of a contract, which can be
   /// called when no other functions fit to an request.
-  bool get isDefault => _type == ContractFunctionType.fallback;
+  bool get isDefault => type == ContractFunctionType.fallback;
 
   /// Returns true if this function is an constructor of the contract it belongs
   /// to. Mind that this library does currently not support deploying new
   /// contracts on the blockchain, it only supports calling functions of
   /// existing contracts.
-  bool get isConstructor => _type == ContractFunctionType.constructor;
+  bool get isConstructor => type == ContractFunctionType.constructor;
 
   /// Returns true if this function is constant, i.e. it cannot modify the state
   /// of the blockchain when called. This allows the function to be called
   /// without sending Ether or gas as the connected client can compute it
   /// locally, no expensive mining will be required.
   bool get isConstant =>
-      _mutability == StateMutability.view ||
-      _mutability == StateMutability.pure;
+      mutability == StateMutability.view || mutability == StateMutability.pure;
 
   /// Returns true if this function can be used to send Ether to a smart
   /// contract that the contract will actually keep. Normally, all Ether sent
   /// with a transaction will be used to pay for gas fees and the rest will be
   /// sent back. Here however, the Ether (minus the fees) will be kept by the
   /// contract.
-  bool get isPayable => _mutability == StateMutability.payable;
+  bool get isPayable => mutability == StateMutability.payable;
 
   const ContractFunction(
     this.name,
@@ -195,8 +200,8 @@ class ContractFunction {
     this.outputs = const [],
     ContractFunctionType type = ContractFunctionType.function,
     StateMutability mutability = StateMutability.nonPayable,
-  })  : _type = type,
-        _mutability = mutability;
+  })  : type = type,
+        mutability = mutability;
 
   /// Encodes a call to this function with the specified parameters for a
   /// transaction or a call that can be sent to the network.
