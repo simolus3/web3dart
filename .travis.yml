@@ -1,6 +1,7 @@
 language: dart
+# todo test on stable, coverage collection hangs when using 2.3.0
 dart:
-  - stable
+  - "2.2.0"
 
 script: tool/build.sh
 after_success: 'bash <(curl -s https://codecov.io/bash) -f lcov.info'

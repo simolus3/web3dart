@@ -248,19 +248,46 @@ class Web3Client {
     @required ContractFunction function,
     @required List<dynamic> params,
     BlockNum atBlock,
-  }) {
-    final data = {
-      'to': contract.address.hex,
-      'data': bytesToHex(function.encodeCall(params),
-          include0x: true, padToEvenLength: true),
+  }) async {
+    final encodedResult = await callRaw(
+      sender: sender,
+      contract: contract.address,
+      data: function.encodeCall(params),
+    );
+
+    return function.decodeReturnValues(encodedResult);
+  }
+
+  /// Sends a raw method call to a smart contract.
+  ///
+  /// The connected node must be able to calculate the result locally, which
+  /// means that the call can't write any data to the blockchain. Doing that
+  /// would require a transaction which can be sent via [sendTransaction].
+  /// As no data will be written, you can use the [sender] to specify any
+  /// Ethereum address that would call that function. To use the address of a
+  /// credential, call [Credentials.extractAddress].
+  ///
+  /// This function allows specifying a custom block mined in the past to get
+  /// historical data. By default, [BlockNum.current] will be used.
+  ///
+  /// See also:
+  /// - [call], which automatically encodes function parameters and parses a
+  /// response.
+  Future<String> callRaw(
+      {EthereumAddress sender,
+      @required EthereumAddress contract,
+      @required Uint8List data,
+      BlockNum atBlock}) {
+    final call = {
+      'to': contract.hex,
+      'data': bytesToHex(data, include0x: true, padToEvenLength: true),
     };
 
-    if (sender != null) data['from'] = sender.hex;
+    if (sender != null) {
+      call['from'] = sender.hex;
+    }
 
-    return _makeRPCCall<String>('eth_call', [data, _getBlockParam(atBlock)])
-        .then((data) {
-      return function.decodeReturnValues(data);
-    });
+    return _makeRPCCall<String>('eth_call', [call, _getBlockParam(atBlock)]);
   }
 
   /// Listens for new blocks that are added to the chain. The stream will emit

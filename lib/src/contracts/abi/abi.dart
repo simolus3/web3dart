@@ -67,7 +67,7 @@ class ContractAbi {
 
     for (var element in data) {
       final type = element['type'] as String;
-      final name = element['name'] as String;
+      final name = (element['name'] as String) ?? '';
 
       if (type == 'event') {
         final anonymous = element['anonymous'] as bool;
@@ -198,10 +198,9 @@ class ContractFunction {
     this.name,
     this.parameters, {
     this.outputs = const [],
-    ContractFunctionType type = ContractFunctionType.function,
-    StateMutability mutability = StateMutability.nonPayable,
-  })  : type = type,
-        mutability = mutability;
+    this.type = ContractFunctionType.function,
+    this.mutability = StateMutability.nonPayable,
+  });
 
   /// Encodes a call to this function with the specified parameters for a
   /// transaction or a call that can be sent to the network.
