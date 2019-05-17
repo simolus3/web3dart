@@ -53,7 +53,7 @@ void main() {
         .thenAnswer((i) {
       return Future.value(Response(
         '{"id": 1, "jsonrpc": "2.0", '
-            '"error": {"code": 1, "message": "Message", "data": "data"}}',
+        '"error": {"code": 1, "message": "Message", "data": "data"}}',
         200,
       ));
     });

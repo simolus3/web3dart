@@ -160,8 +160,8 @@ class Wallet {
           version,
           'version',
           'Library only supports '
-          'version 3 of wallet files at the moment. However, the following value'
-          ' has been given:');
+              'version 3 of wallet files at the moment. However, the following value'
+              ' has been given:');
     }
 
     final crypto = data['crypto'] ?? data['Crypto'];
