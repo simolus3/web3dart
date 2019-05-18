@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:path/path.dart' show join, dirname;
+import 'package:web_socket_channel/io.dart';
 
 const String rpcUrl = 'http://localhost:7545';
+const String wsUrl = 'ws://localhost:7545';
+
 const String privateKey =
     '85d2242ae1b7759934d4b0d4f0d62d666cf7d73e21dbd09d73c7de266b72a25a';
 
@@ -49,8 +52,12 @@ The ABI of this contract is available at abi.json
  */
 
 void main() async {
-  // establish a connection to the ethereum rpc node
-  final client = Web3Client(rpcUrl, Client());
+  // establish a connection to the ethereum rpc node. The socketConnector
+  // property allows more efficient event streams over websocket instead of
+  // http-polls. However, the socketConnector property is experimental.
+  final client = Web3Client(rpcUrl, Client(), socketConnector: () {
+    return IOWebSocketChannel.connect(wsUrl).cast<String>();
+  });
   final credentials = await client.credentialsFromPrivateKey(privateKey);
   final ownAddress = await credentials.extractAddress();
 

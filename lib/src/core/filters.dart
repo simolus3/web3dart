@@ -7,8 +7,15 @@ class _FilterCreationParams {
   _FilterCreationParams(this.method, this.params);
 }
 
+class _PubSubCreationParams {
+  final List<dynamic> params;
+
+  _PubSubCreationParams(this.params);
+}
+
 abstract class _Filter<T> {
   _FilterCreationParams create();
+  _PubSubCreationParams createPubSub();
   T parseChanges(dynamic log);
 }
 
@@ -22,6 +29,13 @@ class _NewBlockFilter extends _Filter<String> {
   String parseChanges(log) {
     return log as String;
   }
+
+  @override
+  _PubSubCreationParams createPubSub() {
+    // the pub-sub subscription for new blocks isn't universally supported by
+    // ethereum nodes, so let's not implement it just yet.
+    return null;
+  }
 }
 
 class _PendingTransactionsFilter extends _Filter<String> {
@@ -33,6 +47,12 @@ class _PendingTransactionsFilter extends _Filter<String> {
   @override
   String parseChanges(log) {
     return log as String;
+  }
+
+  @override
+  _PubSubCreationParams createPubSub() {
+    // TODO: implement createPubSub
+    return null;
   }
 }
 
@@ -166,12 +186,23 @@ class _EventFilter extends _Filter<FilterEvent> {
 
   @override
   _FilterCreationParams create() {
-    // todo i'm exited to use the UI-as-code feature for this
+    return _FilterCreationParams('eth_newFilter', [_createParamsObject(true)]);
+  }
+
+  @override
+  _PubSubCreationParams createPubSub() {
+    return _PubSubCreationParams([
+      'logs',
+      _createParamsObject(false),
+    ]);
+  }
+
+  dynamic _createParamsObject(bool includeFromAndTo) {
     final encodedOptions = <String, dynamic>{};
-    if (options.fromBlock != null) {
+    if (options.fromBlock != null && includeFromAndTo) {
       encodedOptions['fromBlock'] = options.fromBlock.toBlockParam();
     }
-    if (options.toBlock != null) {
+    if (options.toBlock != null && includeFromAndTo) {
       encodedOptions['toBlock'] = options.toBlock.toBlockParam();
     }
     if (options.address != null) {
@@ -181,7 +212,7 @@ class _EventFilter extends _Filter<FilterEvent> {
       encodedOptions['topics'] = options.topics;
     }
 
-    return _FilterCreationParams('eth_newFilter', [encodedOptions]);
+    return encodedOptions;
   }
 
   @override
@@ -205,22 +236,33 @@ const _pingDuration = Duration(seconds: 2);
 
 class _FilterEngine {
   final List<_InstantiatedFilter> _filters = [];
-  final JsonRPC _rpc;
+  final Web3Client _client;
+
+  JsonRPC get _rpc => _client._jsonRpc;
 
   Timer _ticker;
   bool _isRefreshing = false;
+  bool _clearingBecauseSocketClosed = false;
 
-  _FilterEngine(this._rpc);
+  _FilterEngine(this._client);
 
   Stream<T> addFilter<T>(_Filter<T> filter) {
+    final pubSubParams = filter.createPubSub();
+    final pubSubAvailable = _client.socketConnector != null;
+    final supportsPubSub = pubSubParams != null && pubSubAvailable;
+
     _InstantiatedFilter<T> instantiated;
-    instantiated = _InstantiatedFilter(filter, () {
+    instantiated = _InstantiatedFilter(filter, supportsPubSub, () {
       uninstall(instantiated);
     });
     _filters.add(instantiated);
 
-    _registerToAPI(instantiated);
-    _startTicking();
+    if (instantiated.isPubSub) {
+      _registerToPubSub(instantiated, pubSubParams);
+    } else {
+      _registerToAPI(instantiated);
+      _startTicking();
+    }
 
     return instantiated._controller.stream;
   }
@@ -230,8 +272,22 @@ class _FilterEngine {
 
     try {
       final response = await _rpc.call(request.method, request.params);
-      filter.id = int.parse(response.result as String);
+      filter.id = response.result as String;
     } on RPCError catch (e, s) {
+      filter._controller.addError(e, s);
+      await filter._controller.close();
+      _filters.remove(filter);
+    }
+  }
+
+  void _registerToPubSub(
+      _InstantiatedFilter filter, _PubSubCreationParams params) async {
+    final peer = _client._connectWithPeer();
+
+    try {
+      final response = await peer.sendRequest('eth_subscribe', params.params);
+      filter.id = response as String;
+    } on rpc.RpcException catch (e, s) {
       filter._controller.addError(e, s);
       await filter._controller.close();
       _filters.remove(filter);
@@ -251,13 +307,12 @@ class _FilterEngine {
 
       for (var filter in filterSnapshot) {
         final updatedData =
-            await _rpc.call('eth_getFilterChanges', [_filterAsParam(filter)]);
+            await _rpc.call('eth_getFilterChanges', [filter.id]);
 
         for (var payload in updatedData.result) {
-          final parsed = filter.filter.parseChanges(payload);
-          if (filter._controller.isClosed) break;
-
-          filter._controller.add(parsed);
+          if (!filter._controller.isClosed) {
+            _parseAndAdd(filter, payload);
+          }
         }
       }
     } finally {
@@ -265,13 +320,42 @@ class _FilterEngine {
     }
   }
 
-  String _filterAsParam(_InstantiatedFilter filter) {
-    return '0x${filter.id.toRadixString(16)}';
+  void handlePubSubNotification(rpc.Parameters params) {
+    final id = params['subscription'].asString;
+    final result = params['result'].value;
+
+    final filter = _filters.singleWhere((f) => f.isPubSub && f.id == id,
+        orElse: () => null);
+    _parseAndAdd(filter, result);
+  }
+
+  void handleConnectionClosed() {
+    try {
+      _clearingBecauseSocketClosed = true;
+      final pubSubFilters = _filters.where((f) => f.isPubSub).toList();
+
+      for (var filter in pubSubFilters) {
+        uninstall(filter);
+      }
+    } finally {
+      _clearingBecauseSocketClosed = false;
+    }
+  }
+
+  void _parseAndAdd(_InstantiatedFilter filter, dynamic payload) {
+    final parsed = filter.filter.parseChanges(payload);
+    filter._controller.add(parsed);
   }
 
   Future uninstall(_InstantiatedFilter filter) async {
     await filter._controller.close();
-    await _rpc.call('eth_uninstallFilter', [_filterAsParam(filter)]);
+
+    if (filter.isPubSub && !_clearingBecauseSocketClosed) {
+      final connection = _client._connectWithPeer();
+      await connection.sendRequest('eth_unsubscribe', [filter.id]);
+    } else {
+      await _rpc.call('eth_uninstallFilter', [filter.id]);
+    }
 
     _filters.remove(filter);
   }
@@ -286,11 +370,14 @@ class _FilterEngine {
 class _InstantiatedFilter<T> {
   /// The id of this filter. This value will be obtained from the API after the
   /// filter has been set up and is `null` before that.
-  int id;
+  String id;
   final _Filter<T> filter;
+
+  /// Whether the filter is listening on a websocket connection.
+  final bool isPubSub;
 
   final StreamController<T> _controller;
 
-  _InstantiatedFilter(this.filter, Function() onCancel)
+  _InstantiatedFilter(this.filter, this.isPubSub, Function() onCancel)
       : _controller = StreamController(onCancel: onCancel);
 }

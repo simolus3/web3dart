@@ -1,5 +1,21 @@
 part of 'package:web3dart/web3dart.dart';
 
+/// Signature for a function that opens a socket on which json-rpc operations
+/// can be performed.
+///
+/// Typically, this would be a websocket. The `web_socket_channel` package on
+/// pub is suitable to create websockets. An implementation using that library
+/// could look like this:
+/// ```dart
+/// import "package:web3dart/web3dart.dart";
+/// import "package:web_socket_channel/io.dart";
+///
+/// final client = Web3Client(rpcUrl, Client(), socketConnector: () {
+///    return IOWebSocketChannel.connect(wsUrl).cast<String>();
+/// });
+/// ```
+typedef SocketConnector = StreamChannel<String> Function();
+
 /// Class for sending requests over an HTTP JSON-RPC API endpoint to Ethereum
 /// clients. This library won't use the accounts feature of clients to use them
 /// to create transactions, you will instead have to obtain private keys of
@@ -8,6 +24,15 @@ class Web3Client {
   static const BlockNum _defaultBlock = BlockNum.current();
 
   final JsonRPC _jsonRpc;
+
+  /// Some ethereum nodes support an event channel over websockets. Web3dart
+  /// will use the [StreamChannel] returned by this function as a socket to send
+  /// event requests and parse responses. Can be null, in which case a polling
+  /// implementation for events will be used.
+  @experimental
+  final SocketConnector socketConnector;
+
+  rpc.Peer _streamRpcPeer;
 
   _ExpensiveOperations _operations;
   _FilterEngine _filters;
@@ -22,10 +47,10 @@ class Web3Client {
   /// a background isolate instead of blocking the main thread. This feature
   /// is experimental at the moment.
   Web3Client(String url, Client httpClient,
-      {bool enableBackgroundIsolate = false})
+      {bool enableBackgroundIsolate = false, this.socketConnector})
       : _jsonRpc = JsonRPC(url, httpClient) {
     _operations = _ExpensiveOperations(enableBackgroundIsolate);
-    _filters = _FilterEngine(_jsonRpc);
+    _filters = _FilterEngine(this);
   }
 
   Future<T> _makeRPCCall<T>(String function, [List<dynamic> params]) async {
@@ -40,6 +65,26 @@ class Web3Client {
 
       rethrow;
     }
+  }
+
+  rpc.Peer _connectWithPeer() {
+    if (_streamRpcPeer != null && !_streamRpcPeer.isClosed)
+      return _streamRpcPeer;
+    if (socketConnector == null) return null;
+
+    final socket = socketConnector();
+    _streamRpcPeer = rpc.Peer(socket)
+      ..registerMethod('eth_subscription', (rpc.Parameters params) {
+        _filters.handlePubSubNotification(params);
+      });
+
+    _streamRpcPeer.listen().then((_) {
+      // .listen() will complete when the socket is closed, so reset client
+      _streamRpcPeer = null;
+      _filters.handleConnectionClosed();
+    });
+
+    return _streamRpcPeer;
   }
 
   String _getBlockParam(BlockNum block) {
@@ -333,5 +378,6 @@ class Web3Client {
   Future<void> dispose() async {
     await _operations.stop();
     await _filters.dispose();
+    await _streamRpcPeer?.close();
   }
 }
