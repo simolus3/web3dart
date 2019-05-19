@@ -231,7 +231,6 @@ class _EventFilter extends _Filter<FilterEvent> {
   }
 }
 
-const _defaultTimeout = Duration(seconds: 1);
 const _pingDuration = Duration(seconds: 2);
 
 class _FilterEngine {
@@ -244,6 +243,8 @@ class _FilterEngine {
   bool _isRefreshing = false;
   bool _clearingBecauseSocketClosed = false;
 
+  final List<Future> _pendingUnsubcriptions = [];
+
   _FilterEngine(this._client);
 
   Stream<T> addFilter<T>(_Filter<T> filter) {
@@ -253,7 +254,7 @@ class _FilterEngine {
 
     _InstantiatedFilter<T> instantiated;
     instantiated = _InstantiatedFilter(filter, supportsPubSub, () {
-      uninstall(instantiated);
+      _pendingUnsubcriptions.add(uninstall(instantiated));
     });
     _filters.add(instantiated);
 
@@ -349,6 +350,7 @@ class _FilterEngine {
 
   Future uninstall(_InstantiatedFilter filter) async {
     await filter._controller.close();
+    _filters.remove(filter);
 
     if (filter.isPubSub && !_clearingBecauseSocketClosed) {
       final connection = _client._connectWithPeer();
@@ -356,14 +358,16 @@ class _FilterEngine {
     } else {
       await _rpc.call('eth_uninstallFilter', [filter.id]);
     }
-
-    _filters.remove(filter);
   }
 
-  Future dispose({Duration timeout = _defaultTimeout}) async {
+  Future dispose() async {
     _ticker?.cancel();
     final remainingFilters = List.of(_filters);
-    await Future.forEach(remainingFilters, uninstall).timeout(timeout);
+
+    await Future.forEach(remainingFilters, uninstall);
+    await Future.wait(_pendingUnsubcriptions);
+
+    _pendingUnsubcriptions.clear();
   }
 }
 
