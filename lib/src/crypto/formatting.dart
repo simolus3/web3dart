@@ -49,7 +49,12 @@ BigInt bytesToInt(List<int> bytes) => p_utils.decodeBigInt(bytes);
 
 Uint8List intToBytes(BigInt number) => p_utils.encodeBigInt(number);
 
-///Takes the hexadecimal input and creates a BigInt.
+///Takes the hexadecimal input and creates a [BigInt].
 BigInt hexToInt(String hex) {
   return BigInt.parse(strip0x(hex), radix: 16);
+}
+
+/// Converts the hexadecimal input and creates an [int].
+int hexToDartInt(String hex) {
+  return int.parse(strip0x(hex));
 }
