@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0
+- Added `getTransactionReceipt` to get more detailed information about a
+transaction, including whether it was executed successfully or not.
+
 ## 1.0.0
 Basically a complete rewrite of the library - countless bug fixes, a more fluent
 and consistent api and more features:
