@@ -99,7 +99,7 @@ List<dynamic> _encodeToRlp(Transaction transaction, MsgSignature signature) {
   if (transaction.to != null) {
     list.add(transaction.to.addressBytes);
   } else {
-    list.add([]);
+    list.add('');
   }
 
   list..add(transaction.value.getInWei)..add(transaction.data);
