@@ -67,3 +67,55 @@ class TransactionInformation {
         r = hexToBytes(map['r'] as String),
         s = hexToBytes(map['s'] as String);
 }
+
+class TransactionReceipt {
+  /// Hash of the transaction (32 bytes).
+  final Uint8List transactionHash;
+
+  /// Index of the transaction's position in the block.
+  final int transactionIndex;
+
+  /// Hash of the block where this transaction is in (32 bytes).
+  final Uint8List blockHash;
+
+  /// Block number where this transaction is in.
+  final BlockNum blockNumber;
+
+  /// Address of the sender.
+  final EthereumAddress from;
+
+  /// Address of the receiver or `null` if it was a contract creation
+  /// transaction.
+  final EthereumAddress to;
+
+  /// The total amount of gas used when this transaction was executed in the
+  /// block.
+  final BigInt cumulativeGasUsed;
+
+  /// The amount of gas used by this specific transaction alone.
+  final BigInt gasUsed;
+
+  /// The address of the contract created if the transaction was a contract
+  /// creation. `null` otherwise.
+  final EthereumAddress contractAddress;
+
+  /// Whether this transaction was executed successfully.
+  final bool status;
+
+  TransactionReceipt.fromJson(Map<String, dynamic> map)
+      : transactionHash = hexToBytes(map['transactionHash'] as String),
+        transactionIndex = hexToDartInt(map['transactionIndex'] as String),
+        blockHash = hexToBytes(map['blockHash'] as String),
+        blockNumber =
+            BlockNum.exact(hexToDartInt(map['blockNumber'] as String)),
+        from = EthereumAddress.fromHex(map['from'] as String),
+        to = map['to'] != null
+            ? EthereumAddress.fromHex(map['to'] as String)
+            : null,
+        cumulativeGasUsed = hexToInt(map['cumulativeGasUsed'] as String),
+        gasUsed = hexToInt(map['gasUsed'] as String),
+        contractAddress = map['contractAddress'] != null
+            ? EthereumAddress.fromHex(map['contractAddress'] as String)
+            : null,
+        status = hexToDartInt(map['status'] as String) == 1;
+}

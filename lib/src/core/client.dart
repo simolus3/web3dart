@@ -232,6 +232,13 @@ class Web3Client {
         .then((s) => TransactionInformation.fromMap(s));
   }
 
+  /// Returns an receipt of a transaction based on its hash.
+  Future<TransactionReceipt> getTransactionReceipt(String hash) {
+    return _makeRPCCall<Map<String, dynamic>>(
+            'eth_getTransactionReceipt', [hash])
+        .then((s) => s != null ? TransactionReceipt.fromJson(s) : null);
+  }
+
   /// Gets the code of a contract at the specified [address]
   ///
   /// This function allows specifying a custom block mined in the past to get
