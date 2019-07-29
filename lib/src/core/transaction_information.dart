@@ -106,8 +106,9 @@ class TransactionReceipt {
       : transactionHash = hexToBytes(map['transactionHash'] as String),
         transactionIndex = hexToDartInt(map['transactionIndex'] as String),
         blockHash = hexToBytes(map['blockHash'] as String),
-        blockNumber =
-            BlockNum.exact(hexToDartInt(map['blockNumber'] as String)),
+        blockNumber = map['blockNumber'] != null
+            ? BlockNum.exact(int.parse(map['blockNumber'] as String))
+            : const BlockNum.pending(),
         from = EthereumAddress.fromHex(map['from'] as String),
         to = map['to'] != null
             ? EthereumAddress.fromHex(map['to'] as String)
