@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+- Fix parsing transaction receipts when the block number is not yet available.
+Thanks to [@chart21](https://github.com/chart21) for the fix.
+
 ## 1.1.0
 - Added `getTransactionReceipt` to get more detailed information about a
 transaction, including whether it was executed successfully or not.
