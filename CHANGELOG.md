@@ -1,8 +1,10 @@
 # Changelog
 
-## 1.1.1
+## 1.1.1, 1.1.1+1
 - Fix parsing transaction receipts when the block number is not yet available.
 Thanks to [@chart21](https://github.com/chart21) for the fix.
+- Fix a typo that made it impossible to load the coinbase address. Thanks to
+[@modulovalue](https://github.com/modulovalue) for the fix.
 
 ## 1.1.0
 - Added `getTransactionReceipt` to get more detailed information about a
