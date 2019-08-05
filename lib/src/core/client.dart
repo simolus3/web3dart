@@ -151,7 +151,7 @@ class Web3Client {
   }
 
   Future<EthereumAddress> coinbaseAddress() async {
-    final hex = await _makeRPCCall<String>('eth_coinbare');
+    final hex = await _makeRPCCall<String>('eth_coinbase');
     return EthereumAddress.fromHex(hex);
   }
 
