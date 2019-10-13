@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+- Added `estimateGas` method on `Web3Client` to estimate the amount of gas that
+  would be used by a transaction.
+
 ## 1.1.1, 1.1.1+1
 - Fix parsing transaction receipts when the block number is not yet available.
 Thanks to [@chart21](https://github.com/chart21) for the fix.
