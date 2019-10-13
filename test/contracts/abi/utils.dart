@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:test_api/test_api.dart';
+import 'package:test/test.dart';
 
 import 'package:web3dart/contracts.dart';
 import 'package:web3dart/crypto.dart';

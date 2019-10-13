@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:http/http.dart';
 import 'package:mockito/mockito.dart';
-import 'package:test_api/test_api.dart';
+import 'package:test/test.dart';
 import 'package:web3dart/json_rpc.dart';
 
 class MockClient extends Mock implements Client {}

@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:mockito/mockito.dart';
-import 'package:test_api/test_api.dart';
+import 'package:test/test.dart';
 import 'package:web3dart/src/crypto/random_bridge.dart';
 
 class MockRandom extends Mock implements Random {}

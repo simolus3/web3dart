@@ -21,12 +21,6 @@ dependencies:
 dev_dependencies:
   web_socket_channel: ^1.0.0
   path: ^1.6.2
-  test: ^1.5.3
-  test_api: # _api and _core version will be determined by the test package
-  test_core:
+  test: ^1.9.0
   mockito: ^4.0.0
-  coverage: ^0.13.0
-
-dependency_overrides:
-  coverage:
-    git: https://github.com/simolus3/coverage.git
+  coverage: ^0.13.3

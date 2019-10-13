@@ -1,6 +1,6 @@
 import 'package:web3dart/web3dart.dart';
 import 'package:web3dart/crypto.dart';
-import 'package:test_api/test_api.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('signs transactions', () async {

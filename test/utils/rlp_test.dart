@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/src/utils/rlp.dart';
-import 'package:test_api/test_api.dart';
+import 'package:test/test.dart';
 
 void main() {
   final file = File(join('test', 'utils', 'rlp_test_vectors.json'));
