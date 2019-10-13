@@ -310,6 +310,35 @@ class Web3Client {
     return function.decodeReturnValues(encodedResult);
   }
 
+  /// Estimate the amount of gas that would be necessary if the transaction was
+  /// sent via [sendTransaction]. Note that the estimate may be significantly
+  /// higher than the amount of gas actually used by the transaction.
+  Future<BigInt> estimateGas({
+    EthereumAddress sender,
+    EthereumAddress to,
+    EtherAmount value,
+    BigInt amountOfGas,
+    EtherAmount gasPrice,
+    Uint8List data,
+    BlockNum atBlock,
+  }) async {
+    final amountHex = await _makeRPCCall<String>(
+      'eth_estimateGas',
+      [
+        {
+          if (sender != null) 'from': sender.hex,
+          if (to != null) 'to': to.hex,
+          if (amountOfGas != null) 'gas': '0x${amountOfGas.toRadixString(16)}',
+          if (gasPrice != null)
+            'gasPrice': '0x${amountOfGas.toRadixString(16)}',
+          if (data != null) 'data': bytesToHex(data),
+        },
+        _getBlockParam(atBlock),
+      ],
+    );
+    return hexToInt(amountHex);
+  }
+
   /// Sends a raw method call to a smart contract.
   ///
   /// The connected node must be able to calculate the result locally, which

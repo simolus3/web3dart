@@ -85,8 +85,8 @@ class FilterOptions {
   /// will be matched by the following topic filters:
   /// - \[\], which matches anything
   /// - \[A\], which matches "A" in the first position and anything after
-  /// - \[null, B\], which matches logs that have A in their first position AND
-  /// B in their second position (and anything after)
+  /// - \[null, B\], which matches logs that have anything in their first
+  ///   position, B in their second position and anything after
   /// - \[A, B\], which matches A in first position, B in second position (and
   /// anything after)
   /// - \[\[A, B\], \[A, B\]\]: Matches (A or B) in first position AND (A or B)
