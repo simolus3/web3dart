@@ -3,6 +3,8 @@
 ## 1.2.0
 - Added `estimateGas` method on `Web3Client` to estimate the amount of gas that
   would be used by a transaction.
+  
+In 1.2.1, the `atBlock` parameter on `estimateGas` was deprecated an will be ignored.
 
 ## 1.1.1, 1.1.1+1
 - Fix parsing transaction receipts when the block number is not yet available.

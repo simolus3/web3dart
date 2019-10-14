@@ -320,7 +320,7 @@ class Web3Client {
     BigInt amountOfGas,
     EtherAmount gasPrice,
     Uint8List data,
-    BlockNum atBlock,
+    @Deprecated('Parameter is ignored') BlockNum atBlock,
   }) async {
     final amountHex = await _makeRPCCall<String>(
       'eth_estimateGas',
@@ -333,7 +333,6 @@ class Web3Client {
             'gasPrice': '0x${amountOfGas.toRadixString(16)}',
           if (data != null) 'data': bytesToHex(data),
         },
-        _getBlockParam(atBlock),
       ],
     );
     return hexToInt(amountHex);
