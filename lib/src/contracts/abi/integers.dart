@@ -178,11 +178,11 @@ class IntType extends _IntTypeBase {
   @override
   BigInt _decode32Bytes(Uint8List data) {
     final negative = data[0] >= 128; // first bit set?
-    final parsedAsUnsigned = bytesToInt(data);
+    final lengthInBytes = length ~/ 8;
+    // don't read sign-extended padding from the start
+    final asUnsigned = bytesToInt(data.sublist(32 - lengthInBytes));
 
-    return negative
-        ? (-(BigInt.one << length) + parsedAsUnsigned)
-        : parsedAsUnsigned;
+    return negative ? asUnsigned.toSigned(length) : asUnsigned;
   }
 
   @override
