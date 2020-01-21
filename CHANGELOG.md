@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.3
+
+- include a `0x` for hex data in `eth_estimateGas` - thanks, [@Botary](https://github.com/Botary)
+
 ## 1.2.2
 - Fixed a bug when decoding negative integers ([#73](https://github.com/simolus3/web3dart/issues/73))
 
