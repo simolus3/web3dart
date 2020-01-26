@@ -1,3 +1,4 @@
+const content = r'''
 {
   "uInts": {
     "args": [
@@ -27,3 +28,4 @@
     "types": ["bool", "bool"]
   }
 }
+''';

@@ -1,3 +1,4 @@
+const content = r'''
 {
   "GithubWikiTest": {
     "args": [
@@ -38,3 +39,4 @@
     ]
   }
 }
+''';

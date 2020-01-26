@@ -1,46 +1,44 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
-import 'package:path/path.dart';
 
 import 'package:web3dart/web3dart.dart';
 import 'package:web3dart/crypto.dart';
 
+import 'data/basic_abi_tests.dart' as basic;
+import 'data/integers.dart' as ints;
+
 import 'utils.dart';
 
-final testFiles = [
-  'basic_abi_tests.json',
-  'integers.json',
-];
-
 void main() {
-  for (final file in testFiles) {
-    final resolved = File(join('test', 'contracts', 'abi', 'data', file));
-    final parsed = json.decode(resolved.readAsStringSync()) as Map;
+  _runTests(basic.content);
+  _runTests(ints.content);
+}
 
-    for (final testCase in parsed.keys) {
-      group('ABI - $testCase', () {
-        final testVector = parsed[testCase] as Map<String, dynamic>;
+void _runTests(String content) {
+  final parsed = json.decode(content) as Map;
 
-        final types = (testVector['types'] as List)
-            .cast<String>()
-            .map(parseAbiType)
-            .toList();
-        final tupleWrapper = TupleType(types);
-        final result = testVector['result'] as String;
-        final input = _mapFromTest(testVector['args']);
+  for (final testCase in parsed.keys) {
+    group('ABI - $testCase', () {
+      final testVector = parsed[testCase] as Map<String, dynamic>;
 
-        test('encodes', () {
-          expectEncodes(tupleWrapper, input, result);
-        });
+      final types = (testVector['types'] as List)
+          .cast<String>()
+          .map(parseAbiType)
+          .toList();
+      final tupleWrapper = TupleType(types);
+      final result = testVector['result'] as String;
+      final input = _mapFromTest(testVector['args']);
 
-        test('decodes', () {
-          expect(tupleWrapper.decode(bufferFromHex(result), 0).data, input);
-        });
+      test('encodes', () {
+        expectEncodes(tupleWrapper, input, result);
       });
-    }
+
+      test('decodes', () {
+        expect(tupleWrapper.decode(bufferFromHex(result), 0).data, input);
+      });
+    });
   }
 }
 

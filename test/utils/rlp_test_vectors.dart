@@ -1,3 +1,5 @@
+// wrapped in Dart file so that we can load it on the web
+const content = r'''
 {
   "emptystring": {
     "in": "",
@@ -155,3 +157,4 @@
     "out": "0xa1010000000000000000000000000000000000000000000000000000000000000000"
   }
 }
+''';
