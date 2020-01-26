@@ -42,14 +42,16 @@ class Web3Client {
 
   /// Starts a client that connects to a JSON rpc API, available at [url]. The
   /// [httpClient] will be used to send requests to the rpc server.
-  /// If [enableBackgroundIsolate] is true (defaults to false), expensive
-  /// methods like [credentialsFromPrivateKey] or [sendTransaction] will use
-  /// a background isolate instead of blocking the main thread. This feature
-  /// is experimental at the moment.
+  /// The [runner] will be used to perform expensive operations, such as signing
+  /// transactions or computing private keys. By default, a [Runner] on the same
+  /// isolate will be used. You can use `IsolateRunner.spawn` to use a
+  /// background runner instead.
+  /// The runner will automatically be disposed by web3dart when [dispose] is
+  /// called.
   Web3Client(String url, Client httpClient,
-      {bool enableBackgroundIsolate = false, this.socketConnector})
+      {this.socketConnector, Runner runner})
       : _jsonRpc = JsonRPC(url, httpClient) {
-    _operations = _ExpensiveOperations(enableBackgroundIsolate);
+    _operations = _ExpensiveOperations(runner ?? Runner());
     _filters = _FilterEngine(this);
   }
 

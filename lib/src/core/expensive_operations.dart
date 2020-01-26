@@ -4,43 +4,23 @@ part of 'package:web3dart/web3dart.dart';
 /// optionally be executed in a background isolate. This is mainly needed for
 /// flutter apps where these would otherwise block the UI thread.
 class _ExpensiveOperations {
-  final Completer<Runner> _runnerCompleter = Completer();
-  final bool runInBackground;
+  final Runner runner;
 
-  _ExpensiveOperations(this.runInBackground) {
-    _start();
+  _ExpensiveOperations(this.runner);
+
+  Future stop() {
+    return runner.close();
   }
 
-  void _start() async {
-    if (runInBackground) {
-      _runnerCompleter.complete(IsolateRunner.spawn());
-    } else {
-      _runnerCompleter.complete(Runner());
-    }
-  }
-
-  Future stop() async {
-    // we don't need to dispose the same-isolate runner
-    if (!runInBackground) {
-      return;
-    }
-
-    final runner = (await _runnerCompleter.future) as IsolateRunner;
-    await runner.kill();
-  }
-
-  Future<EthPrivateKey> privateKeyFromHex(String privateKey) async {
-    final runner = await _runnerCompleter.future;
-
+  Future<EthPrivateKey> privateKeyFromHex(String privateKey) {
     return runner.run(_internalCreatePrivateKey, privateKey);
   }
 
-  Future<Uint8List> signTransaction(_SigningInput t) async {
+  Future<Uint8List> signTransaction(_SigningInput t) {
     if (!t.credentials.isolateSafe) {
       // sign on this isolate
       return internalSign(t);
     } else {
-      final runner = await _runnerCompleter.future;
       return runner.run(internalSign, t);
     }
   }

@@ -7,7 +7,7 @@ const String rpcUrl = 'http://localhost:7545';
 
 void main() async {
   // start a client we can use to send transactions
-  final client = Web3Client(rpcUrl, Client(), enableBackgroundIsolate: true);
+  final client = Web3Client(rpcUrl, Client());
 
   final credentials = await client.credentialsFromPrivateKey(privateKey);
   final address = await credentials.extractAddress();
