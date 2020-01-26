@@ -22,9 +22,10 @@ class SyncInformation {
 
   @override
   String toString() {
-    if (isSyncing)
+    if (isSyncing) {
       return 'SyncInformation: from $startingBlock to $finalBlock, current: $currentBlock';
-    else
+    } else {
       return 'SyncInformation: Currently not performing a synchronisation';
+    }
   }
 }

@@ -6,6 +6,7 @@ const String privateKey =
 const String rpcUrl = 'http://localhost:7545';
 
 void main() async {
+  // start a client we can use to send transactions
   final client = Web3Client(rpcUrl, Client(), enableBackgroundIsolate: true);
 
   final credentials = await client.credentialsFromPrivateKey(privateKey);
@@ -22,7 +23,6 @@ void main() async {
       maxGas: 100000,
       value: EtherAmount.fromUnitAndValue(EtherUnit.ether, 1),
     ),
-    fetchChainIdFromNetworkId: false,
   );
 
   await client.dispose();

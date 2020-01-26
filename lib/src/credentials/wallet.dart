@@ -207,9 +207,10 @@ class Wallet {
 
     //Validate the derived key with the mac provided
     final derivedMac = _generateMac(derivedKey, encryptedPrivateKey);
-    if (derivedMac != crypto['mac'])
+    if (derivedMac != crypto['mac']) {
       throw ArgumentError(
           'Could not unlock wallet file. You either supplied the wrong password or the file is corrupted');
+    }
 
     // We only support this mode at the moment
     if (crypto['cipher'] != 'aes-128-ctr') {

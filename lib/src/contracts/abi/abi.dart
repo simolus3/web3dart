@@ -139,10 +139,11 @@ class ContractAbi {
       remainingName = arrayMatch.group(1);
 
       final insideSquareBrackets = arrayMatch.group(2);
-      if (insideSquareBrackets.isEmpty)
+      if (insideSquareBrackets.isEmpty) {
         arrayLengths.insert(0, null);
-      else
+      } else {
         arrayLengths.insert(0, int.parse(insideSquareBrackets));
+      }
     }
 
     return CompositeFunctionParameter(name, components, arrayLengths);
@@ -218,9 +219,10 @@ class ContractFunction {
   ///
   /// Other types are not supported at the moment.
   Uint8List encodeCall(List<dynamic> params) {
-    if (params.length != parameters.length)
+    if (params.length != parameters.length) {
       throw ArgumentError.value(
           params.length, 'params', 'Must match function parameters');
+    }
 
     final sink = LengthTrackingByteSink()
       //First four bytes to identify the function with its parameters
