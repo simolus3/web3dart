@@ -5,7 +5,7 @@ abstract class _IntTypeBase extends AbiType<BigInt> {
   final int length;
 
   @override
-  final EncodingLengthInfo encodingLength =
+  EncodingLengthInfo get encodingLength =>
       const EncodingLengthInfo(sizeUnitBytes);
 
   String get _namePrefix;
@@ -30,7 +30,7 @@ abstract class _IntTypeBase extends AbiType<BigInt> {
 /// The solidity uint<M> type that encodes unsigned integers.
 class UintType extends _IntTypeBase {
   @override
-  final String _namePrefix = 'uint';
+  String get _namePrefix => 'uint';
 
   const UintType({int length = 256}) : super(length);
 
@@ -80,11 +80,11 @@ class AddressType extends AbiType<EthereumAddress> {
   static const _paddingLen = sizeUnitBytes - EthereumAddress.addressByteLength;
 
   @override
-  final EncodingLengthInfo encodingLength =
+  EncodingLengthInfo get encodingLength =>
       const EncodingLengthInfo(sizeUnitBytes);
 
   @override
-  final String name = 'address';
+  String get name => 'address';
 
   @override
   void encode(EthereumAddress data, LengthTrackingByteSink buffer) {
@@ -116,11 +116,11 @@ class BoolType extends AbiType<bool> {
   const BoolType();
 
   @override
-  final EncodingLengthInfo encodingLength =
+  EncodingLengthInfo get encodingLength =>
       const EncodingLengthInfo(sizeUnitBytes);
 
   @override
-  final String name = 'bool';
+  String get name => 'bool';
 
   @override
   void encode(bool data, LengthTrackingByteSink buffer) {
@@ -139,7 +139,7 @@ class BoolType extends AbiType<bool> {
   int get hashCode => runtimeType.hashCode;
 
   @override
-  bool operator ==(other) {
+  bool operator ==(dynamic other) {
     return other.runtimeType == BoolType;
   }
 }
@@ -147,7 +147,7 @@ class BoolType extends AbiType<bool> {
 /// The solidity int<M> types that encodes twos-complement integers.
 class IntType extends _IntTypeBase {
   @override
-  final String _namePrefix = 'int';
+  String get _namePrefix => 'int';
 
   const IntType({int length = 256}) : super(length);
 

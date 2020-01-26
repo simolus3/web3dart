@@ -16,11 +16,11 @@ final testFiles = [
 ];
 
 void main() {
-  for (var file in testFiles) {
+  for (final file in testFiles) {
     final resolved = File(join('test', 'contracts', 'abi', 'data', file));
     final parsed = json.decode(resolved.readAsStringSync()) as Map;
 
-    for (var testCase in parsed.keys) {
+    for (final testCase in parsed.keys) {
       group('ABI - $testCase', () {
         final testVector = parsed[testCase] as Map<String, dynamic>;
 
@@ -55,10 +55,12 @@ dynamic _mapFromTest(dynamic input) {
 
   if (input is String) {
     if (input.startsWith('0x')) return hexToBytes(input);
-    if (input.startsWith('@'))
+    if (input.startsWith('@')) {
       return EthereumAddress.fromHex(input.substring(1));
-    if (input.endsWith('H'))
+    }
+    if (input.endsWith('H')) {
       return BigInt.parse(input.substring(0, input.length - 1), radix: 16);
+    }
   }
 
   if (input is List) return input.map(_mapFromTest).toList();

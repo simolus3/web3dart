@@ -51,7 +51,7 @@ contract MetaCoin {
 The ABI of this contract is available at abi.json
  */
 
-void main() async {
+Future<void> main() async {
   // establish a connection to the ethereum rpc node. The socketConnector
   // property allows more efficient event streams over websocket instead of
   // http-polls. However, the socketConnector property is experimental.

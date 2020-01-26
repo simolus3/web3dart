@@ -34,7 +34,7 @@ void _encodeString(Uint8List string, LengthTrackingByteSink builder) {
 
 void encodeList(List list, LengthTrackingByteSink builder) {
   final subBuilder = LengthTrackingByteSink();
-  for (var item in list) {
+  for (final item in list) {
     _encodeToBuffer(item, subBuilder);
   }
 

@@ -65,7 +65,7 @@ class ContractAbi {
     final functions = <ContractFunction>[];
     final events = <ContractEvent>[];
 
-    for (var element in data) {
+    for (final element in data) {
       final type = element['type'] as String;
       final name = (element['name'] as String) ?? '';
 
@@ -73,7 +73,7 @@ class ContractAbi {
         final anonymous = element['anonymous'] as bool;
         final components = <EventComponent>[];
 
-        for (var entry in element['inputs']) {
+        for (final entry in element['inputs']) {
           components.add(EventComponent(
               _parseParam(entry as Map), entry['indexed'] as bool));
         }
@@ -104,7 +104,7 @@ class ContractAbi {
     if (data == null || data.isEmpty) return [];
 
     final elements = <FunctionParameter>[];
-    for (var entry in data) {
+    for (final entry in data) {
       elements.add(_parseParam(entry as Map));
     }
 
@@ -314,7 +314,7 @@ class ContractEvent {
     var topicIndex = topicOffset;
 
     final result = [];
-    for (var component in components) {
+    for (final component in components) {
       if (component.indexed) {
         // components that are bigger than 32 bytes when decoded, or have a
         // dynamic type, are not included in [topics]. A hash of the data will
@@ -391,7 +391,7 @@ class CompositeFunctionParameter extends FunctionParameter<dynamic> {
       List<FunctionParameter> components, List<int> arrayLengths) {
     AbiType type = TupleType(components.map((c) => c.type).toList());
 
-    for (var len in arrayLengths) {
+    for (final len in arrayLengths) {
       if (len != null) {
         type = FixedLengthArray(type: type, length: len);
       } else {

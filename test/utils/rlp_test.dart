@@ -10,7 +10,7 @@ void main() {
   final file = File(join('test', 'utils', 'rlp_test_vectors.json'));
   final testContent = json.decode(file.readAsStringSync()) as Map;
 
-  for (var key in testContent.keys) {
+  for (final key in testContent.keys) {
     test('$key', () {
       final data = testContent[key];
       final input = _mapTestData(data['in']);

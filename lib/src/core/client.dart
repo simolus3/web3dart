@@ -62,6 +62,7 @@ class Web3Client {
       if (data is Error || data is Exception) throw data;
 
       return data.result as T;
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       if (printErrors) print(e);
 
@@ -70,8 +71,9 @@ class Web3Client {
   }
 
   rpc.Peer _connectWithPeer() {
-    if (_streamRpcPeer != null && !_streamRpcPeer.isClosed)
+    if (_streamRpcPeer != null && !_streamRpcPeer.isClosed) {
       return _streamRpcPeer;
+    }
     if (socketConnector == null) return null;
 
     final socket = socketConnector();

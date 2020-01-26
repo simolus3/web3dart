@@ -131,7 +131,7 @@ AbiType parseAbiType(String name) {
     var openParenthesises = 0;
     final typeBuffer = StringBuffer();
 
-    for (var char in inner.codeUnits) {
+    for (final char in inner.codeUnits) {
       if (char == _comma && openParenthesises == 0) {
         types.add(parseAbiType(typeBuffer.toString()));
         typeBuffer.clear();

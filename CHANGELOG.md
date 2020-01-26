@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0
+
+- __Breaking__: Removed the `backgroundIsolate` option from `Web3Client`. 
+  For background isolates, instead use `runner: await IsolateRunner.spawn()` from `package:isolate`.
+
 ## 1.2.3
 
 - include a `0x` for hex data in `eth_estimateGas` - thanks, [@Botary](https://github.com/Botary)

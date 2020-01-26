@@ -121,7 +121,7 @@ class Wallet {
   /// You can configure the parameter N of the scrypt algorithm if you need to.
   /// The default value for [scryptN] is 8192. Be aware that this N must be a
   /// power of two.
-  static Wallet createNew(
+  factory Wallet.createNew(
       EthPrivateKey credentials, String password, Random random,
       {int scryptN = 8192}) {
     final passwordBytes = Uint8List.fromList(utf8.encode(password));
@@ -140,7 +140,7 @@ class Wallet {
   /// Reads and unlocks the wallet denoted in the json string given with the
   /// specified [password]. [encoded] must be the String contents of a valid
   /// v3 Ethereum wallet file.
-  static Wallet fromJson(String encoded, String password) {
+  factory Wallet.fromJson(String encoded, String password) {
     /*
       In order to read the wallet and obtain the secret key stored in it, we
       need to do the following:
@@ -233,7 +233,7 @@ class Wallet {
   }
 
   static String _generateMac(List<int> dk, List<int> ciphertext) {
-    final macBody = <int>[]..addAll(dk.sublist(16, 32))..addAll(ciphertext);
+    final macBody = <int>[...dk.sublist(16, 32), ...ciphertext];
 
     return bytesToHex(keccak256(uint8ListFromList(macBody)));
   }

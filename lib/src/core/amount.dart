@@ -44,8 +44,8 @@ class EtherAmount {
 
   EtherAmount.zero() : this.inWei(BigInt.zero);
 
-  /// Constructs an amount of Ether by a unit and its amount. [amount] can either
-  /// be a base10 string, an int, or a BigInt.
+  /// Constructs an amount of Ether by a unit and its amount. [amount] can
+  /// either be a base10 string, an int, or a BigInt.
   factory EtherAmount.fromUnitAndValue(EtherUnit unit, dynamic amount) {
     BigInt parsedAmount;
 

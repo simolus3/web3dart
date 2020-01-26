@@ -33,9 +33,10 @@ Future<_SigningInput> _fillMissingData({
   if (!loadChainIdFromNetwork) {
     resolvedChainId = chainId;
   } else {
-    if (client == null)
+    if (client == null) {
       throw ArgumentError(
           "Can't load chain id from network when no client is set");
+    }
 
     resolvedChainId = await client.getNetworkId();
   }

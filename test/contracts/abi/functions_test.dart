@@ -6,18 +6,18 @@ import 'package:web3dart/crypto.dart';
 import 'package:web3dart/src/utils/typed_data.dart';
 
 void main() {
-  final baz = const ContractFunction('baz', [
+  const baz = ContractFunction('baz', [
     FunctionParameter('number', UintType(length: 32)),
     FunctionParameter('flag', BoolType()),
   ]);
-  final bar = const ContractFunction('bar', [
+  const bar = ContractFunction('bar', [
     FunctionParameter(
       'xy',
       FixedLengthArray(type: FixedBytes(3), length: 2),
     ),
   ]);
 
-  final sam = const ContractFunction('sam', [
+  const sam = ContractFunction('sam', [
     FunctionParameter('b1', DynamicBytes()),
     FunctionParameter('b2', BoolType()),
     FunctionParameter('b3', DynamicLengthArray(type: UintType()))

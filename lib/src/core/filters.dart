@@ -26,7 +26,7 @@ class _NewBlockFilter extends _Filter<String> {
   }
 
   @override
-  String parseChanges(log) {
+  String parseChanges(dynamic log) {
     return log as String;
   }
 
@@ -268,7 +268,7 @@ class _FilterEngine {
     return instantiated._controller.stream;
   }
 
-  void _registerToAPI(_InstantiatedFilter filter) async {
+  Future<void> _registerToAPI(_InstantiatedFilter filter) async {
     final request = filter.filter.create();
 
     try {
@@ -281,7 +281,7 @@ class _FilterEngine {
     }
   }
 
-  void _registerToPubSub(
+  Future<void> _registerToPubSub(
       _InstantiatedFilter filter, _PubSubCreationParams params) async {
     final peer = _client._connectWithPeer();
 
@@ -299,18 +299,18 @@ class _FilterEngine {
     _ticker ??= Timer.periodic(_pingDuration, (_) => _refreshFilters());
   }
 
-  void _refreshFilters() async {
+  Future<void> _refreshFilters() async {
     if (_isRefreshing) return;
     _isRefreshing = true;
 
     try {
       final filterSnapshot = List.of(_filters);
 
-      for (var filter in filterSnapshot) {
+      for (final filter in filterSnapshot) {
         final updatedData =
             await _rpc.call('eth_getFilterChanges', [filter.id]);
 
-        for (var payload in updatedData.result) {
+        for (final payload in updatedData.result) {
           if (!filter._controller.isClosed) {
             _parseAndAdd(filter, payload);
           }
@@ -335,9 +335,7 @@ class _FilterEngine {
       _clearingBecauseSocketClosed = true;
       final pubSubFilters = _filters.where((f) => f.isPubSub).toList();
 
-      for (var filter in pubSubFilters) {
-        uninstall(filter);
-      }
+      pubSubFilters.forEach(uninstall);
     } finally {
       _clearingBecauseSocketClosed = false;
     }

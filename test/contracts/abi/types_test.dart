@@ -49,7 +49,7 @@ void main() {
   });
 
   test('rejects invalid types', () {
-    for (var invalid in invalidTypes) {
+    for (final invalid in invalidTypes) {
       expect(() => parseAbiType(invalid), throwsA(anything));
     }
   });

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:coverage/coverage.dart';
 
-void main() async {
+Future<void> main() async {
   final dir = Directory('test_coverage');
   final resolver = Resolver(packagesPath: '.packages', packageRoot: '.');
 

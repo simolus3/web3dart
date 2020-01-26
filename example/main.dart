@@ -5,7 +5,7 @@ const String privateKey =
     'a2fd51b96dc55aeb14b30d55a6b3121c7b9c599500c1beb92a389c3377adc86e';
 const String rpcUrl = 'http://localhost:7545';
 
-void main() async {
+Future<void> main() async {
   // start a client we can use to send transactions
   final client = Web3Client(rpcUrl, Client());
 
