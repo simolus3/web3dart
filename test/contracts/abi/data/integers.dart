@@ -1,3 +1,5 @@
+// Note: Our parser will pick up the D suffix as a BigInt (radix 10) and H as a
+// hex BigInt
 const content = r'''
 {
   "uInts": {
@@ -12,8 +14,8 @@ const content = r'''
   "ints": {
     "args": [
       0,
-      9223372036854775807,
-      -9223372036854775808,
+      "9223372036854775807D",
+      "-9223372036854775808D",
       -1
     ],
     "result": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",

@@ -16,6 +16,12 @@ abstract class _IntTypeBase extends AbiType<BigInt> {
       : assert(length % 8 == 0),
         assert(0 < length && length <= 256);
 
+  void _validate() {
+    if (length % 8 != 0 || length < 0 || length > 256) {
+      throw Exception('Invalid length for int type: was $length');
+    }
+  }
+
   @override
   DecodingResult<BigInt> decode(ByteBuffer buffer, int offset) {
     // we're always going to read a 32-byte block for integers
@@ -25,6 +31,11 @@ abstract class _IntTypeBase extends AbiType<BigInt> {
   }
 
   BigInt _decode32Bytes(Uint8List data);
+
+  @override
+  String toString() {
+    return '$runtimeType(length = $length)';
+  }
 }
 
 /// The solidity uint<M> type that encodes unsigned integers.
@@ -33,6 +44,9 @@ class UintType extends _IntTypeBase {
   String get _namePrefix => 'uint';
 
   const UintType({int length = 256}) : super(length);
+
+  // kept because of an analyzer bug: https://github.com/dart-lang/sdk/issues/38658
+  static const _defaultInstance = UintType(length: 256);
 
   @override
   void encode(BigInt data, LengthTrackingByteSink buffer) {

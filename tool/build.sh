@@ -5,6 +5,8 @@ dartfmt --set-exit-if-changed -n . || EXIT_CODE=$?
 dartanalyzer --fatal-infos --fatal-warnings . || EXIT_CODE=$?
 
 pub run test --coverage test_coverage || EXIT_CODE=$?
+pub run test -x expensive --platform chrome,firefox
+
 dart tool/format_coverage.dart
 
 exit $EXIT_CODE

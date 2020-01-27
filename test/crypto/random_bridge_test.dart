@@ -7,13 +7,17 @@ class MockRandom extends Mock implements Random {}
 
 void main() {
   final random = MockRandom();
+  // using BigInt because 1 << 32 is 0 in js
+  final twoToThePowerOf32 = BigInt.one << 32;
+
   // generating numbers in [0;1<<32] is supported by the RNG implemented in
   // dart.
   when(random.nextInt(any)).thenAnswer((i) {
     final max = i.positionalArguments.first as int;
-    if (max > (1 << 32)) {
+
+    if (BigInt.from(max) > twoToThePowerOf32) {
       fail('RandomBridge called Random.nextInt with an upper bound that is '
-          'to high.');
+          'to high: $max');
     } else {
       return max ~/ 2;
     }

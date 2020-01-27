@@ -59,6 +59,9 @@ dynamic _mapFromTest(dynamic input) {
     if (input.endsWith('H')) {
       return BigInt.parse(input.substring(0, input.length - 1), radix: 16);
     }
+    if (input.endsWith('D')) {
+      return BigInt.parse(input.substring(0, input.length - 1));
+    }
   }
 
   if (input is List) return input.map(_mapFromTest).toList();

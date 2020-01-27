@@ -50,7 +50,11 @@ void main() {
 
   test('rejects invalid types', () {
     for (final invalid in invalidTypes) {
-      expect(() => parseAbiType(invalid), throwsA(anything));
+      expect(
+        () => parseAbiType(invalid),
+        throwsA(anything),
+        reason: '$invalid is not a valid type',
+      );
     }
   });
 }

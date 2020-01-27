@@ -16,6 +16,12 @@ class FixedBytes extends AbiType<Uint8List> {
 
   const FixedBytes(this.length) : assert(0 <= length && length <= 32);
 
+  void _validate() {
+    if (length < 0 || length > 32) {
+      throw Exception('Invalid length for bytes: was $length');
+    }
+  }
+
   @override
   void encode(Uint8List data, LengthTrackingByteSink buffer) {
     assert(data.length == length,
@@ -150,7 +156,7 @@ class FixedLengthArray<T> extends AbiType<List<T>> {
     assert(data.length == length);
 
     if (encodingLength.isDynamic) {
-      const lengthEncoder = UintType();
+      const lengthEncoder = UintType._defaultInstance;
 
       final startPosition = buffer.length;
       var currentOffset = data.length * sizeUnitBytes;

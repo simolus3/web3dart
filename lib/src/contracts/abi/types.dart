@@ -158,11 +158,11 @@ AbiType parseAbiType(String name) {
   }
 
   if (name.startsWith('uint')) {
-    return UintType(length: _trailingNumber(name));
+    return UintType(length: _trailingNumber(name)).._validate();
   } else if (name.startsWith('int')) {
-    return IntType(length: _trailingNumber(name));
+    return IntType(length: _trailingNumber(name)).._validate();
   } else if (name.startsWith('bytes')) {
-    return FixedBytes(_trailingNumber(name));
+    return FixedBytes(_trailingNumber(name)).._validate();
   }
 
   throw ArgumentError('Could not parse abi type with name: $name');
