@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0-dev
+## 2.0.0-dev.1
 
 - __Breaking__: Removed the `backgroundIsolate` option from `Web3Client`. 
   For background isolates, instead use `runner: await IsolateRunner.spawn()` from `package:isolate`.
