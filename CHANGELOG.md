@@ -1,9 +1,10 @@
 # Changelog
 
-## 2.0.0
+## 2.0.0-dev
 
 - __Breaking__: Removed the `backgroundIsolate` option from `Web3Client`. 
   For background isolates, instead use `runner: await IsolateRunner.spawn()` from `package:isolate`.
+- Fix `hexToDartInt` not actually parsing hex ([#81](https://github.com/simolus3/web3dart/issues/81))
 
 ## 1.2.3
 

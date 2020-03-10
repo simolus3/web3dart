@@ -56,5 +56,5 @@ BigInt hexToInt(String hex) {
 
 /// Converts the hexadecimal input and creates an [int].
 int hexToDartInt(String hex) {
-  return int.parse(strip0x(hex));
+  return int.parse(strip0x(hex), radix: 16);
 }
