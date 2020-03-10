@@ -95,6 +95,42 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
   return MsgSignature(sig.r, sig.s, recId + 27);
 }
 
+/// Given an arbitrary message hash and an Ethereum message signature encoded in bytes, returns
+/// the public key that was used to sign it.
+Uint8List ecRecover(Uint8List messageHash, MsgSignature signatureData) {
+  assert(signatureData.r != null);
+  assert(signatureData.s != null);
+  final r = padUint8ListTo32(intToBytes(signatureData.r));
+  final s = padUint8ListTo32(intToBytes(signatureData.s));
+  assert(r.length == 32);
+  assert(s.length == 32);
+
+  final header = signatureData.v & 0xFF;
+  // The header byte: 0x1B = first key with even y, 0x1C = first key with odd y,
+  //                  0x1D = second key with even y, 0x1E = second key with odd y
+  if (header < 27 || header > 34) {
+    throw Exception('Header byte out of range: $header');
+  }
+
+  final sig = ECSignature(signatureData.r, signatureData.s);
+
+  final recId = header - 27;
+  final pubKey = _recoverFromSignature(recId, sig, messageHash, _params);
+  if (pubKey == null) {
+    throw Exception('Could not recover public key from signature');
+  }
+  return intToBytes(pubKey);
+}
+
+/// Given an arbitrary message hash, an Ethereum message signature encoded in bytes and
+/// a public key encoded in bytes, confirms whether that public key was used to sign 
+/// the message or not.
+bool isValidSignature(
+    Uint8List messageHash, MsgSignature signatureData, Uint8List publicKey) {
+  final recoveredPublicKey = ecRecover(messageHash, signatureData);
+  return bytesToHex(publicKey) == bytesToHex(recoveredPublicKey);
+}
+
 BigInt _recoverFromSignature(
     int recId, ECSignature sig, Uint8List msg, ECDomainParameters params) {
   final n = params.n;
