@@ -97,6 +97,7 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 
 /// Given an arbitrary message hash and an Ethereum message signature encoded in bytes, returns
 /// the public key that was used to sign it.
+/// https://github.com/web3j/web3j/blob/c0b7b9c2769a466215d416696021aa75127c2ff1/crypto/src/main/java/org/web3j/crypto/Sign.java#L241
 Uint8List ecRecover(Uint8List messageHash, MsgSignature signatureData) {
   assert(signatureData.r != null);
   assert(signatureData.s != null);
@@ -123,7 +124,7 @@ Uint8List ecRecover(Uint8List messageHash, MsgSignature signatureData) {
 }
 
 /// Given an arbitrary message hash, an Ethereum message signature encoded in bytes and
-/// a public key encoded in bytes, confirms whether that public key was used to sign 
+/// a public key encoded in bytes, confirms whether that public key was used to sign
 /// the message or not.
 bool isValidSignature(
     Uint8List messageHash, MsgSignature signatureData, Uint8List publicKey) {

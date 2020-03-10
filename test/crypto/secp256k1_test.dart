@@ -108,15 +108,18 @@ void main() {
         final signature = sign(messageHash, hexToBytes(privateKey));
 
         expect(
-            isValidSignature(messageHash, signature, originalPublicKey), true,
-            reason: 'The signature should be valid');
+          isValidSignature(messageHash, signature, originalPublicKey),
+          isTrue,
+          reason: 'The signature should be valid',
+        );
 
         for (final invalidPublicKey in invalidPublicKeys) {
           expect(
-              isValidSignature(
-                  messageHash, signature, hexToBytes(invalidPublicKey)),
-              false,
-              reason: 'The signature should be invalid');
+            isValidSignature(
+                messageHash, signature, hexToBytes(invalidPublicKey)),
+            isFalse,
+            reason: 'The signature should be invalid',
+          );
         }
       }
     }
