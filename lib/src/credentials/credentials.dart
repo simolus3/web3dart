@@ -23,8 +23,8 @@ abstract class Credentials {
   Future<Uint8List> sign(Uint8List payload, {int chainId}) async {
     final signature = await signToSignature(payload, chainId: chainId);
 
-    final r = _padTo32(intToBytes(signature.r));
-    final s = _padTo32(intToBytes(signature.s));
+    final r = padUint8ListTo32(intToBytes(signature.r));
+    final s = padUint8ListTo32(intToBytes(signature.s));
     final v = intToBytes(BigInt.from(signature.v));
 
     // https://github.com/ethereumjs/ethereumjs-util/blob/8ffe697fafb33cefc7b7ec01c11e3a7da787fe0e/src/signature.ts#L63
@@ -46,14 +46,6 @@ abstract class Credentials {
     final concat = uint8ListFromList(prefixBytes + payload);
 
     return sign(concat, chainId: chainId);
-  }
-
-  Uint8List _padTo32(Uint8List data) {
-    assert(data.length <= 32);
-    if (data.length == 32) return data;
-
-    // todo there must be a faster way to do this?
-    return Uint8List(32)..setRange(32 - data.length, 32, data);
   }
 }
 
