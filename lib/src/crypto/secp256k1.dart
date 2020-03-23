@@ -132,6 +132,20 @@ bool isValidSignature(
   return bytesToHex(publicKey) == bytesToHex(recoveredPublicKey);
 }
 
+/// Given a byte array computes its compressed version and returns it as a byte array,
+/// including the leading 02 or 03
+Uint8List compressPublicKey(Uint8List compressedPubKey) {
+  return Uint8List.view(
+      _params.curve.decodePoint(compressedPubKey).getEncoded(true).buffer);
+}
+
+/// Given a byte array computes its expanded version and returns it as a byte array,
+/// including the leading 04
+Uint8List decompressPublicKey(Uint8List compressedPubKey) {
+  return Uint8List.view(
+      _params.curve.decodePoint(compressedPubKey).getEncoded(false).buffer);
+}
+
 BigInt _recoverFromSignature(
     int recId, ECSignature sig, Uint8List msg, ECDomainParameters params) {
   final n = params.n;
