@@ -8,8 +8,6 @@ class BlockNum {
   final bool useAbsolute;
   final int blockNum;
 
-  const BlockNum._(this.useAbsolute, this.blockNum);
-
   bool get isPending => !useAbsolute && blockNum == 2;
 
   /// Use the state of the blockchain at the block specified.

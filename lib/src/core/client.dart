@@ -309,6 +309,7 @@ class Web3Client {
       sender: sender,
       contract: contract.address,
       data: function.encodeCall(params),
+      atBlock: atBlock,
     );
 
     return function.decodeReturnValues(encodedResult);

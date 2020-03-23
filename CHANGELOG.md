@@ -1,9 +1,11 @@
 # Changelog
 
-## 2.0.0-dev.1
+## 2.0.0-dev.2
 
 - __Breaking__: Removed the `backgroundIsolate` option from `Web3Client`. 
   For background isolates, instead use `runner: await IsolateRunner.spawn()` from `package:isolate`.
+- Add `ecRecover` and `isValidSignature` to verify messages
+- Add `compressPublicKey` and `decompressPublicKey` to obtain a compressed or expanded version of keys.
 - Fix `hexToDartInt` not actually parsing hex ([#81](https://github.com/simolus3/web3dart/issues/81))
 
 ## 1.2.3
