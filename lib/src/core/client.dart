@@ -252,7 +252,7 @@ class Web3Client {
         'eth_getCode', [address.hex, _getBlockParam(atBlock)]).then(hexToBytes);
   }
 
-  Future<List<FilterEvent>> eth_getLogs(FilterOptions options) {
+  Future<List<FilterEvent>> getLogs(FilterOptions options) {
     final filter = _EventFilter(options);
     return _makeRPCCall<List<dynamic>>('eth_getLogs', [
       filter._createParamsObject(true)
