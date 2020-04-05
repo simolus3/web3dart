@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0-dev.3
+## 2.0.0-dev.4
 
 - __Breaking__: Removed the `backgroundIsolate` option from `Web3Client`. 
   For background isolates, instead use `runner: await IsolateRunner.spawn()` from `package:isolate`.
@@ -8,6 +8,7 @@
 - Add `compressPublicKey` and `decompressPublicKey` to obtain a compressed or expanded version of keys.
 - Add `getLogs` method to `Web3Client`. Thanks, [jmank88](https://github.com/jmank88)!
 - Fix `hexToDartInt` not actually parsing hex ([#81](https://github.com/simolus3/web3dart/issues/81))
+- Support non-even length hex in `hexToBytes`, thanks to [jmank88](https://github.com/jmank88)!
 
 ## 1.2.3
 
