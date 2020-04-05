@@ -116,7 +116,9 @@ class TransactionReceipt {
         blockNumber = map['blockNumber'] != null
             ? BlockNum.exact(int.parse(map['blockNumber'] as String))
             : const BlockNum.pending(),
-        from = EthereumAddress.fromHex(map['from'] as String),
+        from = map['from'] != null
+            ? EthereumAddress.fromHex(map['from'] as String)
+            : null,
         to = map['to'] != null
             ? EthereumAddress.fromHex(map['to'] as String)
             : null,
