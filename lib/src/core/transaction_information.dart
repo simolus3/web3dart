@@ -42,8 +42,15 @@ class TransactionInformation {
   /// A cryptographic recovery id which can be used to verify the authenticity
   /// of this transaction together with the signature [r] and [s]
   final int v;
-  final Uint8List r;
-  final Uint8List s;
+
+  /// ECDSA signature r
+  final BigInt r;
+
+  /// ECDSA signature s
+  final BigInt s;
+
+  /// The ECDSA full signature used to sign this transaction.
+  MsgSignature get signature => MsgSignature(r, s, v);
 
   TransactionInformation.fromMap(Map<String, dynamic> map)
       : blockHash = map['blockHash'] as String,
@@ -64,8 +71,8 @@ class TransactionInformation {
             : null,
         value = EtherAmount.inWei(BigInt.parse(map['value'] as String)),
         v = int.parse(map['v'] as String),
-        r = hexToBytes(map['r'] as String),
-        s = hexToBytes(map['s'] as String);
+        r = hexToInt(map['r'] as String),
+        s = hexToInt(map['s'] as String);
 }
 
 class TransactionReceipt {

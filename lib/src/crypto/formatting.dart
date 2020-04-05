@@ -38,9 +38,7 @@ String bytesToHex(List<int> bytes,
 /// Converts the hexadecimal string, which can be prefixed with 0x, to a byte
 /// sequence.
 Uint8List hexToBytes(String hexStr) {
-  hexStr = strip0x(hexStr);
-  if (hexStr.length.isOdd) hexStr = '0$hexStr';
-  final bytes = hex.decode(hexStr);
+  final bytes = hex.decode(strip0x(hexStr));
   if (bytes is Uint8List) return bytes;
 
   return Uint8List.fromList(bytes);

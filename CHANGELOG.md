@@ -4,11 +4,12 @@
 
 - __Breaking__: Removed the `backgroundIsolate` option from `Web3Client`. 
   For background isolates, instead use `runner: await IsolateRunner.spawn()` from `package:isolate`.
+- __Breaking__: Changed `TransactionInformation.r` and `TransactionInformation.s` from `Uint8List` to
+  `BigInt`
 - Add `ecRecover` and `isValidSignature` to verify messages. Thanks, [brickpop](https://github.com/brickpop)!
 - Add `compressPublicKey` and `decompressPublicKey` to obtain a compressed or expanded version of keys.
 - Add `getLogs` method to `Web3Client`. Thanks, [jmank88](https://github.com/jmank88)!
 - Fix `hexToDartInt` not actually parsing hex ([#81](https://github.com/simolus3/web3dart/issues/81))
-- Support non-even length hex in `hexToBytes`, thanks to [jmank88](https://github.com/jmank88)!
 
 ## 1.2.3
 
