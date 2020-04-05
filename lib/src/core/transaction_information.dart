@@ -123,7 +123,8 @@ class TransactionReceipt {
             ? EthereumAddress.fromHex(map['to'] as String)
             : null,
         cumulativeGasUsed = hexToInt(map['cumulativeGasUsed'] as String),
-        gasUsed = hexToInt(map['gasUsed'] as String),
+        gasUsed =
+            map['gasUsed'] != null ? hexToInt(map['gasUsed'] as String) : null,
         contractAddress = map['contractAddress'] != null
             ? EthereumAddress.fromHex(map['contractAddress'] as String)
             : null,
