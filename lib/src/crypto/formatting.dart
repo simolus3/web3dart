@@ -39,7 +39,7 @@ String bytesToHex(List<int> bytes,
 /// sequence.
 Uint8List hexToBytes(String hexStr) {
   hexStr = strip0x(hexStr);
-  if (hexStr.length % 2 != 0) hexStr = '0$hexStr';
+  if (hexStr.length.isOdd) hexStr = '0$hexStr';
   final bytes = hex.decode(hexStr);
   if (bytes is Uint8List) return bytes;
 
