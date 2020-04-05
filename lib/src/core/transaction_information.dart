@@ -116,12 +116,15 @@ class TransactionReceipt {
         blockNumber = map['blockNumber'] != null
             ? BlockNum.exact(int.parse(map['blockNumber'] as String))
             : const BlockNum.pending(),
-        from = EthereumAddress.fromHex(map['from'] as String),
+        from = map['from'] != null
+            ? EthereumAddress.fromHex(map['from'] as String)
+            : null,
         to = map['to'] != null
             ? EthereumAddress.fromHex(map['to'] as String)
             : null,
         cumulativeGasUsed = hexToInt(map['cumulativeGasUsed'] as String),
-        gasUsed = hexToInt(map['gasUsed'] as String),
+        gasUsed =
+            map['gasUsed'] != null ? hexToInt(map['gasUsed'] as String) : null,
         contractAddress = map['contractAddress'] != null
             ? EthereumAddress.fromHex(map['contractAddress'] as String)
             : null,
