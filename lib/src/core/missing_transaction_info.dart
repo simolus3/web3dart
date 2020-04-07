@@ -1,15 +1,15 @@
 part of 'package:web3dart/web3dart.dart';
 
-class _SigningInput {
+class _TransactionWithChainId {
   final Transaction transaction;
-  final Credentials credentials;
   final int chainId;
 
-  _SigningInput({this.transaction, this.credentials, this.chainId});
+  _TransactionWithChainId({this.transaction, this.chainId});
 }
 
-Future<_SigningInput> _fillMissingData({
+Future<_TransactionWithChainId> _fillMissingData({
   @required Credentials credentials,
+  @required SignatureComputer computer,
   @required Transaction transaction,
   int chainId,
   bool loadChainIdFromNetwork = false,
@@ -25,7 +25,7 @@ Future<_SigningInput> _fillMissingData({
   var modifiedTransaction = transaction.copyWith(
     value: transaction.value ?? EtherAmount.zero(),
     maxGas: transaction.maxGas ?? 90000,
-    from: transaction.from ?? await credentials.extractAddress(),
+    from: transaction.from ?? await computer.extractAddress(credentials),
     data: transaction.data ?? Uint8List(0),
   );
 
@@ -71,43 +71,8 @@ Future<_SigningInput> _fillMissingData({
     );
   }
 
-  return _SigningInput(
+  return _TransactionWithChainId(
     transaction: modifiedTransaction,
-    credentials: credentials,
     chainId: resolvedChainId,
   );
-}
-
-Future<Uint8List> _signTransaction(
-    Transaction transaction, Credentials c, int chainId) async {
-  final innerSignature =
-      chainId == null ? null : MsgSignature(BigInt.zero, BigInt.zero, chainId);
-
-  final encoded =
-      uint8ListFromList(rlp.encode(_encodeToRlp(transaction, innerSignature)));
-  final signature = await c.signToSignature(encoded, chainId: chainId);
-
-  return uint8ListFromList(rlp.encode(_encodeToRlp(transaction, signature)));
-}
-
-List<dynamic> _encodeToRlp(Transaction transaction, MsgSignature signature) {
-  final list = [
-    transaction.nonce,
-    transaction.gasPrice.getInWei,
-    transaction.maxGas,
-  ];
-
-  if (transaction.to != null) {
-    list.add(transaction.to.addressBytes);
-  } else {
-    list.add('');
-  }
-
-  list..add(transaction.value.getInWei)..add(transaction.data);
-
-  if (signature != null) {
-    list..add(signature.v)..add(signature.r)..add(signature.s);
-  }
-
-  return list;
 }

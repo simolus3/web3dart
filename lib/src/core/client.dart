@@ -22,6 +22,7 @@ typedef SocketConnector = StreamChannel<String> Function();
 /// accounts yourself.
 class Web3Client {
   static const BlockNum _defaultBlock = BlockNum.current();
+  static const _defaultComputers = [SignaturesForPrivateKey()];
 
   final RpcService _jsonRpc;
 
@@ -33,9 +34,9 @@ class Web3Client {
   final SocketConnector socketConnector;
 
   rpc.Peer _streamRpcPeer;
-
-  _ExpensiveOperations _operations;
   _FilterEngine _filters;
+
+  List<SignatureComputer> _signatureComputers;
 
   ///Whether errors, handled or not, should be printed to the console.
   bool printErrors = false;
@@ -53,12 +54,17 @@ class Web3Client {
       : this.custom(
           JsonRPC(url, httpClient),
           socketConnector: socketConnector,
-          runner: runner,
+          signatureComputers: runner == null
+              ? _defaultComputers
+              : [SignaturesForPrivateKey.withRunner(runner)],
         );
 
-  Web3Client.custom(RpcService rpc, {this.socketConnector, Runner runner})
-      : _jsonRpc = rpc {
-    _operations = _ExpensiveOperations(runner ?? Runner());
+  Web3Client.custom(
+    RpcService rpc, {
+    this.socketConnector,
+    List<SignatureComputer> signatureComputers = _defaultComputers,
+  })  : _jsonRpc = rpc,
+        _signatureComputers = signatureComputers {
     _filters = _FilterEngine(this);
   }
 
@@ -104,8 +110,9 @@ class Web3Client {
 
   /// Constructs a new [Credentials] with the provided [privateKey] by using
   /// an [EthPrivateKey].
-  Future<Credentials> credentialsFromPrivateKey(String privateKey) {
-    return _operations.privateKeyFromHex(privateKey);
+  @Deprecated('Use EthPrivatetKey.fromHex directly')
+  Future<EthPrivateKey> credentialsFromPrivateKey(String privateKey) {
+    return Future.value(EthPrivateKey.fromHex(privateKey));
   }
 
   /// Returns the version of the client we're sending requests to.
@@ -295,15 +302,20 @@ class Web3Client {
   /// representation of the transaction.
   Future<Uint8List> signTransaction(Credentials cred, Transaction transaction,
       {int chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
-    final signingInput = await _fillMissingData(
+    final signatureComputer =
+        _signatureComputers.firstWhere((e) => e.supportsCredentials(cred));
+
+    final filled = await _fillMissingData(
       credentials: cred,
       transaction: transaction,
+      computer: signatureComputer,
       chainId: chainId,
       loadChainIdFromNetwork: fetchChainIdFromNetworkId,
       client: this,
     );
 
-    return _operations.signTransaction(signingInput);
+    return signatureComputer.signTransaction(filled.transaction, cred,
+        chainId: filled.chainId);
   }
 
   /// Calls a [function] defined in the smart [contract] and returns it's
@@ -314,7 +326,7 @@ class Web3Client {
   /// would require a transaction which can be sent via [sendTransaction].
   /// As no data will be written, you can use the [sender] to specify any
   /// Ethereum address that would call that function. To use the address of a
-  /// credential, call [Credentials.extractAddress].
+  /// credential, call [EthPrivateKey.address].
   ///
   /// This function allows specifying a custom block mined in the past to get
   /// historical data. By default, [BlockNum.current] will be used.
@@ -436,7 +448,6 @@ class Web3Client {
   /// Closes resources managed by this client, such as the optional background
   /// isolate for calculations and managed streams.
   Future<void> dispose() async {
-    await _operations.stop();
     await _filters.dispose();
     await _streamRpcPeer?.close();
   }

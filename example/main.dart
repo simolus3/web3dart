@@ -2,7 +2,7 @@ import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 
 const String privateKey =
-    'a2fd51b96dc55aeb14b30d55a6b3121c7b9c599500c1beb92a389c3377adc86e';
+    '85d2242ae1b7759934d4b0d4f0d62d666cf7d73e21dbd09d73c7de266b72a25a';
 const String rpcUrl = 'http://localhost:7545';
 
 Future<void> main() async {

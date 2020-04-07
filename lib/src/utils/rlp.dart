@@ -4,6 +4,31 @@ import 'dart:typed_data';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/src/utils/length_tracking_byte_sink.dart';
 import 'package:web3dart/src/utils/typed_data.dart';
+import 'package:web3dart/web3dart.dart';
+
+/// Encodes a transaction in a format that's accepted by [encode].
+List<dynamic> destructureTransaction(Transaction transaction,
+    [MsgSignature signature]) {
+  final list = [
+    transaction.nonce,
+    transaction.gasPrice.getInWei,
+    transaction.maxGas,
+  ];
+
+  if (transaction.to != null) {
+    list.add(transaction.to.addressBytes);
+  } else {
+    list.add('');
+  }
+
+  list..add(transaction.value.getInWei)..add(transaction.data);
+
+  if (signature != null) {
+    list..add(signature.v)..add(signature.r)..add(signature.s);
+  }
+
+  return list;
+}
 
 void _encodeString(Uint8List string, LengthTrackingByteSink builder) {
   // For a single byte in [0x00, 0x7f], that byte is its own RLP encoding

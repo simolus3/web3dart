@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:isolate/runner.dart';
 import 'package:meta/meta.dart';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/digests/sha256.dart';
@@ -16,11 +17,16 @@ import 'package:pointycastle/block/aes_fast.dart';
 import 'package:pointycastle/stream/ctr.dart';
 import 'package:pointycastle/macs/hmac.dart';
 import 'package:web3dart/src/utils/typed_data.dart';
+import 'package:web3dart/web3dart.dart';
 
 import 'crypto.dart';
 import 'src/crypto/random_bridge.dart';
 import 'src/utils/uuid.dart';
+import 'src/utils/rlp.dart' as rlp;
 
 part 'src/credentials/address.dart';
 part 'src/credentials/credentials.dart';
+part 'src/credentials/signature_computer/isolate_private_key.dart';
+part 'src/credentials/signature_computer/private_key.dart';
+part 'src/credentials/signature_computer/signature_computer.dart';
 part 'src/credentials/wallet.dart';

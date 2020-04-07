@@ -48,6 +48,16 @@ class MsgSignature {
   final int v;
 
   MsgSignature(this.r, this.s, this.v);
+
+  /// Encodes this signature into a raw form that can be sent to Ethereum nodes.
+  Uint8List encode() {
+    final r = padUint8ListTo32(intToBytes(this.r));
+    final s = padUint8ListTo32(intToBytes(this.s));
+    final v = intToBytes(BigInt.from(this.v));
+
+    // https://github.com/ethereumjs/ethereumjs-util/blob/8ffe697fafb33cefc7b7ec01c11e3a7da787fe0e/src/signature.ts#L63
+    return uint8ListFromList(r + s + v);
+  }
 }
 
 /// Signs the hashed data in [messageHash] using the given private key.
