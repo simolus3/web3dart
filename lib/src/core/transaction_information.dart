@@ -128,5 +128,5 @@ class TransactionReceipt {
         contractAddress = map['contractAddress'] != null
             ? EthereumAddress.fromHex(map['contractAddress'] as String)
             : null,
-        status = hexToDartInt(map['status'] as String) == 1;
+        status = map['status'] != null ? hexToDartInt(map['status'] as String) == 1 : null;
 }

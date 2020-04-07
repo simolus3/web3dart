@@ -2,6 +2,7 @@ part of 'package:web3dart/crypto.dart';
 
 /// If present, removes the 0x from the start of a hex-string.
 String strip0x(String hex) {
+  if(hex == null) return null;
   if (hex.startsWith('0x')) return hex.substring(2);
   return hex;
 }
