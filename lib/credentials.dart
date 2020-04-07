@@ -21,8 +21,8 @@ import 'package:web3dart/web3dart.dart';
 
 import 'crypto.dart';
 import 'src/crypto/random_bridge.dart';
-import 'src/utils/uuid.dart';
 import 'src/utils/rlp.dart' as rlp;
+import 'src/utils/uuid.dart';
 
 part 'src/credentials/address.dart';
 part 'src/credentials/credentials.dart';

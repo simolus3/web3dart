@@ -7,7 +7,7 @@ void main() {
     final credentials = EthPrivateKey.fromHex(
         'a2fd51b96dc55aeb14b30d55a6b3121c7b9c599500c1beb92a389c3377adc86e');
     final transaction = Transaction(
-      from: await credentials.extractAddress(),
+      from: credentials.address,
       to: EthereumAddress.fromHex('0xC914Bb2ba888e3367bcecEb5C2d99DF7C7423706'),
       nonce: 0,
       gasPrice: EtherAmount.inWei(BigInt.one),

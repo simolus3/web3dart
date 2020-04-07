@@ -63,14 +63,6 @@ class MetaMaskAccount extends Credentials {
       : address = EthereumAddress.fromHex(_rawHexAddress);
 
   @override
-  Future<EthereumAddress> extractAddress() => Future.value(address);
-
-  @override
-  Future<MsgSignature> signToSignature(Uint8List payload, {int chainId}) {
-    throw UnsupportedError('MetaMask does not support signing arbitrary data');
-  }
-
-  @override
   String toString() {
     return 'MetaMask@$_rawHexAddress';
   }

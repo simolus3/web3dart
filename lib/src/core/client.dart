@@ -382,7 +382,7 @@ class Web3Client {
   /// would require a transaction which can be sent via [sendTransaction].
   /// As no data will be written, you can use the [sender] to specify any
   /// Ethereum address that would call that function. To use the address of a
-  /// credential, call [Credentials.extractAddress].
+  /// private key, call [EthPrivateKey.address].
   ///
   /// This function allows specifying a custom block mined in the past to get
   /// historical data. By default, [BlockNum.current] will be used.

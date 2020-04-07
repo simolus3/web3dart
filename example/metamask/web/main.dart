@@ -14,6 +14,16 @@ Future<void> main() async {
 
   querySelector('#output').text = 'Connected. Accounts: $accounts';
 
-  final client = Web3Client.custom(metamask);
+  final client = Web3Client.custom(metamask, signatureComputers: const [
+    MetaMaskSignatures(),
+  ]);
   print(await client.coinbaseAddress());
+
+  await client.sendTransaction(
+    accounts.single,
+    Transaction(
+      to: EthereumAddress.fromHex('0x6c87E1a114C3379BEc929f6356c5263d62542C13'),
+      value: EtherAmount.inWei(BigInt.from(1000000)),
+    ),
+  );
 }
