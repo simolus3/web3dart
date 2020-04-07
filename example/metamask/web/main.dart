@@ -1,8 +1,7 @@
-import 'dart:convert';
 import 'dart:html';
-import 'dart:typed_data';
 
 import 'package:web3dart/metamask.dart';
+import 'package:web3dart/web3dart.dart';
 
 Future<void> main() async {
   if (!MetaMask.isSupported) {
@@ -15,6 +14,6 @@ Future<void> main() async {
 
   querySelector('#output').text = 'Connected. Accounts: $accounts';
 
-  print(await accounts.single
-      .signPersonalMessage(Uint8List.fromList(utf8.encode('foo'))));
+  final client = Web3Client.custom(metamask);
+  print(await client.coinbaseAddress());
 }

@@ -1,6 +1,6 @@
 part of 'package:web3dart/metamask.dart';
 
-class MetaMask {
+class MetaMask implements RpcService {
   static bool get isSupported {
     return context.hasProperty('ethereum');
   }
@@ -17,10 +17,16 @@ class MetaMask {
   /// not on page load.
   Future<List<MetaMaskAccount>> enable() {
     return _send('eth_requestAccounts', []).then((value) {
-      print(value);
       return (value['result'] as List)
           .map((e) => MetaMaskAccount._(this, e as String))
           .toList();
+    });
+  }
+
+  @override
+  Future<RPCResponse> call(String function, [List<dynamic> params]) {
+    return _send(function, params).then((raw) {
+      return RPCResponse(0, raw['result']);
     });
   }
 

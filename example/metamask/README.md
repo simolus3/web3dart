@@ -1,4 +1,3 @@
-An absolute bare-bones web app.
+Small example to use `web3dart` with MetaMask.
 
-Created from templates made available by Stagehand under a BSD-style
-[license](https://github.com/dart-lang/stagehand/blob/master/LICENSE).
+Run with `pub run build_runner serve`.

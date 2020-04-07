@@ -23,7 +23,7 @@ typedef SocketConnector = StreamChannel<String> Function();
 class Web3Client {
   static const BlockNum _defaultBlock = BlockNum.current();
 
-  final JsonRPC _jsonRpc;
+  final RpcService _jsonRpc;
 
   /// Some ethereum nodes support an event channel over websockets. Web3dart
   /// will use the [StreamChannel] returned by this function as a socket to send
@@ -49,8 +49,15 @@ class Web3Client {
   /// The runner will automatically be disposed by web3dart when [dispose] is
   /// called.
   Web3Client(String url, Client httpClient,
-      {this.socketConnector, Runner runner})
-      : _jsonRpc = JsonRPC(url, httpClient) {
+      {SocketConnector socketConnector, Runner runner})
+      : this.custom(
+          JsonRPC(url, httpClient),
+          socketConnector: socketConnector,
+          runner: runner,
+        );
+
+  Web3Client.custom(RpcService rpc, {this.socketConnector, Runner runner})
+      : _jsonRpc = rpc {
     _operations = _ExpensiveOperations(runner ?? Runner());
     _filters = _FilterEngine(this);
   }

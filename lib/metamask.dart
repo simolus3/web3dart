@@ -11,6 +11,7 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 import 'package:web3dart/crypto.dart';
+import 'package:web3dart/json_rpc.dart';
 import 'package:web3dart/web3dart.dart';
 
 part 'src/metamask/metamask.dart';
