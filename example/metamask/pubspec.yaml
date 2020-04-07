@@ -1,0 +1,14 @@
+name: metamask
+description: Example to use metamask with web3dart
+publish_to: none
+
+environment:
+  sdk: '>=2.7.0 <3.0.0'
+
+dependencies:
+  web3dart:
+    path: ../../
+
+dev_dependencies:
+  build_runner: ^1.6.0
+  build_web_compilers: ^2.3.0
