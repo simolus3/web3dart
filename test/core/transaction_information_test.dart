@@ -59,12 +59,12 @@ void main() {
             gasUsed: BigInt.from(314463),
             logs: [
               FilterEvent(
-                  logIndex: 1, // 1
-                  blockNum: 436, // 436
+                  logIndex: 1,
+                  blockNum: 436,
                   blockHash:
                       '0x8216c5785ac562ff41e2dcfdf5785ac562ff41e2dcfdf829c5a142f1fccd7d',
                   transactionHash: '0xdf829c5a142f1fccd7d8216c5785ac562ff41e2dcfdf5785ac562ff41e2dcf',
-                  transactionIndex: 0, // 0
+                  transactionIndex: 0,
                   address: EthereumAddress.fromHex('0x16c5785ac562ff41e2dcfdf829c5a142f1fccd7d'),
                   data: '0x0000000000000000000000000000000000000000000000000000000000000000',
                   topics: [

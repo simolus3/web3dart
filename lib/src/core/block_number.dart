@@ -49,16 +49,7 @@ class BlockNum {
   String toString() {
     if (useAbsolute) return blockNum.toString();
 
-    switch (blockNum) {
-      case 0:
-        return 'earliest';
-      case 1:
-        return 'latest';
-      case 2:
-        return 'pending';
-      default:
-        return 'latest'; //Can't happen, though
-    }
+    return toBlockParam();
   }
 
   @override
