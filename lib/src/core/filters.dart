@@ -166,7 +166,7 @@ class FilterEvent {
   FilterEvent.fromMap(Map<String, dynamic> log)
       : removed = log['removed'] as bool ?? false,
         logIndex = hexToInt(log['logIndex'] as String).toInt(),
-        transactionIndex = hexToInt(log['logIndex'] as String).toInt(),
+        transactionIndex = hexToInt(log['transactionIndex'] as String).toInt(),
         transactionHash = log['transactionHash'] as String,
         blockHash = log['blockHash'] as String,
         blockNum = hexToInt(log['blockNumber'] as String).toInt(),

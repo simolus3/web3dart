@@ -42,12 +42,12 @@ void main() {
     expect(
         parsed,
         TransactionReceipt(
-            hexToBytes(
+            transactionHash: hexToBytes(
                 '0xb75a96c4751ff03b1bdcf5300e80a45e788e52650b0a4e2294e7496c215f4c9d'),
-            24,
-            hexToBytes(
+            transactionIndex: 24,
+            blockHash: hexToBytes(
                 '0x5548b5f215b99674c7f23c9a701a005b5c18e4a963b55163eddada54562ac521'),
-            BigInt.from(314463),
+            cumulativeGasUsed: BigInt.from(314463),
             blockNumber: const BlockNum.exact(24),
             contractAddress: EthereumAddress.fromHex(
                 '0x6671e02bb8bd3a234b13d79d1c285a9df657233d'),
@@ -59,6 +59,7 @@ void main() {
             gasUsed: BigInt.from(314463),
             logs: [
               FilterEvent(
+                  removed: false,
                   logIndex: 1,
                   blockNum: 436,
                   blockHash:
@@ -84,11 +85,12 @@ void main() {
     expect(
         parsed,
         TransactionReceipt(
-            hexToBytes(
-                '0xb75a96c4751ff03b1bdcf5300e80a45e788e52650b0a4e2294e7496c215f4c9d'),
-            24,
-            hexToBytes(
-                '0x5548b5f215b99674c7f23c9a701a005b5c18e4a963b55163eddada54562ac521'),
-            BigInt.from(314463)));
+          transactionHash: hexToBytes(
+              '0xb75a96c4751ff03b1bdcf5300e80a45e788e52650b0a4e2294e7496c215f4c9d'),
+          transactionIndex: 24,
+          blockHash: hexToBytes(
+              '0x5548b5f215b99674c7f23c9a701a005b5c18e4a963b55163eddada54562ac521'),
+          cumulativeGasUsed: BigInt.from(314463),
+        ));
   });
 }
