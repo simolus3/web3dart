@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0-dev.4
+## 2.0.0-dev.5
 
 - __Breaking__: Renamed `TransactionReceipt.fromJson` to `TransactionReceipt.fromMap`
 
