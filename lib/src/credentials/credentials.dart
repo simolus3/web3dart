@@ -89,4 +89,14 @@ class EthPrivateKey extends Credentials {
 
     return MsgSignature(signature.r, signature.s, chainIdV);
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EthPrivateKey &&
+          runtimeType == other.runtimeType &&
+          const ListEquality().equals(privateKey, other.privateKey);
+
+  @override
+  int get hashCode => privateKey.hashCode;
 }

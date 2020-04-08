@@ -3,8 +3,9 @@ library web3dart;
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:isolate/runner.dart';
+import 'package:collection/collection.dart';
 import 'package:http/http.dart';
+import 'package:isolate/runner.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:meta/meta.dart';
 import 'package:stream_channel/stream_channel.dart';

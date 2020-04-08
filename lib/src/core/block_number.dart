@@ -44,4 +44,31 @@ class BlockNum {
         return 'latest'; //Can't happen, though
     }
   }
+
+  @override
+  String toString() {
+    if (useAbsolute) return blockNum.toString();
+
+    switch (blockNum) {
+      case 0:
+        return 'earliest';
+      case 1:
+        return 'latest';
+      case 2:
+        return 'pending';
+      default:
+        return 'latest'; //Can't happen, though
+    }
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BlockNum &&
+          runtimeType == other.runtimeType &&
+          useAbsolute == other.useAbsolute &&
+          blockNum == other.blockNum;
+
+  @override
+  int get hashCode => useAbsolute.hashCode ^ blockNum.hashCode;
 }
