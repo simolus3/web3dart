@@ -163,6 +163,17 @@ class FilterEvent {
       this.data,
       this.topics});
 
+  FilterEvent.fromMap(Map<String, dynamic> log)
+      : removed = log['removed'] as bool ?? false,
+        logIndex = hexToInt(log['logIndex'] as String).toInt(),
+        transactionIndex = hexToInt(log['transactionIndex'] as String).toInt(),
+        transactionHash = log['transactionHash'] as String,
+        blockHash = log['blockHash'] as String,
+        blockNum = hexToInt(log['blockNumber'] as String).toInt(),
+        address = EthereumAddress.fromHex(log['address'] as String),
+        data = log['data'] as String,
+        topics = (log['topics'] as List).cast<String>();
+
   @override
   String toString() {
     return 'FilterEvent('
@@ -177,6 +188,33 @@ class FilterEvent {
         'topics=$topics'
         ')';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FilterEvent &&
+          runtimeType == other.runtimeType &&
+          removed == other.removed &&
+          logIndex == other.logIndex &&
+          transactionIndex == other.transactionIndex &&
+          transactionHash == other.transactionHash &&
+          blockHash == other.blockHash &&
+          blockNum == other.blockNum &&
+          address == other.address &&
+          data == other.data &&
+          const ListEquality().equals(topics, other.topics);
+
+  @override
+  int get hashCode =>
+      removed.hashCode ^
+      logIndex.hashCode ^
+      transactionIndex.hashCode ^
+      transactionHash.hashCode ^
+      blockHash.hashCode ^
+      blockNum.hashCode ^
+      address.hashCode ^
+      data.hashCode ^
+      topics.hashCode;
 }
 
 class _EventFilter extends _Filter<FilterEvent> {
@@ -217,17 +255,7 @@ class _EventFilter extends _Filter<FilterEvent> {
 
   @override
   FilterEvent parseChanges(log) {
-    return FilterEvent(
-      removed: log['removed'] as bool ?? false,
-      logIndex: hexToInt(log['logIndex'] as String).toInt(),
-      transactionIndex: hexToInt(log['logIndex'] as String).toInt(),
-      transactionHash: log['transactionHash'] as String,
-      blockHash: log['blockHash'] as String,
-      blockNum: hexToInt(log['blockNumber'] as String).toInt(),
-      address: EthereumAddress.fromHex(log['address'] as String),
-      data: log['data'] as String,
-      topics: (log['topics'] as List).cast<String>(),
-    );
+    return FilterEvent.fromMap(log as Map<String, dynamic>);
   }
 }
 

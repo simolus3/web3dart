@@ -90,7 +90,8 @@ class EthereumAddress {
   @override
   bool operator ==(other) {
     return identical(this, other) ||
-        (other is EthereumAddress && other.hex == hex);
+        (other is EthereumAddress &&
+            const ListEquality().equals(addressBytes, other.addressBytes));
   }
 
   @override
