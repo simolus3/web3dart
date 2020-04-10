@@ -148,8 +148,8 @@ class TransactionReceipt {
             ? (hexToDartInt(map['status'] as String) == 1)
             : null,
         logs = map['logs'] != null
-            ? (map['logs'] as List<Map<String, dynamic>>)
-                .map((log) => FilterEvent.fromMap(log))
+            ? (map['logs'] as List<dynamic>)
+                .map((log) => FilterEvent.fromMap(log as Map<String, dynamic>))
                 .toList()
             : [];
 
