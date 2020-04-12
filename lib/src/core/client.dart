@@ -375,10 +375,12 @@ class Web3Client {
       {EthereumAddress sender,
       @required EthereumAddress contract,
       @required Uint8List data,
+      EtherAmount value,
       BlockNum atBlock}) {
     final call = {
       'to': contract.hex,
       'data': bytesToHex(data, include0x: true, padToEvenLength: true),
+      'value': bytesToHex(value.getInWei.toRadixString(16), include0x: true),
     };
 
     if (sender != null) {
