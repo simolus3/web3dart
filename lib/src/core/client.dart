@@ -316,12 +316,14 @@ class Web3Client {
     @required DeployedContract contract,
     @required ContractFunction function,
     @required List<dynamic> params,
+    EtherAmount value,
     BlockNum atBlock,
   }) async {
     final encodedResult = await callRaw(
       sender: sender,
       contract: contract.address,
       data: function.encodeCall(params),
+      value: value,
       atBlock: atBlock,
     );
 
