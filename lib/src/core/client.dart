@@ -233,7 +233,10 @@ class Web3Client {
   Future<TransactionInformation> getTransactionByHash(String transactionHash) {
     return _makeRPCCall<Map<String, dynamic>>(
             'eth_getTransactionByHash', [transactionHash])
-        .then((s) => TransactionInformation.fromMap(s));
+        .then((s) {
+            print(s);
+            return TransactionInformation.fromMap(s);
+        } );
   }
 
   /// Returns an receipt of a transaction based on its hash.
@@ -316,12 +319,14 @@ class Web3Client {
     @required DeployedContract contract,
     @required ContractFunction function,
     @required List<dynamic> params,
+    EtherAmount value,
     BlockNum atBlock,
   }) async {
     final encodedResult = await callRaw(
       sender: sender,
       contract: contract.address,
       data: function.encodeCall(params),
+      value: value,
       atBlock: atBlock,
     );
 
@@ -335,7 +340,7 @@ class Web3Client {
     EthereumAddress sender,
     EthereumAddress to,
     EtherAmount value,
-    BigInt amountOfGas,
+    int amountOfGas,/// gasLimit
     EtherAmount gasPrice,
     Uint8List data,
     @Deprecated('Parameter is ignored') BlockNum atBlock,
@@ -346,10 +351,10 @@ class Web3Client {
         {
           if (sender != null) 'from': sender.hex,
           if (to != null) 'to': to.hex,
-          if (amountOfGas != null) 'gas': '0x${amountOfGas.toRadixString(16)}',
-          if (gasPrice != null)
-            'gasPrice': '0x${amountOfGas.toRadixString(16)}',
+          if (amountOfGas != null && amountOfGas != 0) 'gas': '0x${amountOfGas.toRadixString(16)}',
+          if (gasPrice != null) 'gasPrice': '0x${gasPrice.getInWei.toRadixString(16)}',
           if (data != null) 'data': bytesToHex(data, include0x: true),
+          if (value != null) 'value': '0x${value.getInWei.toRadixString(16)}',
         },
       ],
     );
@@ -375,10 +380,12 @@ class Web3Client {
       {EthereumAddress sender,
       @required EthereumAddress contract,
       @required Uint8List data,
+      EtherAmount value,
       BlockNum atBlock}) {
     final call = {
       'to': contract.hex,
       'data': bytesToHex(data, include0x: true, padToEvenLength: true),
+      if (value != null) 'value': '0x${value.getInWei.toRadixString(16)}',
     };
 
     if (sender != null) {

@@ -218,18 +218,34 @@ class ContractFunction {
   /// * uint<x> and int<x> will accept a dart int
   ///
   /// Other types are not supported at the moment.
-  Uint8List encodeCall(List<dynamic> params) {
-    if (params.length != parameters.length) {
-      throw ArgumentError.value(
-          params.length, 'params', 'Must match function parameters');
-    }
+  Uint8List encodeCall([List<dynamic> params]) {
 
     final sink = LengthTrackingByteSink()
-      //First four bytes to identify the function with its parameters
-      ..add(keccakUtf8(encodeName()).sublist(0, 4));
+    //First four bytes to identify the function with its parameters
+    ..add(keccakUtf8(encodeName()).sublist(0, 4));
 
-    TupleType(parameters.map((param) => param.type).toList())
-        .encode(params, sink);
+    if ( parameters == null || parameters.isEmpty ) {
+
+        // When a function without parameters is called
+        if ( params == null || params.isEmpty ) {
+            return sink.asBytes();
+        } else {
+            throw ArgumentError.value(
+                0, 'params', 'Must match function parameters');
+        }
+
+    } else {
+
+        if ( params != null && params.length == parameters.length ) {
+
+            TupleType(parameters.map((param) => param.type).toList())
+                .encode(params, sink);
+        } else {
+            throw ArgumentError.value(
+                parameters.length, 'params', 'Must match function parameters');
+        }
+
+    }
 
     return sink.asBytes();
   }

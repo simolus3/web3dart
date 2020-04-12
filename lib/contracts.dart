@@ -13,6 +13,9 @@ import 'crypto.dart';
 import 'src/utils/length_tracking_byte_sink.dart';
 import 'src/utils/typed_data.dart';
 
+import 'web3dart.dart';
+
+part 'src/contracts/contract_invoker.dart';
 part 'src/contracts/deployed_contract.dart';
 part 'src/contracts/abi/abi.dart';
 part 'src/contracts/abi/arrays.dart';
