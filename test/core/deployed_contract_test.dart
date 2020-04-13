@@ -70,6 +70,23 @@ class ERC20Contract extends DeployedContract {
 
 void main() {
 
+// this is test ouput.
+//
+// 00:00 +0: test ERC20 infomations
+// NetworkID:1000
+// Name: Protoss
+// Symbol: PRC
+// Decimals: 18
+// TotalSupply: 1000000000.0
+// Begin transfer: 0xf5DdA759346F8d185e04D14D4457729394D3ce00 -> 0xB661639fb5A9C5F18E37aB567FCd65B8890D1E3e : 1.00 Symbol
+//  > EstimateGas: 37646
+//  > TryCallReceipt: true
+//  > SentAndHash:0xa50b5a460d824757d511b2a6831e188c57f89fa726477e19570dcb27d3008836
+// Balnace:
+// 0xf5DdA759346F8d185e04D14D4457729394D3ce00: 9999992.0
+// 0xB661639fb5A9C5F18E37aB567FCd65B8890D1E3e: 8.0
+//
+
   test('test ERC20 infomations', () async {
 
       /// use test RPC
