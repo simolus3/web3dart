@@ -233,7 +233,10 @@ class Web3Client {
   Future<TransactionInformation> getTransactionByHash(String transactionHash) {
     return _makeRPCCall<Map<String, dynamic>>(
             'eth_getTransactionByHash', [transactionHash])
-        .then((s) => TransactionInformation.fromMap(s));
+        .then((s) {
+            print(s);
+            return TransactionInformation.fromMap(s);
+        } );
   }
 
   /// Returns an receipt of a transaction based on its hash.
@@ -337,7 +340,7 @@ class Web3Client {
     EthereumAddress sender,
     EthereumAddress to,
     EtherAmount value,
-    int amountOfGas = 10000000,
+    int amountOfGas,/// gasLimit
     EtherAmount gasPrice,
     Uint8List data,
     @Deprecated('Parameter is ignored') BlockNum atBlock,
@@ -348,7 +351,7 @@ class Web3Client {
         {
           if (sender != null) 'from': sender.hex,
           if (to != null) 'to': to.hex,
-          if (amountOfGas != null) 'gas': '0x${amountOfGas.toRadixString(16)}',
+          if (amountOfGas != null && amountOfGas != 0) 'gas': '0x${amountOfGas.toRadixString(16)}',
           if (gasPrice != null) 'gasPrice': '0x${gasPrice.getInWei.toRadixString(16)}',
           if (data != null) 'data': bytesToHex(data, include0x: true),
           if (value != null) 'value': '0x${value.getInWei.toRadixString(16)}',

@@ -237,6 +237,7 @@ class ContractFunction {
     } else {
 
         if ( params != null && params.length == parameters.length ) {
+
             TupleType(parameters.map((param) => param.type).toList())
                 .encode(params, sink);
         } else {

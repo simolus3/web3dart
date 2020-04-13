@@ -6,23 +6,23 @@ class ERC20Contract extends DeployedContract {
 
     final Web3Client web3;
 
-    @readonly Future<String> name() => invoker(web3, 'name').operator().call<String>();
+    @readonly Future<String> name() => invoker(web3, 'name').call<String>();
 
-    @readonly Future<int> decimals() => invoker(web3, 'decimals').operator().call();
+    @readonly Future<BigInt> decimals() => invoker(web3, 'decimals').call();
 
-    @readonly Future<BigInt> totalSupply() => invoker(web3,'totalSupply').operator().call();
+    @readonly Future<BigInt> totalSupply() => invoker(web3,'totalSupply').call();
 
-    @readonly Future<String> symbol() => invoker(web3, 'symbol').operator().call();
+    @readonly Future<String> symbol() => invoker(web3, 'symbol').call();
 
-    @readonly Future<BigInt> blanaceOf(EthereumAddress owner) => invoker(web3, 'balanceOf').operator().call<BigInt>();
+    @readonly Future<BigInt> blanaceOf(EthereumAddress owner) => invoker(web3, 'balanceOf').parameters(owner).call<BigInt>();
 
-    @readonly Future<BigInt> allowance(EthereumAddress owner, EthereumAddress spender) => invoker(web3, 'allowance').operator([owner, spender]).call(from: owner);
+    @readonly Future<BigInt> allowance(EthereumAddress owner, EthereumAddress spender) => invoker(web3, 'allowance').parameters([owner, spender]).call(from: owner);
 
-    @readwrite ContractInvoker transfer(EthereumAddress recipient, EtherAmount amount) => invoker(web3, 'transfer').operator([recipient, amount]);
+    @readwrite ContractInvocation transfer(EthereumAddress recipient, BigInt amount) => invoker(web3, 'transfer').parameters([recipient, amount]);
 
-    @readwrite ContractInvoker approve(EthereumAddress spender, EtherAmount amount) => invoker(web3, 'approve').operator([spender, amount]);
+    @readwrite ContractInvocation approve;
 
-    @readwrite ContractInvoker transferFrom(EthereumAddress sender, EthereumAddress recipient) => invoker(web3, 'transferFrom').operator([sender, recipient]);
+    @readwrite ContractInvocation transferFrom;
 
     ERC20Contract( this.web3, EthereumAddress contractAddress ) : super(
         ContractAbi.fromJson( '[' +
@@ -73,13 +73,37 @@ void main() {
   test('test ERC20 infomations', () async {
 
       /// use test RPC
-      final web3 = Web3Client('http://127.0.0.1:8545', Client());
+      final web3 = Web3Client('http://testrpc:4001', Client());
 
-      final erc20 = ERC20Contract(web3, EthereumAddress.fromHex('0x6cd7595139d452F14F7dc7aa0531Ff09E7eE52C5'));
+      final erc20 = ERC20Contract(web3, EthereumAddress.fromHex('0xf4A21353da36389a924ab144DcC694BEf1B1d0F2'));
 
-      print('Name:${await erc20.name()}');
-      print('Symbol:${await erc20.symbol()}');
-      print('TotalSupply:${await erc20.totalSupply()}');
+      /// test address
+      final account = EthPrivateKey.fromHex('0x9a28e3c832827b79e856b1868289ad99dbdab3f8cf4e7e9d1932069afe9e0fd3');
+      final fromAddress = await account.extractAddress();
+      final toAddress = EthereumAddress.fromHex('0xB661639fb5A9C5F18E37aB567FCd65B8890D1E3e');
 
+      print('NetworkID:${await web3.getNetworkId()}');
+      print('Name: ${await erc20.name()}');
+      print('Symbol: ${await erc20.symbol()}');
+      print('Decimals: ${await erc20.decimals()}');
+      print('TotalSupply: ${EtherAmount.fromWei(await erc20.totalSupply()).getValueInUnit(EtherUnit.ether)}');
+
+      final invoker = erc20.transfer(
+          toAddress,
+          EtherAmount.fromEther(1).getInWei
+      );
+
+      print('Begin transfer: 0xf5DdA759346F8d185e04D14D4457729394D3ce00 -> 0xB661639fb5A9C5F18E37aB567FCd65B8890D1E3e : 1.00 ${await erc20.name()}');
+      print('  > EstimateGas: ${await invoker.estimateGas(from: fromAddress)}');
+      print('  > TryCallReceipt: ${await invoker.call(from: fromAddress)}');
+
+      final txHash = await invoker.send(from: account);
+      print('  > SentAndHash:${txHash.toString()}');
+
+      print('Balnace:');
+      print('0xf5DdA759346F8d185e04D14D4457729394D3ce00: ${EtherAmount.fromWei(await erc20.blanaceOf(fromAddress)).getValueInUnit(EtherUnit.ether)}');
+      print('0xB661639fb5A9C5F18E37aB567FCd65B8890D1E3e: ${EtherAmount.fromWei(await erc20.blanaceOf(toAddress)).getValueInUnit(EtherUnit.ether)}');
+
+      // print( (await web3.getTransactionByHash(txHash)).toString() );
   });
 }

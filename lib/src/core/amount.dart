@@ -62,6 +62,14 @@ class EtherAmount {
     return EtherAmount.inWei(parsedAmount * _factors[unit]);
   }
 
+  factory EtherAmount.fromEther(dynamic amount) => EtherAmount.fromUnitAndValue(EtherUnit.ether, amount);
+  factory EtherAmount.fromFinney(dynamic amount) => EtherAmount.fromUnitAndValue(EtherUnit.finney, amount);
+  factory EtherAmount.fromSzabo(dynamic amount) => EtherAmount.fromUnitAndValue(EtherUnit.szabo, amount);
+  factory EtherAmount.fromGwei(dynamic amount) => EtherAmount.fromUnitAndValue(EtherUnit.gwei, amount);
+  factory EtherAmount.fromMwei(dynamic amount) => EtherAmount.fromUnitAndValue(EtherUnit.mwei, amount);
+  factory EtherAmount.fromKwei(dynamic amount) => EtherAmount.fromUnitAndValue(EtherUnit.kwei, amount);
+  factory EtherAmount.fromWei(dynamic amount) => EtherAmount.fromUnitAndValue(EtherUnit.wei, amount);
+
   /// Gets the value of this amount in the specified unit as a whole number.
   /// **WARNING**: For all units except for [EtherUnit.wei], this method will
   /// discard the remainder occurring in the division, making it unsuitable for
