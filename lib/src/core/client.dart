@@ -234,7 +234,6 @@ class Web3Client {
     return _makeRPCCall<Map<String, dynamic>>(
             'eth_getTransactionByHash', [transactionHash])
         .then((s) {
-            print(s);
             return TransactionInformation.fromMap(s);
         } );
   }
