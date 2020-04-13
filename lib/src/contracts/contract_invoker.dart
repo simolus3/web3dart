@@ -120,7 +120,7 @@ class ContractInvocation {
             nonce = await client.getTransactionCount(sender);
         }
 
-        /// 发送交易
+        /// sign and sent
         return client.sendTransaction(from, Transaction.callContract(
             contract: contract,
             function: function,
