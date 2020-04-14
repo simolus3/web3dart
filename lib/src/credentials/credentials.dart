@@ -49,9 +49,22 @@ abstract class Credentials {
   }
 }
 
+class BIP39 {
+    static String generateMnemonic() => bip39.generateMnemonic();
+    static String entropyToMnemonic(String mnemonic) => bip39.entropyToMnemonic(mnemonic);
+    static Uint8List mnemonicToSeed(String mnemonic) => bip39.mnemonicToSeed(mnemonic);
+    static String mnemonicToSeedHex(String mnemonic) => bip39.mnemonicToSeedHex(mnemonic);
+    static String mnemonicToEntropy(String mnemonic) => bip39.mnemonicToEntropy(mnemonic);
+    static bool validateMnemonic(String mnemonic) => bip39.validateMnemonic(mnemonic);
+}
+
 /// Credentials that can sign payloads with an Ethereum private key.
 class EthPrivateKey extends Credentials {
+
+  static const String defaultDerivePath = "m/44'/60'/0'/0/0";
+
   final Uint8List privateKey;
+
   EthereumAddress _cachedAddress;
 
   EthPrivateKey(this.privateKey);
@@ -67,6 +80,20 @@ class EthPrivateKey extends Credentials {
   factory EthPrivateKey.createRandom(Random random) {
     final key = generateNewPrivateKey(random);
     return EthPrivateKey(intToBytes(key));
+  }
+
+  /// support to BIP44
+  factory EthPrivateKey.fromMnemonic(String mnemonic, {String derivePath}) {
+
+      derivePath ??= defaultDerivePath;
+
+      final bip39Seed = BIP39.mnemonicToSeed(mnemonic);
+
+      final bip32 = BIP32.fromSeed(bip39Seed);
+
+      final account = bip32.derivePath(derivePath);
+
+      return EthPrivateKey(account.privateKey);
   }
 
   @override
