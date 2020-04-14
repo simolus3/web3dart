@@ -53,7 +53,10 @@ class Transaction {
     this.gasPrice,
     this.value,
     this.nonce,
-  })  : to = contract.address,
+  })  : assert(contract != null),
+        assert(function != null),
+        assert(parameters != null),
+        to = contract.address,
         data = function.encodeCall(parameters);
 
   Transaction copyWith(
