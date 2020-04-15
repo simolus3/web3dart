@@ -13,7 +13,8 @@ class DeployedContract {
   /// The Ethereum address at which this contract is reachable.
   final EthereumAddress address;
 
-  ContractInvocation invoker(Web3Client client, String funName) => ContractInvocation(client, this, function(funName));
+  ContractInvocation invoker(Web3Client client, String funName) =>
+      ContractInvocation(client, this, function(funName));
 
   DeployedContract(this.abi, this.address);
 

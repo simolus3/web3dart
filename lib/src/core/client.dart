@@ -337,9 +337,7 @@ class Web3Client {
     EthereumAddress sender,
     EthereumAddress to,
     EtherAmount value,
-    int amountOfGas,
-
-    /// gasLimit
+    BigInt amountOfGas,
     EtherAmount gasPrice,
     Uint8List data,
     @Deprecated('Parameter is ignored') BlockNum atBlock,
@@ -350,7 +348,7 @@ class Web3Client {
         {
           if (sender != null) 'from': sender.hex,
           if (to != null) 'to': to.hex,
-          if (amountOfGas != null && amountOfGas != 0)
+          if (amountOfGas != null)
             'gas': '0x${amountOfGas.toRadixString(16)}',
           if (gasPrice != null)
             'gasPrice': '0x${gasPrice.getInWei.toRadixString(16)}',

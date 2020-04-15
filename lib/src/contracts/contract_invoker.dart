@@ -11,6 +11,9 @@ class ContractInvocation {
   ContractInvocation parameters([dynamic args]) {
     if (args is Map) {
       for (final p in function.parameters) {
+        if (!args.containsKey(p.name)) {
+          throw ArgumentError('Missing parameters "$p.name"');
+        }
         _params.add(args[p.name]);
       }
     } else if (args is List) {
