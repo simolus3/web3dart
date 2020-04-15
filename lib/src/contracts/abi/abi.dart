@@ -91,7 +91,7 @@ class ContractAbi {
       functions.add(ContractFunction(
         name,
         inputs,
-        outputs: outputs,
+        outputs: outputs ?? const [],
         type: parsedType,
         mutability: mutability,
       ));
@@ -218,36 +218,18 @@ class ContractFunction {
   /// * uint<x> and int<x> will accept a dart int
   ///
   /// Other types are not supported at the moment.
-  Uint8List encodeCall([List<dynamic> params]) {
+  Uint8List encodeCall([List<dynamic> params = const []]) {
+    final functionIdentifier = keccakUtf8(encodeName()).sublist(0, 4);
 
-    final sink = LengthTrackingByteSink()
-    //First four bytes to identify the function with its parameters
-    ..add(keccakUtf8(encodeName()).sublist(0, 4));
-
-    if ( parameters == null || parameters.isEmpty ) {
-
-        // When a function without parameters is called
-        if ( params == null || params.isEmpty ) {
-            return sink.asBytes();
-        } else {
-            throw ArgumentError.value(
-                0, 'params', 'Must match function parameters');
-        }
-
+    if (params == null || params.isEmpty) {
+      assert(parameters.isEmpty);
+      return functionIdentifier;
     } else {
-
-        if ( params != null && params.length == parameters.length ) {
-
-            TupleType(parameters.map((param) => param.type).toList())
-                .encode(params, sink);
-        } else {
-            throw ArgumentError.value(
-                parameters.length, 'params', 'Must match function parameters');
-        }
-
+      final link = LengthTrackingByteSink()..add(functionIdentifier);
+      TupleType(parameters.map((param) => param.type).toList())
+          .encode(params, link);
+      return link.asBytes();
     }
-
-    return sink.asBytes();
   }
 
   /// Encodes the name of the function and its required parameters.
