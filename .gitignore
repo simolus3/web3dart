@@ -37,3 +37,4 @@ out/
 coverage.json
 lcov.info
 test_coverage
+.DS_Store
