@@ -62,9 +62,9 @@ class EtherAmount {
     return EtherAmount.inWei(parsedAmount * _factors[unit]);
   }
 
-  /// Constructs an amount of ether consisting of [amount] ether, or [amount] trillion wei.
+  /// Constructs a value of [amount] full ether.
   /// [amount] can either be a base10 [String], an [int] or a [BigInt].
-  factory EtherAmount.fromEther(dynamic amount) =>
+  factory EtherAmount.ether(dynamic amount) =>
       EtherAmount.fromUnitAndValue(EtherUnit.ether, amount);
 
   /// Constructs an amount of ether consisting of [amount] finney, or [amount] trillion wei.
