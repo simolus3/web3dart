@@ -1,14 +1,21 @@
 part of 'package:web3dart/contracts.dart';
 
 class ContractInvocation {
-  final Web3Client client;
-  final DeployedContract contract;
-  final ContractFunction function;
+  final Web3Client _client;
+  final DeployedContract _contract;
+  final ContractFunction _function;
   List _params;
 
-  ContractInvocation(this.client, this.contract, this.function);
+  ContractInvocation._(this._client, this._contract, this._function);
 
+  /// Creates a new [ContractInvocation] instance that will call the function with provided [args].
+  ///
+  /// Args can either be:
+  ///  - a `Map`, where the key is the parameter name and the value is the argument value
+  //// - a `List`, which behaves like [ContractFunction.encodeCall].
+  ////  -a simple value, which will be wrapped in a `List` and used as a single argument.
   ContractInvocation parameters([dynamic args]) {
+    assert(_params == null, 'Tried to call parameters multiple times');
     if (args is Map) {
       for (final p in function.parameters) {
         if (!args.containsKey(p.name)) {
@@ -61,6 +68,9 @@ class ContractInvocation {
     });
   }
 
+  /// Estimates the amount of gas that will be consumed when this call is sent.
+  ///
+  /// See also: [Web3Client.estimateGas].
   Future<int> estimateGas({
     @required EthereumAddress from,
     EtherAmount value,
@@ -72,11 +82,11 @@ class ContractInvocation {
       value: value,
       data: function.encodeCall(_params),
     )
-        .then((gas) {
-      return Future.value(gas.toInt());
-    });
+        .then((gas) => gas.toInt());
   }
 
+  /// Creates and sends a transaction to call this contract method with arguments from [parameters].
+  /// See also: [Web3Client.sendTransaction].
   Future<String> send({
     @required Credentials from,
     EtherAmount gasPrice,

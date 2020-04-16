@@ -13,8 +13,12 @@ class DeployedContract {
   /// The Ethereum address at which this contract is reachable.
   final EthereumAddress address;
 
-  ContractInvocation invoker(Web3Client client, String funName) =>
-      ContractInvocation(client, this, function(funName));
+  /// Creates a [ContractInvocation] for this contract and the [functionName].
+  ///
+  /// A [ContractInvocation] bundles many common apis, like calling a function, estimating
+  /// gas cost or parsing return values.
+  ContractInvocation invoker(Web3Client client, String functionName) =>
+      ContractInvocation(client, this, function(functionName));
 
   DeployedContract(this.abi, this.address);
 

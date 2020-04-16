@@ -67,32 +67,32 @@ class EtherAmount {
   factory EtherAmount.ether(dynamic amount) =>
       EtherAmount.fromUnitAndValue(EtherUnit.ether, amount);
 
-  /// Constructs an amount of ether consisting of [amount] finney, or [amount] trillion wei.
+  /// Constructs an amount of ether consisting of [amount] finney, or [amount] quadrillion wei.
   /// [amount] can either be a base10 [String], an [int] or a [BigInt].
-  factory EtherAmount.fromFinney(dynamic amount) =>
+  factory EtherAmount.finney(dynamic amount) =>
       EtherAmount.fromUnitAndValue(EtherUnit.finney, amount);
 
   /// Constructs an amount of ether consisting of [amount] szabo, or [amount] trillion wei.
   /// [amount] can either be a base10 [String], an [int] or a [BigInt].
-  factory EtherAmount.fromSzabo(dynamic amount) =>
+  factory EtherAmount.szabo(dynamic amount) =>
       EtherAmount.fromUnitAndValue(EtherUnit.szabo, amount);
 
-  /// Constructs an amount of ether consisting of [amount] gwei, or [amount] trillion wei.
+  /// Constructs an amount of ether consisting of [amount] gwei, or [amount] billion wei.
   /// [amount] can either be a base10 [String], an [int] or a [BigInt].
-  factory EtherAmount.fromGwei(dynamic amount) =>
+  factory EtherAmount.gwei(dynamic amount) =>
       EtherAmount.fromUnitAndValue(EtherUnit.gwei, amount);
 
-  /// Constructs an amount of ether consisting of [amount] mwei, or [amount] trillion wei.
+  /// Constructs an amount of ether consisting of [amount] mwei, or [amount] million wei.
   /// [amount] can either be a base10 [String], an [int] or a [BigInt].
-  factory EtherAmount.fromMwei(dynamic amount) =>
+  factory EtherAmount.mwei(dynamic amount) =>
       EtherAmount.fromUnitAndValue(EtherUnit.mwei, amount);
 
-  /// Constructs an amount of ether consisting of [amount] kwei, or [amount] trillion wei.
+  /// Constructs an amount of ether consisting of [amount] kwei, or [amount] thousand wei.
   /// [amount] can either be a base10 [String], an [int] or a [BigInt].
-  factory EtherAmount.fromKwei(dynamic amount) =>
+  factory EtherAmount.kwei(dynamic amount) =>
       EtherAmount.fromUnitAndValue(EtherUnit.kwei, amount);
 
-  /// Constructs an amount of ether consisting of [amount] wei, or [amount] trillion wei.
+  /// Constructs an amount of ether consisting of [amount] wei, the smallest unit in Ethereum.
   /// [amount] can either be a base10 [String], an [int] or a [BigInt].
   factory EtherAmount.fromWei(dynamic amount) =>
       EtherAmount.fromUnitAndValue(EtherUnit.wei, amount);
