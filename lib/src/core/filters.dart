@@ -165,11 +165,20 @@ class FilterEvent {
 
   FilterEvent.fromMap(Map<String, dynamic> log)
       : removed = log['removed'] as bool ?? false,
-        logIndex = hexToInt(log['logIndex'] as String).toInt(),
-        transactionIndex = hexToInt(log['transactionIndex'] as String).toInt(),
-        transactionHash = log['transactionHash'] as String,
-        blockHash = log['blockHash'] as String,
-        blockNum = hexToInt(log['blockNumber'] as String).toInt(),
+        logIndex = log['logIndex'] != null
+            ? hexToInt(log['logIndex'] as String).toInt()
+            : null,
+        transactionIndex = log['transactionIndex'] != null
+            ? hexToInt(log['transactionIndex'] as String).toInt()
+            : null,
+        transactionHash = log['transactionHash'] != null
+            ? log['transactionHash'] as String
+            : null,
+        blockHash =
+            log['blockHash'] != null ? log['blockHash'] as String : null,
+        blockNum = log['blockNumber'] != null
+            ? hexToInt(log['blockNumber'] as String).toInt()
+            : null,
         address = EthereumAddress.fromHex(log['address'] as String),
         data = log['data'] as String,
         topics = (log['topics'] as List).cast<String>();
