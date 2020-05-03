@@ -9,4 +9,6 @@ pub run test -x expensive --platform chrome,firefox || EXIT_CODE=$?
 
 dart tool/format_coverage.dart
 
+dart tool/integration_test.dart || EXIT_CODE=$?
+
 exit $EXIT_CODE
