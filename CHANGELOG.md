@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0-dev.6
+## 2.0.0-dev.7
 
 - __Breaking__: Renamed `TransactionReceipt.fromJson` to `TransactionReceipt.fromMap`
 - __Breaking__: Removed the `backgroundIsolate` option from `Web3Client`. 
