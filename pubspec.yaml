@@ -17,8 +17,6 @@ dependencies:
   stream_channel: ^2.0.0
   json_rpc_2: ^2.1.0
   collection: ^1.14.11
-  bip39: ^1.0.3
-  bip32: ^1.0.5
 
 dev_dependencies:
   web_socket_channel: ^1.0.0

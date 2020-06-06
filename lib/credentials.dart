@@ -17,8 +17,6 @@ import 'package:pointycastle/key_derivators/scrypt.dart' as scrypt;
 import 'package:pointycastle/macs/hmac.dart';
 import 'package:pointycastle/stream/ctr.dart';
 import 'package:web3dart/src/utils/typed_data.dart';
-import 'package:bip32/bip32.dart';
-import 'package:bip39/bip39.dart' as bip39;
 
 import 'crypto.dart';
 import 'src/crypto/random_bridge.dart';

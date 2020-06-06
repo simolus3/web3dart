@@ -6,7 +6,7 @@ class ContractInvocation {
   final ContractFunction _function;
   List _params;
 
-  ContractInvocation._(this._client, this._contract, this._function);
+  ContractInvocation(this._client, this._contract, this._function);
 
   /// Creates a new [ContractInvocation] instance that will call the function with provided [args].
   ///
@@ -16,56 +16,49 @@ class ContractInvocation {
   ////  -a simple value, which will be wrapped in a `List` and used as a single argument.
   ContractInvocation parameters([dynamic args]) {
     assert(_params == null, 'Tried to call parameters multiple times');
+
+    final newInvocation = ContractInvocation(_client, _contract, _function);
+
     if (args is Map) {
-      for (final p in function.parameters) {
+      for (final p in _function.parameters) {
         if (!args.containsKey(p.name)) {
           throw ArgumentError('Missing parameters "$p.name"');
         }
-        _params.add(args[p.name]);
+        newInvocation._params.add(args[p.name]);
       }
+    } else if (args is Uint8List) {
+      newInvocation._params = [args];
     } else if (args is List) {
-      _params = args;
+      newInvocation._params = args;
     } else if (args != null) {
-      _params = [args];
+      newInvocation._params = [args];
     }
 
-    return this;
+    return newInvocation;
   }
 
-  Future<T> call<T>({
+  Future<Uint8List> callRaw({EthereumAddress from, EtherAmount value}) =>
+      _client
+          .callRaw(
+            sender: from,
+            contract: _contract.address,
+            data: _function.encodeCall(_params),
+            value: value,
+          )
+          .then(hexToBytes);
+
+  Future<List<dynamic>> call({
     EthereumAddress from,
     EtherAmount value,
   }) {
-    return client
+    return _client
         .callRaw(
-      sender: from,
-      contract: contract.address,
-      data: function.encodeCall(_params),
-      value: value,
-    )
-        .then((rawRsp) {
-      final r = function.decodeReturnValues(rawRsp);
-
-      if (T is Map) {
-        Map ret;
-
-        for (var i = 0; i < function.outputs.length; i++) {
-          final output = function.outputs[i];
-
-          ret[i] = r[i];
-
-          if (output.name != null && output.name.isNotEmpty) {
-            ret[output.name] = r[i];
-          }
-        }
-
-        return Future.value(ret as T);
-      } else if (T is List) {
-        return Future.value(function.decodeReturnValues(rawRsp) as T);
-      } else {
-        return Future.value(r.first as T);
-      }
-    });
+          sender: from,
+          contract: _contract.address,
+          data: _function.encodeCall(_params),
+          value: value,
+        )
+        .then(_function.decodeReturnValues);
   }
 
   /// Estimates the amount of gas that will be consumed when this call is sent.
@@ -75,13 +68,13 @@ class ContractInvocation {
     @required EthereumAddress from,
     EtherAmount value,
   }) {
-    return client
+    return _client
         .estimateGas(
-      sender: from,
-      to: contract.address,
-      value: value,
-      data: function.encodeCall(_params),
-    )
+          sender: from,
+          to: _contract.address,
+          value: value,
+          data: _function.encodeCall(_params),
+        )
         .then((gas) => gas.toInt());
   }
 
@@ -107,21 +100,21 @@ class ContractInvocation {
 
     /// payload nonce
     if (nonce == 0) {
-      nonce = await client.getTransactionCount(sender);
+      nonce = await _client.getTransactionCount(sender);
     }
 
     /// sign and sent
-    return client.sendTransaction(
+    return _client.sendTransaction(
         from,
         Transaction.callContract(
-          contract: contract,
-          function: function,
+          contract: _contract,
+          function: _function,
           parameters: _params,
           from: sender,
           maxGas: gasLimit,
           value: value,
           nonce: nonce,
-          gasPrice: gasPrice ?? await client.getGasPrice(),
+          gasPrice: gasPrice ?? await _client.getGasPrice(),
         ),
         fetchChainIdFromNetworkId: true);
   }

@@ -94,7 +94,7 @@ class EtherAmount {
 
   /// Constructs an amount of ether consisting of [amount] wei, the smallest unit in Ethereum.
   /// [amount] can either be a base10 [String], an [int] or a [BigInt].
-  factory EtherAmount.fromWei(dynamic amount) =>
+  factory EtherAmount.wei(dynamic amount) =>
       EtherAmount.fromUnitAndValue(EtherUnit.wei, amount);
 
   /// Gets the value of this amount in the specified unit as a whole number.
