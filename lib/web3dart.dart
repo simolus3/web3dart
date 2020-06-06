@@ -19,6 +19,7 @@ import 'src/utils/typed_data.dart';
 
 export 'contracts.dart';
 export 'credentials.dart';
+export 'src/utils/length_tracking_byte_sink.dart';
 
 part 'src/core/amount.dart';
 part 'src/core/block_number.dart';
