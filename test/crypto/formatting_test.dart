@@ -12,4 +12,9 @@ void main() {
     expect(hexToDartInt('0xff'), 0xff);
     expect(hexToDartInt('abcdef'), 0xabcdef);
   });
+
+  test('bytesToHex', () {
+    expect(bytesToHex([3], padToEvenLength: true), '03');
+    expect(bytesToHex([3], forcePadLength: 3), '003');
+  });
 }

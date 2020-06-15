@@ -32,7 +32,7 @@ String bytesToHex(List<int> bytes,
     encoded = '0$encoded';
   }
 
-  return (include0x ? '0x' : '') + hex.encode(bytes);
+  return (include0x ? '0x' : '') + encoded;
 }
 
 /// Converts the hexadecimal string, which can be prefixed with 0x, to a byte
