@@ -67,7 +67,8 @@ Future<_SigningInput> _fillMissingData({
     }
 
     modifiedTransaction = modifiedTransaction.copyWith(
-      nonce: await client.getTransactionCount(modifiedTransaction.from),
+      nonce: await client.getTransactionCount(modifiedTransaction.from,
+          atBlock: const BlockNum.pending()),
     );
   }
 
