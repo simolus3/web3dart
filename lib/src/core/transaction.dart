@@ -8,9 +8,12 @@ class Transaction {
   /// contract.
   final EthereumAddress to;
 
-  /// The maximum amount of gas to spend. Can be null, in which the rpc server
-  /// will pick a default. Gas that is not used but included in [maxGas] will
-  /// be returned.
+  /// The maximum amount of gas to spend.
+  ///
+  /// If [maxGas] is `null`, this library will ask the rpc node to estimate a
+  /// reasonable spending via [Web3Client.estimateGas].
+  ///
+  /// Gas that is not used but included in [maxGas] will be returned.
   final int maxGas;
 
   /// How much ether to spend on a single unit of gas. Can be null, in which

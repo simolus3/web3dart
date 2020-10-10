@@ -1,12 +1,14 @@
 # Changelog
 
-## 2.0.0-dev.7
+## 2.0.0-dev.8
 
 - __Breaking__: Renamed `TransactionReceipt.fromJson` to `TransactionReceipt.fromMap`
 - __Breaking__: Removed the `backgroundIsolate` option from `Web3Client`. 
   For background isolates, instead use `runner: await IsolateRunner.spawn()` from `package:isolate`.
 - __Breaking__: Changed `TransactionInformation.r` and `TransactionInformation.s` from `Uint8List` to
   `BigInt`
+- __Breaking__: When not setting the `maxGas` argument, this library will now estimate it instead of using
+  a fixed upper bound.
 - Add `ecRecover` and `isValidSignature` to verify messages. Thanks, [brickpop](https://github.com/brickpop)!
 - Add `compressPublicKey` and `decompressPublicKey` to obtain a compressed or expanded version of keys.
 - Add `getLogs` method to `Web3Client`. Thanks, [jmank88](https://github.com/jmank88)!

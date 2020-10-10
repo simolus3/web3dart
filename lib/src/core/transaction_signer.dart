@@ -21,12 +21,39 @@ Future<_SigningInput> _fillMissingData({
   assert(!loadChainIdFromNetwork || chainId != null,
       "You can't specify loadChainIdFromNetwork and specify a custom chain id!");
 
+  final sender = transaction.from ?? await credentials.extractAddress();
+  var gasPrice = transaction.gasPrice;
+  var nonce = transaction.nonce;
+  if (gasPrice == null || nonce == null) {
+    if (client == null) {
+      throw ArgumentError("Can't find suitable gas price and nonce from client "
+          'because no client is set. Please specify a gas price on the '
+          'transaction.');
+    }
+    gasPrice ??= await client.getGasPrice();
+    nonce ??= await client.getTransactionCount(sender,
+        atBlock: const BlockNum.pending());
+  }
+
+  final maxGas = transaction.maxGas ??
+      await client
+          .estimateGas(
+            sender: sender,
+            to: transaction.to,
+            data: transaction.data,
+            value: transaction.value,
+            gasPrice: gasPrice,
+          )
+          .then((bigInt) => bigInt.toInt());
+
   // apply default values to null fields
-  var modifiedTransaction = transaction.copyWith(
+  final modifiedTransaction = transaction.copyWith(
     value: transaction.value ?? EtherAmount.zero(),
-    maxGas: transaction.maxGas ?? 90000,
-    from: transaction.from ?? await credentials.extractAddress(),
+    maxGas: maxGas,
+    from: sender,
     data: transaction.data ?? Uint8List(0),
+    gasPrice: gasPrice,
+    nonce: nonce,
   );
 
   int resolvedChainId;
@@ -39,37 +66,6 @@ Future<_SigningInput> _fillMissingData({
     }
 
     resolvedChainId = await client.getNetworkId();
-  }
-
-  if (modifiedTransaction.maxGas == null) {
-    // use default from https://github.com/ethereum/wiki/wiki/JSON-RPC#parameters-22
-    modifiedTransaction = modifiedTransaction.copyWith(
-      maxGas: 90000,
-    );
-  }
-
-  if (modifiedTransaction.gasPrice == null) {
-    if (client == null) {
-      throw ArgumentError("Can't find suitable gas price from client because "
-          'no client is set. Please specify a gas price on the transaction.');
-    }
-
-    modifiedTransaction = modifiedTransaction.copyWith(
-      gasPrice: await client.getGasPrice(),
-    );
-  }
-
-  if (modifiedTransaction.nonce == null) {
-    if (client == null) {
-      throw ArgumentError("Can't find the correct nonce because no client is "
-          'is set. Please specify a nonce in the transaction or specify a '
-          'client.');
-    }
-
-    modifiedTransaction = modifiedTransaction.copyWith(
-      nonce: await client.getTransactionCount(modifiedTransaction.from,
-          atBlock: const BlockNum.pending()),
-    );
   }
 
   return _SigningInput(
