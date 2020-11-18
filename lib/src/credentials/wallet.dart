@@ -123,12 +123,12 @@ class Wallet {
   /// power of two.
   factory Wallet.createNew(
       EthPrivateKey credentials, String password, Random random,
-      {int scryptN = 8192}) {
+      {int scryptN = 8192, int p = 1}) {
     final passwordBytes = Uint8List.fromList(utf8.encode(password));
     final dartRandom = RandomBridge(random);
 
     final salt = dartRandom.nextBytes(32);
-    final derivator = _ScryptKeyDerivator(32, scryptN, 8, 1, salt);
+    final derivator = _ScryptKeyDerivator(32, scryptN, 8, p, salt);
 
     final uuid = generateUuidV4();
 
