@@ -276,8 +276,7 @@ class Web3Client {
     final signed = await signTransaction(cred, transaction,
         chainId: chainId, fetchChainIdFromNetworkId: fetchChainIdFromNetworkId);
 
-    return _makeRPCCall('eth_sendRawTransaction',
-        [bytesToHex(signed, include0x: true, padToEvenLength: true)]);
+    return sendRawTransaction(signed);
   }
   
   /// Send raw transaction.Create and sign transaction using [signTrasaction].
