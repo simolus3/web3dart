@@ -288,7 +288,7 @@ class Web3Client {
   /// about the transaction.
   Future<String> sendRawTransaction(Uint8List signedTransaction) async {
     return _makeRPCCall('eth_sendRawTransaction',
-        [bytesToHex(signed, include0x: true, padToEvenLength: true)]);
+        [bytesToHex(signedTransaction, include0x: true, padToEvenLength: true)]);
   }
   
   /// Signs the [transaction] with the credentials [cred]. The transaction will
