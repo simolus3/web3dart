@@ -279,7 +279,18 @@ class Web3Client {
     return _makeRPCCall('eth_sendRawTransaction',
         [bytesToHex(signed, include0x: true, padToEvenLength: true)]);
   }
-
+  
+  /// Send raw transaction.Create and sign transaction using [signTrasaction].
+  /// Then send transaction when needed.
+  ///
+  /// Returns a hash of the transaction which, after the transaction has been
+  /// included in a mined block, can be used to obtain detailed information
+  /// about the transaction.
+  Future<String> sendRawTransaction(Uint8List signedTransaction) async {
+    return _makeRPCCall('eth_sendRawTransaction',
+        [bytesToHex(signed, include0x: true, padToEvenLength: true)]);
+  }
+  
   /// Signs the [transaction] with the credentials [cred]. The transaction will
   /// not be sent.
   ///
