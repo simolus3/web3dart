@@ -10,8 +10,8 @@ dependencies:
   pointycastle: ^1.0.1
   convert: ^2.1.1
   meta: ^1.1.0
-  http: ^0.12.0
-  uuid: ^2.0.0
+  http: ^0.13.0
+  uuid: ^3.0.1
   isolate: ^2.0.0
   typed_data: ^1.1.6
   stream_channel: ^2.0.0
