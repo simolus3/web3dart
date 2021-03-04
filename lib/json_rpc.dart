@@ -31,7 +31,7 @@ class JsonRPC {
     };
 
     final response = await client.post(
-      url,
+      Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(requestPayload),
     );

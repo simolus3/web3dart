@@ -1,11 +1,12 @@
 import 'dart:typed_data';
 
+import 'package:convert/convert.dart';
 import 'package:uuid/uuid.dart';
 
-final _uuid = Uuid();
+const _uuid = Uuid();
 
 /// Formats the [uuid] bytes as an uuid.
-String formatUuid(List<int> uuid) => _uuid.unparse(uuid);
+String formatUuid(List<int> uuid) => Uuid.unparse(uuid);
 
 /// Generates a v4 uuid.
 Uint8List generateUuidV4() {
@@ -15,7 +16,9 @@ Uint8List generateUuidV4() {
 }
 
 Uint8List parseUuid(String uuid) {
-  final buffer = Uint8List(16);
-  _uuid.parse(uuid, buffer: buffer);
-  return buffer;
+  // Unfortunately, package:uuid is to strict when parsing uuids, the example
+  // ids don't work
+  final withoutDashes = uuid.replaceAll('-', '');
+  final asBytes = hex.decode(withoutDashes);
+  return asBytes is Uint8List ? asBytes : Uint8List.fromList(asBytes);
 }

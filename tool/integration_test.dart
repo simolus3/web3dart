@@ -38,7 +38,7 @@ void main() {
     do {
       connectionAttempts++;
       try {
-        await get('http://127.0.0.1:$rpcPort');
+        await get(Uri.parse('http://127.0.0.1:$rpcPort'));
         successful = true;
       } on SocketException {
         await Future.delayed(const Duration(seconds: 2));
