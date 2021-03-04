@@ -63,20 +63,21 @@ jobs:
           key: dart-dependencies
       - run: dart test --coverage test_coverage
       - run: dart run tool/format_coverage.dart
-      - run: 'bash <(curl -s https://codecov.io/bash) -f lcov.info'
+      - uses: codecov/codecov-action@v1
+        with:
+          files: lcov.info
   
   browser_tests:
     name: "Unit Tests (Browser)"
     needs: get_dependencies
     runs-on: ubuntu-latest
-    container:
-      image: google/dart
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
           path: .dart_tool
           key: dart-dependencies
+      - uses: dart-lang/setup-dart@v1
       - run: dart test -x expensive --platform chrome,firefox
   
   integration_tests:
