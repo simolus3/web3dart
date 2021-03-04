@@ -11,10 +11,9 @@ jobs:
   get_dependencies:
     name: "Get dependencies"
     runs-on: ubuntu-latest
-    container:
-      image: google/dart
     steps:
      - uses: actions/checkout@v2
+     - uses: dart-lang/setup-dart@v1
      - name: "Print Dart SDK Version"
        run: dart --version
      - uses: actions/cache@v2
@@ -39,28 +38,26 @@ jobs:
     name: "Analysis"
     needs: get_dependencies
     runs-on: ubuntu-latest
-    container:
-      image: google/dart
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
           path: .dart_tool
           key: dart-dependencies
+      - uses: dart-lang/setup-dart@v1
       - run: dart analyze --fatal-infos
 
   vm_tests:
     name: "Unit Tests (Dart VM)"
     needs: get_dependencies
     runs-on: ubuntu-latest
-    container:
-      image: google/dart
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
           path: .dart_tool
           key: dart-dependencies
+      - uses: dart-lang/setup-dart@v1
       - run: dart test --coverage test_coverage
       - run: dart run tool/format_coverage.dart
       - uses: codecov/codecov-action@v1
