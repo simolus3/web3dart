@@ -125,8 +125,11 @@ for an example.
 ### Dart Code Generator
 The library generates dart class to easely interact with smart contract.
 The file dartgen.dart can be compiled to an executable file or run as application:
+
 `dart compile exe dartgen.dart`
+
 `./dartgen.exe abi.json 0x0000000000000000000000000000000000000000 contractName`
+
 `output: File contractName.dart successfully created!`
 
 ## Feature requests and bugs
