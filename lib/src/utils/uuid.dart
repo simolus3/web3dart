@@ -2,10 +2,10 @@ import 'dart:typed_data';
 
 import 'package:uuid/uuid.dart';
 
-final _uuid = Uuid();
+const _uuid = Uuid();
 
 /// Formats the [uuid] bytes as an uuid.
-String formatUuid(List<int> uuid) => _uuid.unparse(uuid);
+String formatUuid(List<int> uuid) => Uuid.unparse(uuid);
 
 /// Generates a v4 uuid.
 Uint8List generateUuidV4() {
@@ -16,6 +16,6 @@ Uint8List generateUuidV4() {
 
 Uint8List parseUuid(String uuid) {
   final buffer = Uint8List(16);
-  _uuid.parse(uuid, buffer: buffer);
+  Uuid.parse(uuid, buffer: buffer);
   return buffer;
 }

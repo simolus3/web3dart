@@ -23,7 +23,7 @@ void main() {
     await JsonRPC('url', client).call('eth_gasPrice', ['param', 'another']);
 
     verify(client.post(
-      'url',
+      Uri.parse('url'),
       headers: argThat(
         containsPair('Content-Type', 'application/json'),
         named: 'headers',
@@ -38,7 +38,7 @@ void main() {
     await rpc.call('eth_gasPrice', ['param', 'another']);
 
     verify(client.post(
-      'url',
+      Uri.parse('url'),
       headers: argThat(
         containsPair('Content-Type', 'application/json'),
         named: 'headers',
