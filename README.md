@@ -8,8 +8,9 @@ more!
 - Send signed Ethereum transactions
 - Generate private keys, setup new Ethereum addresses
 - Call functions on smart contracts and listen for contract events
-### TODO
 - Code generation based on smart contract ABI for easier interaction
+
+### TODO
 - Encode all supported solidity types, although only (u)fixed,
   which are not commonly used, are not supported at the moment.
 
@@ -120,6 +121,13 @@ the signed transaction but don't intend to send it, you can use
 The library can parse the abi of a smart contract and send data to it. It can also
 listen for events emitted by smart contracts. See [this file](https://github.com/simolus3/web3dart/blob/development/example/contracts.dart)
 for an example.
+
+### Dart Code Generator
+The library generates dart class to easely interact with smart contract.
+The file dartgen.dart can be compiled to an executable file or run as application:
+`dart compile exe dartgen.dart`
+`./dartgen.exe abi.json 0x0000000000000000000000000000000000000000 contractName`
+`output: File contractName.dart successfully created!`
 
 ## Feature requests and bugs
 
