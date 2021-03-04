@@ -1,10 +1,11 @@
 name: CI
 
 on:
+  # todo: Rename to main
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   get_dependencies:
