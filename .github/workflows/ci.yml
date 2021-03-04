@@ -33,7 +33,7 @@ jobs:
       image: google/dart
     steps:
       - uses: actions/checkout@v2
-      - run: "dart format --output=none --set-exit-if-changed"
+      - run: "dart format --output=none --set-exit-if-changed ."
 
   analyze:
     name: "Analysis"
@@ -90,5 +90,5 @@ jobs:
           path: .dart_tool
           key: dart-dependencies
       - uses: dart-lang/setup-dart@v1
-      - run: npm i -g ganache-cli
+      - run: sudo npm i -g ganache-cli
       - run: dart run tool/integration_test.dart

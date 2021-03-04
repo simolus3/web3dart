@@ -9,7 +9,6 @@ import 'example_keystores.dart' as data;
 void main() {
   final wallets = json.decode(data.content) as Map;
 
-  // ignore: cascade_invocations
   wallets.forEach((testName, content) {
     test('unlocks wallet $testName', () {
       final password = content['password'] as String;
