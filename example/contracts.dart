@@ -16,7 +16,8 @@ final EthereumAddress contractAddr =
 final EthereumAddress receiver =
     EthereumAddress.fromHex('0x6c87E1a114C3379BEc929f6356c5263d62542C13');
 
-final File abiFile = File(join(dirname(Platform.script.path), 'abi.json'));
+final File abiFile =
+    File(join(dirname(Platform.script.path), 'token.abi.json'));
 
 /*
 Examples that deal with contracts. The contract used here is from the truffle

@@ -123,14 +123,19 @@ listen for events emitted by smart contracts. See [this file](https://github.com
 for an example.
 
 ### Dart Code Generator
-The library generates dart class to easely interact with smart contract.
-The file dartgen.dart can be compiled to an executable file or run as application:
 
-`dart compile exe dartgen.dart`
+By using [Dart's build system](https://github.com/dart-lang/build/), web3dart can
+generate Dart code to easily access smart contracts.
 
-`./dartgen.exe abi.json 0x0000000000000000000000000000000000000000 contractName`
+To use this feature, put a contract abi json somewhere into `lib/`.
+The filename has to end with `.abi.json`.
+Then, add a `dev_dependency` on the `build_runner` package and run
 
-`output: File contractName.dart successfully created!`
+```
+dart run build_runner build
+```
+
+You'll now find a `.g.dart` file containing code to interact with the contract.
 
 ## Feature requests and bugs
 
