@@ -132,7 +132,7 @@ The filename has to end with `.abi.json`.
 Then, add a `dev_dependency` on the `build_runner` package and run
 
 ```
-dart run build_runner build
+pub run build_runner build
 ```
 
 You'll now find a `.g.dart` file containing code to interact with the contract.
@@ -140,6 +140,6 @@ You'll now find a `.g.dart` file containing code to interact with the contract.
 ## Feature requests and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
-If you want to contribute to this libary, please submit a Pull Request.
+If you want to contribute to this library, please submit a Pull Request.
 
 [tracker]: https://github.com/simolus3/web3dart/issues/new

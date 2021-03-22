@@ -17,12 +17,13 @@ class ContractGenerator implements Builder {
 
   @override
   Future<void> build(BuildStep buildStep) async {
-    final inputId = buildStep.inputId;
-    final withoutExtension =
-        inputId.path.substring(0, inputId.path.length - '.abi.json'.length);
-    final name = _suggestName(withoutExtension);
+    final inputId = buildStep.inputId; //inputId is the abi file
+    final withoutExtension = inputId.path.substring(0, inputId.path.length - '.abi.json'.length);
+    final name = _suggestName(withoutExtension); // class name based on abi filename
+
     var abiCode = await buildStep.readAsString(buildStep.inputId);
-    // Remove unecessary whitespace
+
+    // Remove unnecessary whitespace
     abiCode = json.encode(json.decode(abiCode));
     final abi = ContractAbi.fromJson(abiCode, name);
 
@@ -60,13 +61,13 @@ class ContractGenerator implements Builder {
       ..writeln('final Web3Client client;')
       ..writeln('final DeployedContract contract;')
       ..writeln('final int chainId;')
-      ..writeln(
-          '$name({@required this.client, @required EthereumAddress address, this.chainId = 1}):')
-      ..writeln(
-          "contract = DeployedContract(ContractAbi.fromJson(_abiDefinition, '$name'), address);");
+      ..writeln('$name({@required this.client, @required EthereumAddress address, this.chainId = 1}):')
+      ..writeln("contract = DeployedContract(ContractAbi.fromJson(_abiDefinition, '$name'), address);");
   }
 
-  void _writeFunction(ContractFunction function, StringBuffer into) {}
+  void _writeFunction(ContractFunction function, StringBuffer into) {
+    into..writeln('');
+  }
 
   void _endClass(StringBuffer into) {
     into.write('}');
