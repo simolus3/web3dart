@@ -276,8 +276,20 @@ class Web3Client {
     final signed = await signTransaction(cred, transaction,
         chainId: chainId, fetchChainIdFromNetworkId: fetchChainIdFromNetworkId);
 
-    return _makeRPCCall('eth_sendRawTransaction',
-        [bytesToHex(signed, include0x: true, padToEvenLength: true)]);
+    return sendRawTransaction(signed);
+  }
+
+  /// Sends a raw, signed transaction.
+  ///
+  /// To obtain a transaction in a signed form, use [signTransaction].
+  ///
+  /// Returns a hash of the transaction which, after the transaction has been
+  /// included in a mined block, can be used to obtain detailed information
+  /// about the transaction.
+  Future<String> sendRawTransaction(Uint8List signedTransaction) async {
+    return _makeRPCCall('eth_sendRawTransaction', [
+      bytesToHex(signedTransaction, include0x: true, padToEvenLength: true)
+    ]);
   }
 
   /// Signs the [transaction] with the credentials [cred]. The transaction will

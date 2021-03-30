@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  # todo: Rename to main
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  get_dependencies:
+    name: "Get dependencies"
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v2
+     - uses: dart-lang/setup-dart@v1
+     - name: "Print Dart SDK Version"
+       run: dart --version
+     - uses: actions/cache@v2
+       with:
+         path: .dart_tool
+         key: dart-dependencies
+     - name: "Get dependencies"
+       env:
+         PUB_CACHE: ".dart_tool/pub_cache"
+       run: dart pub upgrade
+
+  ensure_formatted:
+    name: "Formatting"
+    runs-on: ubuntu-latest
+    container:
+      image: google/dart
+    steps:
+      - uses: actions/checkout@v2
+      - run: "dart format --output=none --set-exit-if-changed ."
+
+  analyze:
+    name: "Analysis"
+    needs: get_dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: .dart_tool
+          key: dart-dependencies
+      - uses: dart-lang/setup-dart@v1
+      - run: dart analyze --fatal-infos
+
+  vm_tests:
+    name: "Unit Tests (Dart VM)"
+    needs: get_dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: .dart_tool
+          key: dart-dependencies
+      - uses: dart-lang/setup-dart@v1
+      - run: dart test --coverage test_coverage
+      - run: dart run tool/format_coverage.dart
+      - uses: codecov/codecov-action@v1
+        with:
+          files: lcov.info
+  
+  browser_tests:
+    name: "Unit Tests (Browser)"
+    needs: get_dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: .dart_tool
+          key: dart-dependencies
+      - uses: dart-lang/setup-dart@v1
+      - run: dart test -x expensive --platform chrome,firefox
+  
+  integration_tests:
+    name: "Integration Tests"
+    needs: get_dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: .dart_tool
+          key: dart-dependencies
+      - uses: dart-lang/setup-dart@v1
+      - run: sudo npm i -g ganache-cli
+      - run: dart run tool/integration_test.dart
