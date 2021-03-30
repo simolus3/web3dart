@@ -7,20 +7,28 @@ environment:
   sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
-  pointycastle: ^1.0.1
-  convert: ^2.1.1
-  meta: ^1.1.0
-  http: ^0.12.0
-  uuid: ^2.0.0
-  isolate: ^2.0.0
-  typed_data: ^1.1.6
-  stream_channel: ^2.0.0
-  json_rpc_2: ^2.1.0
-  collection: ^1.14.11
+  pointycastle: ^3.0.1
+  convert: ^3.0.0
+  meta: ^1.3.0
+  http: ^0.13.1
+  uuid: ^3.0.3
+  # isolate: ^2.0.0
+  isolate:
+    git:
+      url: https://github.com/2ZeroSix/isolate.git
+      ref: "f961c1c"
+  typed_data: ^1.3.0
+  stream_channel: ^2.1.0
+  # json_rpc_2: ^2.1.0
+  json_rpc_2:
+    git: 
+      url: https://github.com/hacker1024/json_rpc_2.dart.git
+      ref: 5fce746
+  collection: ^1.15.0
 
 dev_dependencies:
-  web_socket_channel: ^1.0.0
-  path: ^1.6.2
-  test: ^1.9.0
-  mockito: ^4.0.0
-  coverage: ^0.13.3
+  web_socket_channel: ^2.0.0
+  path: ^1.8.0
+  test: ^1.16.8
+  mockito: ^5.0.3
+  coverage: ^1.0.2
