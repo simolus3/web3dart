@@ -44,7 +44,17 @@ Uint8List hexToBytes(String hexStr) {
   return Uint8List.fromList(bytes);
 }
 
-///Converts the bytes from that list (big endian) to an unsigned BigInt.
+Uint8List unsignedIntToBytes(BigInt number) {
+  assert(!number.isNegative);
+  return p_utils.encodeBigIntAsUnsigned(number);
+}
+
+BigInt bytesToUnsignedInt(Uint8List bytes) {
+  return p_utils.decodeBigIntWithSign(1, bytes);
+}
+
+///Converts the bytes from that list (big endian) to a (potentially signed)
+/// BigInt.
 BigInt bytesToInt(List<int> bytes) => p_utils.decodeBigInt(bytes);
 
 Uint8List intToBytes(BigInt number) => p_utils.encodeBigInt(number);

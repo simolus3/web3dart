@@ -53,7 +53,7 @@ class UintType extends _IntTypeBase {
     assert(data < BigInt.one << length);
     assert(!data.isNegative);
 
-    final bytes = intToBytes(data);
+    final bytes = unsignedIntToBytes(data);
     final padLen = calculatePadLength(bytes.length);
     buffer
       ..add(Uint8List(padLen)) // will be filled with 0
@@ -62,7 +62,7 @@ class UintType extends _IntTypeBase {
 
   void encodeReplace(
       int startIndex, BigInt data, LengthTrackingByteSink buffer) {
-    final bytes = intToBytes(data);
+    final bytes = unsignedIntToBytes(data);
     final padLen = calculatePadLength(bytes.length);
 
     buffer
@@ -74,7 +74,7 @@ class UintType extends _IntTypeBase {
   BigInt _decode32Bytes(Uint8List data) {
     // The padded zeroes won't make a difference when parsing so we can ignore
     // them.
-    return bytesToInt(data);
+    return bytesToUnsignedInt(data);
   }
 
   @override
@@ -172,9 +172,9 @@ class IntType extends _IntTypeBase {
 
     if (negative) {
       // twos complement
-      bytesData = intToBytes((BigInt.one << length) + data);
+      bytesData = unsignedIntToBytes((BigInt.one << length) + data);
     } else {
-      bytesData = intToBytes(data);
+      bytesData = unsignedIntToBytes(data);
     }
 
     final padLen = calculatePadLength(bytesData.length);
@@ -191,12 +191,7 @@ class IntType extends _IntTypeBase {
 
   @override
   BigInt _decode32Bytes(Uint8List data) {
-    final negative = data[0] >= 128; // first bit set?
-    final lengthInBytes = length ~/ 8;
-    // don't read sign-extended padding from the start
-    final asUnsigned = bytesToInt(data.sublist(32 - lengthInBytes));
-
-    return negative ? asUnsigned.toSigned(length) : asUnsigned;
+    return bytesToInt(data);
   }
 
   @override

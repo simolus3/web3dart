@@ -6,7 +6,7 @@ final BigInt _halfCurveOrder = _params.n >> 1;
 /// Generates a public key for the given private key using the ecdsa curve which
 /// Ethereum uses.
 Uint8List privateKeyBytesToPublic(Uint8List privateKey) {
-  return privateKeyToPublic(bytesToInt(privateKey));
+  return privateKeyToPublic(bytesToUnsignedInt(privateKey));
 }
 
 /// Generates a public key for the given private key using the ecdsa curve which
@@ -36,9 +36,7 @@ BigInt generateNewPrivateKey(Random random) {
 /// taking the lower 160 bits of the key's sha3 hash.
 Uint8List publicKeyToAddress(Uint8List publicKey) {
   assert(publicKey.length == 64);
-
-  final hashed = sha3digest.process(publicKey);
-  return Uint8List.view(hashed.buffer, _shaBytes - 20);
+  return keccak256(publicKey).sublist(0, 160 ~/ 8);
 }
 
 /// Signatures used to sign Ethereum transactions and messages.
@@ -54,7 +52,7 @@ class MsgSignature {
 MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
   final digest = SHA256Digest();
   final signer = ECDSASigner(null, HMac(digest, 64));
-  final key = ECPrivateKey(bytesToInt(privateKey), _params);
+  final key = ECPrivateKey(bytesToUnsignedInt(privateKey), _params);
 
   signer.init(true, PrivateKeyParameter(key));
   var sig = signer.generateSignature(messageHash) as ECSignature;
@@ -73,7 +71,7 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
     sig = ECSignature(sig.r, canonicalisedS);
   }
 
-  final publicKey = bytesToInt(privateKeyBytesToPublic(privateKey));
+  final publicKey = bytesToUnsignedInt(privateKeyBytesToPublic(privateKey));
 
   //Implementation for calculating v naively taken from there, I don't understand
   //any of this.
@@ -161,7 +159,7 @@ BigInt _recoverFromSignature(
   final R = _decompressKey(x, (recId & 1) == 1, params.curve);
   if (!(R * n).isInfinity) return null;
 
-  final e = bytesToInt(msg);
+  final e = bytesToUnsignedInt(msg);
 
   final eInv = (BigInt.zero - e) % n;
   final rInv = sig.r.modInverse(n);
@@ -171,7 +169,7 @@ BigInt _recoverFromSignature(
   final q = (params.G * eInvrInv) + (R * srInv);
 
   final bytes = q.getEncoded(false);
-  return bytesToInt(bytes.sublist(1));
+  return bytesToUnsignedInt(bytes.sublist(1));
 }
 
 ECPoint _decompressKey(BigInt xBN, bool yBit, ECCurve c) {

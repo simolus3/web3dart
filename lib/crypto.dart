@@ -13,8 +13,8 @@ import 'package:pointycastle/key_generators/api.dart';
 import 'package:pointycastle/key_generators/ec_key_generator.dart';
 import 'package:pointycastle/macs/hmac.dart';
 import 'package:pointycastle/signers/ecdsa_signer.dart';
-import 'package:pointycastle/digests/sha3.dart';
 import 'package:pointycastle/digests/sha256.dart';
+import 'package:pointycastle/digests/keccak.dart';
 import 'package:convert/convert.dart';
 // ignore: implementation_imports
 import 'package:pointycastle/src/utils.dart' as p_utils;

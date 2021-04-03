@@ -383,19 +383,17 @@ class Web3Client {
   /// See also:
   /// - [call], which automatically encodes function parameters and parses a
   /// response.
-  Future<String> callRaw(
-      {EthereumAddress sender,
-      @required EthereumAddress contract,
-      @required Uint8List data,
-      BlockNum atBlock}) {
+  Future<String> callRaw({
+    EthereumAddress sender,
+    @required EthereumAddress contract,
+    @required Uint8List data,
+    BlockNum atBlock,
+  }) {
     final call = {
       'to': contract.hex,
       'data': bytesToHex(data, include0x: true, padToEvenLength: true),
+      if (sender != null) 'from': sender.hex,
     };
-
-    if (sender != null) {
-      call['from'] = sender.hex;
-    }
 
     return _makeRPCCall<String>('eth_call', [call, _getBlockParam(atBlock)]);
   }
