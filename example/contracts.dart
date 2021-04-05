@@ -76,7 +76,7 @@ Future<void> main() async {
       .events(FilterOptions.events(contract: contract, event: transferEvent))
       .take(1)
       .listen((event) {
-    final decoded = transferEvent.decodeResults(event.topics, event.data);
+    final decoded = transferEvent.decodeResults(event.topics, event.data!);
 
     final from = decoded[0] as EthereumAddress;
     final to = decoded[1] as EthereumAddress;

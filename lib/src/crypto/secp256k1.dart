@@ -12,7 +12,7 @@ Uint8List privateKeyBytesToPublic(Uint8List privateKey) {
 /// Generates a public key for the given private key using the ecdsa curve which
 /// Ethereum uses.
 Uint8List privateKeyToPublic(BigInt privateKey) {
-  final p = _params.G * privateKey;
+  final p = (_params.G * privateKey)!;
 
   //skip the type flag, https://github.com/ethereumjs/ethereumjs-util/blob/master/index.js#L319
   return Uint8List.view(p.getEncoded(false).buffer, 1);
@@ -20,7 +20,7 @@ Uint8List privateKeyToPublic(BigInt privateKey) {
 
 /// Generates a new private key using the random instance provided. Please make
 /// sure you're using a cryptographically secure generator.
-BigInt generateNewPrivateKey(Random random) {
+BigInt? generateNewPrivateKey(Random random) {
   final generator = ECKeyGenerator();
 
   final keyParams = ECKeyGeneratorParameters(_params);
@@ -136,17 +136,17 @@ bool isValidSignature(
 /// including the leading 02 or 03
 Uint8List compressPublicKey(Uint8List compressedPubKey) {
   return Uint8List.view(
-      _params.curve.decodePoint(compressedPubKey).getEncoded(true).buffer);
+      _params.curve.decodePoint(compressedPubKey)!.getEncoded(true).buffer);
 }
 
 /// Given a byte array computes its expanded version and returns it as a byte array,
 /// including the leading 04
 Uint8List decompressPublicKey(Uint8List compressedPubKey) {
   return Uint8List.view(
-      _params.curve.decodePoint(compressedPubKey).getEncoded(false).buffer);
+      _params.curve.decodePoint(compressedPubKey)!.getEncoded(false).buffer);
 }
 
-BigInt _recoverFromSignature(
+BigInt? _recoverFromSignature(
     int recId, ECSignature sig, Uint8List msg, ECDomainParameters params) {
   final n = params.n;
   final i = BigInt.from(recId ~/ 2);
@@ -158,8 +158,8 @@ BigInt _recoverFromSignature(
       radix: 16);
   if (x.compareTo(prime) >= 0) return null;
 
-  final R = _decompressKey(x, (recId & 1) == 1, params.curve);
-  if (!(R * n).isInfinity) return null;
+  final R = _decompressKey(x, (recId & 1) == 1, params.curve)!;
+  if (!(R * n)!.isInfinity) return null;
 
   final e = bytesToInt(msg);
 
@@ -168,13 +168,13 @@ BigInt _recoverFromSignature(
   final srInv = (rInv * sig.s) % n;
   final eInvrInv = (rInv * eInv) % n;
 
-  final q = (params.G * eInvrInv) + (R * srInv);
+  final q = ((params.G * eInvrInv)! + (R * srInv))!;
 
   final bytes = q.getEncoded(false);
   return bytesToInt(bytes.sublist(1));
 }
 
-ECPoint _decompressKey(BigInt xBN, bool yBit, ECCurve c) {
+ECPoint? _decompressKey(BigInt xBN, bool yBit, ECCurve c) {
   List<int> x9IntegerToBytes(BigInt s, int qLength) {
     //https://github.com/bcgit/bc-java/blob/master/core/src/main/java/org/bouncycastle/asn1/x9/X9IntegerConverter.java#L45
     final bytes = intToBytes(s);

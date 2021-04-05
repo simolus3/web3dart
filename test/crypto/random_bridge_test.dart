@@ -12,7 +12,7 @@ void main() {
 
   // generating numbers in [0;1<<32] is supported by the RNG implemented in
   // dart.
-  when(random.nextInt(any)).thenAnswer((i) {
+  when(random.nextInt(9223372036854775807)).thenAnswer((i) {
     final max = i.positionalArguments.first as int;
 
     if (BigInt.from(max) > twoToThePowerOf32) {

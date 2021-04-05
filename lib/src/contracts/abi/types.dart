@@ -29,7 +29,7 @@ abstract class AbiType<T> {
 class EncodingLengthInfo {
   /// When this encoding length is not [isDynamic], the length (in bytes) of
   /// an encoded payload. Otherwise null.
-  final int length;
+  final int? length;
 
   /// Whether the length of the encoding will depend on the data being encoded.
   ///
@@ -95,8 +95,8 @@ final RegExp _array = RegExp(r'^(.*)\[(\d*)\]$');
 final RegExp _tuple = RegExp(r'^\((.*)\)$');
 
 int _trailingNumber(String str) {
-  final match = _trailingDigits.firstMatch(str);
-  return int.parse(match.group(1));
+  final match = _trailingDigits.firstMatch(str)!;
+  return int.parse(match.group(1)!);
 }
 
 final _openingParenthesis = '('.codeUnitAt(0);
@@ -105,13 +105,13 @@ final _comma = ','.codeUnitAt(0);
 
 /// Parses an ABI type from its [AbiType.name].
 @visibleForTesting
-AbiType parseAbiType(String name) {
-  if (_easyTypes.containsKey(name)) return _easyTypes[name];
+AbiType? parseAbiType(String? name) {
+  if (_easyTypes.containsKey(name)) return _easyTypes[name!];
 
-  final arrayMatch = _array.firstMatch(name);
+  final arrayMatch = _array.firstMatch(name!);
   if (arrayMatch != null) {
     final type = parseAbiType(arrayMatch.group(1));
-    final length = arrayMatch.group(2);
+    final length = arrayMatch.group(2)!;
 
     if (length.isEmpty) {
       // T[], dynamic length then
@@ -123,8 +123,8 @@ AbiType parseAbiType(String name) {
 
   final tupleMatch = _tuple.firstMatch(name);
   if (tupleMatch != null) {
-    final inner = tupleMatch.group(1);
-    final types = <AbiType>[];
+    final inner = tupleMatch.group(1)!;
+    final types = <AbiType?>[];
 
     // types are separated by a comma. However, we can't just inner.split(')
     // because tuples might be nested: (bool, (uint, string))

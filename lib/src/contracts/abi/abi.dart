@@ -44,7 +44,7 @@ const Map<String, StateMutability> _mutabilityNames = {
 };
 
 String _encodeParameters(Iterable<FunctionParameter> params) {
-  return params.map((p) => p.type.name).join(',');
+  return params.map((p) => p.type!.name).join(',');
 }
 
 /// Defines the abi of a deployed Ethereum contract. The abi contains
@@ -66,16 +66,16 @@ class ContractAbi {
     final events = <ContractEvent>[];
 
     for (final element in data) {
-      final type = element['type'] as String;
-      final name = (element['name'] as String) ?? '';
+      final type = element['type'] as String?;
+      final name = (element['name'] as String?) ?? '';
 
       if (type == 'event') {
-        final anonymous = element['anonymous'] as bool;
+        final anonymous = element['anonymous'] as bool?;
         final components = <EventComponent>[];
 
         for (final entry in element['inputs']) {
           components.add(EventComponent(
-              _parseParam(entry as Map), entry['indexed'] as bool));
+              _parseParam(entry as Map), entry['indexed'] as bool?));
         }
 
         events.add(ContractEvent(anonymous, name, components));
@@ -85,8 +85,8 @@ class ContractAbi {
       final mutability = _mutabilityNames[element['stateMutability']];
       final parsedType = _functionTypeNames[element['type']];
 
-      final inputs = _parseParams(element['inputs'] as List);
-      final outputs = _parseParams(element['outputs'] as List);
+      final inputs = _parseParams(element['inputs'] as List?);
+      final outputs = _parseParams(element['outputs'] as List?);
 
       functions.add(ContractFunction(
         name,
@@ -100,7 +100,7 @@ class ContractAbi {
     return ContractAbi(name, functions, events);
   }
 
-  static List<FunctionParameter> _parseParams(List data) {
+  static List<FunctionParameter> _parseParams(List? data) {
     if (data == null || data.isEmpty) return [];
 
     final elements = <FunctionParameter>[];
@@ -112,33 +112,33 @@ class ContractAbi {
   }
 
   static FunctionParameter _parseParam(Map entry) {
-    final name = entry['name'] as String;
+    final name = entry['name'] as String?;
     final typeName = entry['type'] as String;
 
     if (typeName.contains('tuple')) {
-      final components = entry['components'] as List;
+      final components = entry['components'] as List?;
       return _parseTuple(name, typeName, _parseParams(components));
     } else {
-      final type = parseAbiType(entry['type'] as String);
+      final type = parseAbiType(entry['type'] as String?);
       return FunctionParameter(name, type);
     }
   }
 
   static CompositeFunctionParameter _parseTuple(
-      String name, String typeName, List<FunctionParameter> components) {
+      String? name, String typeName, List<FunctionParameter> components) {
     // The type will have the form tuple[3][]...[1], where the indices after the
     // tuple indicate that the type is part of an array.
     assert(RegExp(r'^tuple(?:\[\d*\])*$').hasMatch(typeName),
         '$typeName is an invalid tuple type');
 
-    final arrayLengths = <int>[];
-    var remainingName = typeName;
+    final arrayLengths = <int?>[];
+    String? remainingName = typeName;
 
     while (remainingName != 'tuple') {
-      final arrayMatch = _array.firstMatch(remainingName);
+      final arrayMatch = _array.firstMatch(remainingName!)!;
       remainingName = arrayMatch.group(1);
 
-      final insideSquareBrackets = arrayMatch.group(2);
+      final insideSquareBrackets = arrayMatch.group(2)!;
       if (insideSquareBrackets.isEmpty) {
         arrayLengths.insert(0, null);
       } else {
@@ -158,7 +158,7 @@ class ContractFunction {
 
   /// The type of the contract function, determines whether this [isConstant] or
   /// [isConstructor].
-  final ContractFunctionType type;
+  final ContractFunctionType? type;
 
   /// A list of types that represent the parameters required to call this
   /// function.
@@ -169,7 +169,7 @@ class ContractFunction {
 
   /// The mutability of this function, determines whether this function is going
   /// to read or write to the blockchain when called.
-  final StateMutability mutability;
+  final StateMutability? mutability;
 
   /// Returns true if this is the default function of a contract, which can be
   /// called when no other functions fit to an request.
@@ -262,7 +262,7 @@ class ContractFunction {
 /// An event that can be emitted by a smart contract during a transaction.
 class ContractEvent {
   /// Whether this events was declared as anonymous in solidity.
-  final bool anonymous;
+  final bool? anonymous;
   final String name;
 
   /// A list of types that represent the parameters required to call this
@@ -271,11 +271,11 @@ class ContractEvent {
 
   ContractEvent(this.anonymous, this.name, this.components);
 
-  Uint8List _signature;
+  Uint8List? _signature;
 
   /// The signature of this event, which is the keccak hash of the event's name
   /// followed by it's components.
-  Uint8List get signature {
+  Uint8List? get signature {
     if (_signature == null) {
       final parameters = components.map((c) => c.parameter);
       final encodedName = '$name(${_encodeParameters(parameters)})';
@@ -295,12 +295,12 @@ class ContractEvent {
   /// Indexed parameters which would take more than 32 bytes to encode are not
   /// included in the result. Apart from that, the order of the data returned
   /// is identical to the order of the [components].
-  List<dynamic> decodeResults(List<String> topics, String data) {
-    final topicOffset = anonymous ? 0 : 1;
+  List<dynamic> decodeResults(List<String>? topics, String data) {
+    final topicOffset = anonymous! ? 0 : 1;
 
     // non-indexed parameters are decoded like a tuple
     final notIndexed = components
-        .where((c) => !c.indexed)
+        .where((c) => !c.indexed!)
         .map((c) => c.parameter.type)
         .toList();
     final tuple = TupleType(notIndexed);
@@ -315,18 +315,18 @@ class ContractEvent {
 
     final result = [];
     for (final component in components) {
-      if (component.indexed) {
+      if (component.indexed!) {
         // components that are bigger than 32 bytes when decoded, or have a
         // dynamic type, are not included in [topics]. A hash of the data will
         // be included instead. We can't decode these, so they will be skipped.
-        final length = component.parameter.type.encodingLength;
-        if (length.isDynamic || length.length > 32) {
+        final length = component.parameter.type!.encodingLength;
+        if (length.isDynamic || length.length! > 32) {
           topicIndex++;
           continue;
         }
 
-        final topicBuffer = hexToBytes(topics[topicIndex]).buffer;
-        result.add(component.parameter.type.decode(topicBuffer, 0).data);
+        final topicBuffer = hexToBytes(topics![topicIndex]).buffer;
+        result.add(component.parameter.type!.decode(topicBuffer, 0).data);
 
         topicIndex++;
       } else {
@@ -343,15 +343,15 @@ class ContractEvent {
 /// information about whether the parameter is [indexed].
 class EventComponent<T> {
   final FunctionParameter<T> parameter;
-  final bool indexed;
+  final bool? indexed;
 
   const EventComponent(this.parameter, this.indexed);
 }
 
 /// The parameter of a function with its name and the expected type.
 class FunctionParameter<T> {
-  final String name;
-  final AbiType<T> type;
+  final String? name;
+  final AbiType<T>? type;
 
   const FunctionParameter(this.name, this.type);
 }
@@ -382,13 +382,13 @@ class CompositeFunctionParameter extends FunctionParameter<dynamic> {
   /// arrays. For instance, given a struct `S`, the type `S[3][][4]` would be
   /// represented with a [CompositeFunctionParameter] that has the components of
   /// `S` and [arrayLengths] of `[3, null, 4]`.
-  final List<int> arrayLengths;
+  final List<int?> arrayLengths;
 
-  CompositeFunctionParameter(String name, this.components, this.arrayLengths)
+  CompositeFunctionParameter(String? name, this.components, this.arrayLengths)
       : super(name, _constructType(components, arrayLengths));
 
   static AbiType<dynamic> _constructType(
-      List<FunctionParameter> components, List<int> arrayLengths) {
+      List<FunctionParameter> components, List<int?> arrayLengths) {
     AbiType type = TupleType(components.map((c) => c.type).toList());
 
     for (final len in arrayLengths) {

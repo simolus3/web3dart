@@ -12,7 +12,7 @@ class SyncInformation {
   /// the highest block number this synchronisation will contain.
   /// When the client is not syncing at the moment, these fields will be null
   /// and [isSyncing] will be false.
-  final int startingBlock, currentBlock, finalBlock;
+  final int? startingBlock, currentBlock, finalBlock;
 
   /// Indicates whether this client is currently syncing its blockchain with
   /// other nodes.

@@ -8,9 +8,9 @@ abstract class _KeyDerivator {
 }
 
 class _PBDKDF2KeyDerivator extends _KeyDerivator {
-  final int iterations;
+  final int? iterations;
   final Uint8List salt;
-  final int dklen;
+  final int? dklen;
 
   // The docs (https://github.com/ethereum/wiki/wiki/Web3-Secret-Storage-Definition)
   // say that HMAC with SHA-256 is the only mac supported at the moment
@@ -21,7 +21,7 @@ class _PBDKDF2KeyDerivator extends _KeyDerivator {
   @override
   Uint8List deriveKey(Uint8List password) {
     final impl = pbkdf2.PBKDF2KeyDerivator(mac)
-      ..init(Pbkdf2Parameters(salt, iterations, dklen));
+      ..init(Pbkdf2Parameters(salt, iterations!, dklen!));
 
     return impl.process(password);
   }
@@ -41,17 +41,17 @@ class _PBDKDF2KeyDerivator extends _KeyDerivator {
 }
 
 class _ScryptKeyDerivator extends _KeyDerivator {
-  final int dklen;
-  final int n;
-  final int r;
-  final int p;
+  final int? dklen;
+  final int? n;
+  final int? r;
+  final int? p;
   final Uint8List salt;
 
   _ScryptKeyDerivator(this.dklen, this.n, this.r, this.p, this.salt);
 
   @override
   Uint8List deriveKey(Uint8List password) {
-    final impl = scrypt.Scrypt()..init(ScryptParameters(n, r, p, dklen, salt));
+    final impl = scrypt.Scrypt()..init(ScryptParameters(n!, r!, p!, dklen!, salt));
 
     return impl.process(password);
   }
@@ -140,7 +140,7 @@ class Wallet {
   /// Reads and unlocks the wallet denoted in the json string given with the
   /// specified [password]. [encoded] must be the String contents of a valid
   /// v3 Ethereum wallet file.
-  factory Wallet.fromJson(String encoded, String password) {
+  factory Wallet.fromJson(String encoded, String? password) {
     /*
       In order to read the wallet and obtain the secret key stored in it, we
       need to do the following:
@@ -166,7 +166,7 @@ class Wallet {
 
     final crypto = data['crypto'] ?? data['Crypto'];
 
-    final kdf = crypto['kdf'] as String;
+    final kdf = crypto['kdf'] as String?;
     _KeyDerivator derivator;
 
     switch (kdf) {
@@ -179,18 +179,18 @@ class Wallet {
         }
 
         derivator = _PBDKDF2KeyDerivator(
-            derParams['c'] as int,
+            derParams['c'] as int?,
             Uint8List.fromList(hexToBytes(derParams['salt'] as String)),
-            derParams['dklen'] as int);
+            derParams['dklen'] as int?);
 
         break;
       case 'scrypt':
         final derParams = crypto['kdfparams'] as Map<String, dynamic>;
         derivator = _ScryptKeyDerivator(
-            derParams['dklen'] as int,
-            derParams['n'] as int,
-            derParams['r'] as int,
-            derParams['p'] as int,
+            derParams['dklen'] as int?,
+            derParams['n'] as int?,
+            derParams['r'] as int?,
+            derParams['p'] as int?,
             Uint8List.fromList(hexToBytes(derParams['salt'] as String)));
         break;
       default:
@@ -199,7 +199,7 @@ class Wallet {
     }
 
     // Now that we have the derivator, let's obtain the aes key:
-    final encodedPassword = Uint8List.fromList(utf8.encode(password));
+    final encodedPassword = Uint8List.fromList(utf8.encode(password!));
     final derivedKey = derivator.deriveKey(encodedPassword);
     final aesKey = Uint8List.fromList(derivedKey.sublist(0, 16));
 

@@ -11,8 +11,8 @@ void main() {
 
   wallets.forEach((testName, content) {
     test('unlocks wallet $testName', () {
-      final password = content['password'] as String;
-      final privateKey = content['priv'] as String;
+      final password = content['password'] as String?;
+      final privateKey = content['priv'] as String?;
       final walletData = content['json'] as Map;
 
       final wallet = Wallet.fromJson(json.encode(walletData), password);

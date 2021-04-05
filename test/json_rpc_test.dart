@@ -9,7 +9,7 @@ class MockClient extends Mock implements Client {}
 
 void main() {
   final client = MockClient();
-  when(client.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
+  when(client.post(any!, headers: anyNamed('headers'), body: anyNamed('body')))
       .thenAnswer((i) {
     return Future.value(Response(
       '{"id": 1, "jsonrpc": "2.0", "result": "0x1"}',
@@ -49,7 +49,7 @@ void main() {
 
   test('throws errors', () {
     final rpc = JsonRPC('url', client);
-    when(client.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
+    when(client.post(any!, headers: anyNamed('headers'), body: anyNamed('body')))
         .thenAnswer((i) {
       return Future.value(Response(
         '{"id": 1, "jsonrpc": "2.0", '

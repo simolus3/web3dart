@@ -20,7 +20,7 @@ abstract class Credentials {
   /// bytes representation of the [eth_sign RPC method](https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign),
   /// but without the "Ethereum signed message" prefix.
   /// The [payload] parameter contains the raw data, not a hash.
-  Future<Uint8List> sign(Uint8List payload, {int chainId}) async {
+  Future<Uint8List> sign(Uint8List payload, {int? chainId}) async {
     final signature = await signToSignature(payload, chainId: chainId);
 
     final r = padUint8ListTo32(intToBytes(signature.r));
@@ -33,12 +33,12 @@ abstract class Credentials {
 
   /// Signs the [payload] with a private key and returns the obtained
   /// signature.
-  Future<MsgSignature> signToSignature(Uint8List payload, {int chainId});
+  Future<MsgSignature> signToSignature(Uint8List payload, {int? chainId});
 
   /// Signs an Ethereum specific signature. This method is equivalent to
   /// [sign], but with a special prefix so that this method can't be used to
   /// sign, for instance, transactions.
-  Future<Uint8List> signPersonalMessage(Uint8List payload, {int chainId}) {
+  Future<Uint8List> signPersonalMessage(Uint8List payload, {int? chainId}) {
     final prefix = _messagePrefix + payload.length.toString();
     final prefixBytes = ascii.encode(prefix);
 
@@ -52,7 +52,7 @@ abstract class Credentials {
 /// Credentials that can sign payloads with an Ethereum private key.
 class EthPrivateKey extends Credentials {
   final Uint8List privateKey;
-  EthereumAddress _cachedAddress;
+  EthereumAddress? _cachedAddress;
 
   EthPrivateKey(this.privateKey);
 
@@ -79,7 +79,7 @@ class EthPrivateKey extends Credentials {
   }
 
   @override
-  Future<MsgSignature> signToSignature(Uint8List payload, {int chainId}) async {
+  Future<MsgSignature> signToSignature(Uint8List payload, {int? chainId}) async {
     final signature = _globalSign(keccak256(payload), privateKey);
 
     // https://github.com/ethereumjs/ethereumjs-util/blob/8ffe697fafb33cefc7b7ec01c11e3a7da787fe0e/src/signature.ts#L26

@@ -28,7 +28,7 @@ void _runTests(String content) {
           .map(parseAbiType)
           .toList();
       final tupleWrapper = TupleType(types);
-      final result = testVector['result'] as String;
+      final result = testVector['result'] as String?;
       final input = _mapFromTest(testVector['args']);
 
       test('encodes', () {
@@ -36,7 +36,7 @@ void _runTests(String content) {
       });
 
       test('decodes', () {
-        expect(tupleWrapper.decode(bufferFromHex(result), 0).data, input);
+        expect(tupleWrapper.decode(bufferFromHex(result!), 0).data, input);
       });
     });
   }

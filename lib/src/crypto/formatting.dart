@@ -17,7 +17,7 @@ String strip0x(String hex) {
 /// prefix does not count for the length.
 String bytesToHex(List<int> bytes,
     {bool include0x = false,
-    int forcePadLength,
+    int? forcePadLength,
     bool padToEvenLength = false}) {
   var encoded = hex.encode(bytes);
 
@@ -37,8 +37,8 @@ String bytesToHex(List<int> bytes,
 
 /// Converts the hexadecimal string, which can be prefixed with 0x, to a byte
 /// sequence.
-Uint8List hexToBytes(String hexStr) {
-  final bytes = hex.decode(strip0x(hexStr));
+Uint8List hexToBytes(String? hexStr) {
+  final bytes = hex.decode(strip0x(hexStr!));
   if (bytes is Uint8List) return bytes;
 
   return Uint8List.fromList(bytes);
@@ -47,7 +47,7 @@ Uint8List hexToBytes(String hexStr) {
 ///Converts the bytes from that list (big endian) to an unsigned BigInt.
 BigInt bytesToInt(List<int> bytes) => p_utils.decodeBigInt(bytes);
 
-Uint8List intToBytes(BigInt number) => p_utils.encodeBigInt(number);
+Uint8List intToBytes(BigInt? number) => p_utils.encodeBigInt(number);
 
 ///Takes the hexadecimal input and creates a [BigInt].
 BigInt hexToInt(String hex) {

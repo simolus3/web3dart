@@ -2,7 +2,7 @@ part of 'package:web3dart/contracts.dart';
 
 class TupleType extends AbiType<List<dynamic>> {
   /// The types used to encode the individual components of this tuple.
-  final List<AbiType> types;
+  final List<AbiType?> types;
 
   const TupleType(this.types);
 
@@ -14,7 +14,7 @@ class TupleType extends AbiType<List<dynamic>> {
       if (i != 0) {
         nameBuffer.write(',');
       }
-      nameBuffer.write(types[i].name);
+      nameBuffer.write(types[i]!.name);
     }
 
     nameBuffer.write(')');
@@ -28,10 +28,10 @@ class TupleType extends AbiType<List<dynamic>> {
     // tuples are dynamic iff any of their member types is dynamic. Otherwise,
     // it's just all static members concatenated, together.
     for (final type in types) {
-      final length = type.encodingLength;
+      final length = type!.encodingLength;
       if (length.isDynamic) return const EncodingLengthInfo.dynamic();
 
-      trackedLength += length.length;
+      trackedLength += length.length!;
     }
 
     return EncodingLengthInfo(trackedLength);
@@ -50,7 +50,7 @@ class TupleType extends AbiType<List<dynamic>> {
 
     for (var i = 0; i < data.length; i++) {
       final payload = data[i];
-      final type = types[i];
+      final type = types[i]!;
 
       if (type.encodingLength.isDynamic) {
         // just write a bunch of zeroes, we later have to encode the relative
@@ -69,14 +69,14 @@ class TupleType extends AbiType<List<dynamic>> {
 
     // now that the heads are written, write tails for the dynamic values
     for (var i = 0; i < data.length; i++) {
-      if (!types[i].encodingLength.isDynamic) continue;
+      if (!types[i]!.encodingLength.isDynamic) continue;
 
       // replace the 32 zero-bytes with the actual encoded offset
       const UintType().encodeReplace(
           dynamicHeaderPositions[i], BigInt.from(currentDynamicOffset), buffer);
 
       final lengthBefore = buffer.length;
-      types[i].encode(data[i], buffer);
+      types[i]!.encode(data[i], buffer);
       currentDynamicOffset += buffer.length - lengthBefore;
     }
   }
@@ -88,7 +88,7 @@ class TupleType extends AbiType<List<dynamic>> {
     var dynamicLength = 0;
 
     for (final type in types) {
-      if (type.encodingLength.isDynamic) {
+      if (type!.encodingLength.isDynamic) {
         final positionResult =
             const UintType().decode(buffer, offset + headersLength);
         headersLength += positionResult.bytesRead;

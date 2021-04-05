@@ -4,7 +4,7 @@ version: 2.0.0-dev.9
 homepage: https://github.com/simolus3/web3dart
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   pointycastle: ^3.0.1
@@ -12,16 +12,12 @@ dependencies:
   meta: ^1.3.0
   http: ^0.13.1
   uuid: ^3.0.3
-  # isolate: ^2.0.0
-  isolate:
-    git:
-      url: https://github.com/2ZeroSix/isolate.git
-      ref: "f961c1c"
   typed_data: ^1.3.0
   stream_channel: ^2.1.0
   # json_rpc_2: ^2.1.0
+  # waiting on this PR: https://github.com/dart-lang/json_rpc_2/pull/72
   json_rpc_2:
-    git: 
+    git:
       url: https://github.com/hacker1024/json_rpc_2.dart.git
       ref: 5fce746
   collection: ^1.15.0

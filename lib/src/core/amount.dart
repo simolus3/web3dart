@@ -59,7 +59,7 @@ class EtherAmount {
       throw ArgumentError('Invalid type, must be BigInt, string or int');
     }
 
-    return EtherAmount.inWei(parsedAmount * _factors[unit]);
+    return EtherAmount.inWei(parsedAmount * _factors[unit]!);
   }
 
   /// Gets the value of this amount in the specified unit as a whole number.
@@ -67,7 +67,7 @@ class EtherAmount {
   /// discard the remainder occurring in the division, making it unsuitable for
   /// calculations or storage. You should store and process amounts of ether by
   /// using a BigInt storing the amount in wei.
-  BigInt getValueInUnitBI(EtherUnit unit) => _value ~/ _factors[unit];
+  BigInt getValueInUnitBI(EtherUnit unit) => _value ~/ _factors[unit]!;
 
   /// Gets the value of this amount in the specified unit. **WARNING**: Due to
   /// rounding errors, the return value of this function is not reliable,
@@ -75,10 +75,10 @@ class EtherAmount {
   /// display the amount of ether in a human-readable format, it should not be
   /// used for anything else.
   num getValueInUnit(EtherUnit unit) {
-    final value = _value ~/ _factors[unit];
-    final remainder = _value.remainder(_factors[unit]);
+    final value = _value ~/ _factors[unit]!;
+    final remainder = _value.remainder(_factors[unit]!);
 
-    return value.toInt() + (remainder.toInt() / _factors[unit].toInt());
+    return value.toInt() + (remainder.toInt() / _factors[unit]!.toInt());
   }
 
   @override

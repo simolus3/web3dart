@@ -12,7 +12,7 @@ void main() {
     test('$key', () {
       final data = testContent[key];
       final input = _mapTestData(data['in']);
-      final output = data['out'] as String;
+      final output = data['out'] as String?;
 
       expect(bytesToHex(encode(input), include0x: true), output);
     });
