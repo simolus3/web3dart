@@ -1,11 +1,6 @@
 import 'package:build/build.dart';
-
 import 'generator.dart';
 
-Builder abiGenerator(BuilderOptions options) {
-  return const ContractGenerator();
-}
+Builder abiGenerator(BuilderOptions options) => const ContractGenerator();
 
-PostProcessBuilder deleteSource(BuilderOptions options) {
-  return const FileDeletingBuilder(['.abi.json']);
-}
+PostProcessBuilder deleteSource(BuilderOptions options) => const FileDeletingBuilder(['.abi.json']);

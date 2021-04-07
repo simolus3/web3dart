@@ -6,7 +6,7 @@ builders:
     builder_factories: ["abiGenerator"]
     build_to: source
     auto_apply: dependents
-    applies_builders: [':delete_abi_source']
+    applies_builders: [ ':delete_source' ]
 
 post_process_builders:
   delete_abi_source:
