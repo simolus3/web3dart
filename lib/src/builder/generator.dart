@@ -9,7 +9,7 @@ import 'package:web3dart/contracts.dart';
 import 'package:web3dart/src/utils/abi_parser.dart';
 
 class ContractGenerator implements Builder {
-  const ContractGenerator();
+  var index = 0;
 
   @override
   Map<String, List<String>> get buildExtensions => const {
@@ -19,7 +19,8 @@ class ContractGenerator implements Builder {
   @override
   Future<void> build(BuildStep buildStep) async {
     final inputId = buildStep.inputId;
-    final withoutExtension = inputId.path.substring(0, inputId.path.length - '.abi.json'.length);
+    final withoutExtension =
+        inputId.path.substring(0, inputId.path.length - '.abi.json'.length);
 
     var abiCode = await buildStep.readAsString(inputId);
     // Remove unnecessary whitespace
@@ -35,6 +36,7 @@ class ContractGenerator implements Builder {
     return base[0].toUpperCase() + base.substring(1);
   }
 
+  //main method that parses abi to dart code
   String _parseAbi(ContractAbi abi, String abiCode) {
     final library = Library((b) {
       b.directives.addAll([Directive.import('package:web3dart/web3dart.dart')]);
@@ -46,17 +48,47 @@ class ContractGenerator implements Builder {
           ..constructors.add(Constructor((b) => b
             ..initializers.add(argContract
                 .assign(funDeployedContract.call([
-                  funContractABI.call([literalString(abiCode), literalString(abi.name)]),
+                  funContractABI
+                      .call([literalString(abiCode), literalString(abi.name)]),
                   argContractAddress
                 ]))
                 .code)
             ..requiredParameters.addAll(_requiredConstructorParams)
-            ..optionalParameters.addAll(_optionalConstructorParams))))
+            ..optionalParameters.addAll(_optionalConstructorParams)))),
       ]);
+      b.body.addAll(_customClasses(abi.functions));
     });
 
     final emitter = DartEmitter();
     return DartFormatter().format('${library.accept(emitter)}');
+  }
+
+  // Create custom classes to encapsulate response for functions that return multiple values
+  List<Class> _customClasses(List<ContractFunction> functions) {
+    final customClasses = <Class>[];
+    for (final function in functions) {
+      if (function.outputs.length > 1) {
+        function.outputs.asMap()
+
+        final fields = function.outputs.map((out) => Field((b) => b
+          ..name = out.name.isEmpty?'':out.name
+          ..modifier = FieldModifier.final$
+          ..type = out.type.name.toDart()));
+
+        final params = function.outputs.map((out) => Parameter((b) => b
+          ..name = out.name.isEmpty?'':out.name
+          ..type = out.type.name.toDart()));
+
+        customClasses.add(Class((b) => b
+          ..name = _customClassName(function.name)
+          ..constructors.add(Constructor((b) => b
+            ..requiredParameters.addAll(params)))
+          ..fields.addAll(fields)));
+        index++;
+      }
+
+    }
+    return customClasses;
   }
 
   List<Method> _getMethods(List<ContractFunction> functions) {
@@ -65,9 +97,11 @@ class ContractGenerator implements Builder {
       if (!function.isConstructor) {
         methods.add(Method((b) => b
           ..modifier = MethodModifier.async
-          ..returns = function.isConstant ? futurize(function.outputs[0].type.name.toDart()) : futurize(string)
+          ..returns = _returnStatement(function)
           ..name = function.name
-          ..body = function.isConstant ? _constantBody(function) : _notConstantBody(function)
+          ..body = function.isConstant
+              ? _constantBody(function)
+              : _notConstantBody(function)
           ..requiredParameters.addAll(_getParameters(function))));
       }
     }
@@ -88,20 +122,46 @@ class ContractGenerator implements Builder {
 
   Code _constantBody(ContractFunction function) {
     final params = function.parameters.map((e) => e.name).toList();
-    return Block((b) => b..addExpression(CodeExpression(funFunction.call([literalString(function.name)]).code).assignFinal('function'))..addExpression(CodeExpression(Code('[${params.join(', ')}]')).assignFinal('params'))..addExpression(funConstantReturn));
+    final returnParams = function.outputs.map((e) => Parameter((b) => b));
+    return Block((b) => b
+      ..addExpression(
+          CodeExpression(funFunction.call([literalString(function.name)]).code)
+              .assignFinal('function'))
+      ..addExpression(
+          CodeExpression(Code('[${params.join(', ')}]')).assignFinal('params'))
+      ..addExpression(funConstantReturn));
   }
 
   Code _notConstantBody(ContractFunction function) {
     final params = function.parameters.map((e) => e.name).toList();
 
     return Block((b) => b
-      ..addExpression(funFunction.call([literalString(function.name)]).assignFinal('function'))
-      ..addExpression(CodeExpression(Code('[${params.join(', ')}]')).assignFinal('params'))
-      ..addExpression(funCredentialsFromPrivateKey.call([argPrivateKey]).assignFinal('credentials'))
-      ..addExpression(funCallContract.call([nArgContract, nArgFunction, nArgParameters]).assignFinal('transaction'))
+      ..addExpression(funFunction
+          .call([literalString(function.name)]).assignFinal('function'))
+      ..addExpression(
+          CodeExpression(Code('[${params.join(', ')}]')).assignFinal('params'))
+      ..addExpression(funCredentialsFromPrivateKey
+          .call([argPrivateKey]).assignFinal('credentials'))
+      ..addExpression(funCallContract
+          .call([nArgContract, nArgFunction, nArgParameters]).assignFinal(
+              'transaction'))
       ..addExpression(funWrite));
   }
 }
+
+Reference _returnStatement(ContractFunction function) {
+  if (!function.isConstant) {
+    return futurize(string);
+  } else if (function.outputs.isEmpty) {
+    return futurize(refer('void'));
+  } else if (function.outputs.length > 1) {
+    return futurize(refer(_customClassName(function.name)));
+  } else {
+    return futurize(function.outputs[0].type.name.toDart());
+  }
+}
+
+Reference _constantFunctionReturn() {}
 
 final _classFields = [
   Field((b) => b
@@ -149,3 +209,6 @@ final _optionalConstructorParams = [
     ..toThis = true
     ..defaultTo = const Code('1'))
 ];
+
+String _customClassName(String functionName) =>
+    '${functionName[0].toUpperCase()}${functionName.substring(1)}Response';
