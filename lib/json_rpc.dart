@@ -1,4 +1,3 @@
-// @dart=2.9
 library json_rpc;
 
 import 'dart:async';
@@ -21,7 +20,7 @@ class JsonRPC {
   /// When the request is successful, an [RPCResponse] with the request id and
   /// the data from the server will be returned. If not, an RPCError will be
   /// thrown. Other errors might be thrown if an IO-Error occurs.
-  Future<RPCResponse> call(String function, [List<dynamic> params]) async {
+  Future<RPCResponse> call(String function, [List<dynamic>? params]) async {
     params ??= [];
 
     final requestPayload = {
