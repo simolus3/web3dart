@@ -12,7 +12,7 @@ import 'package:pointycastle/signers/ecdsa_signer.dart';
 
 import '../utils/typed_data.dart';
 import 'formatting.dart';
-import 'keccac.dart';
+import 'keccak.dart';
 import 'random_bridge.dart';
 
 final ECDomainParameters _params = ECCurve_secp256k1();

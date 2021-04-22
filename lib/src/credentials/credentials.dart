@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:collection/collection.dart';
 
 import '../crypto/formatting.dart';
-import '../crypto/keccac.dart';
+import '../crypto/keccak.dart';
 import '../crypto/secp256k1.dart';
 import '../crypto/secp256k1.dart' as secp256k1;
 import '../utils/typed_data.dart';

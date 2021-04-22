@@ -10,7 +10,7 @@ import 'package:pointycastle/key_derivators/pbkdf2.dart' as pbkdf2;
 import 'package:pointycastle/key_derivators/scrypt.dart' as scrypt;
 
 import '../crypto/formatting.dart';
-import '../crypto/keccac.dart';
+import '../crypto/keccak.dart';
 import '../crypto/random_bridge.dart';
 import '../utils/typed_data.dart';
 import '../utils/uuid.dart';
