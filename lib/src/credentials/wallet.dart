@@ -1,5 +1,21 @@
-// @dart=2.9
-part of 'package:web3dart/credentials.dart';
+import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
+
+import 'package:meta/meta.dart';
+import 'package:pointycastle/digests/sha256.dart';
+import 'package:pointycastle/export.dart';
+import 'package:pointycastle/macs/hmac.dart';
+import 'package:pointycastle/key_derivators/pbkdf2.dart' as pbkdf2;
+import 'package:pointycastle/key_derivators/scrypt.dart' as scrypt;
+
+import '../crypto/formatting.dart';
+import '../crypto/keccac.dart';
+import '../crypto/random_bridge.dart';
+import '../utils/typed_data.dart';
+import '../utils/uuid.dart';
+
+import 'credentials.dart';
 
 abstract class _KeyDerivator {
   Uint8List deriveKey(Uint8List password);
