@@ -36,7 +36,9 @@ BigInt generateNewPrivateKey(Random random) {
 /// taking the lower 160 bits of the key's sha3 hash.
 Uint8List publicKeyToAddress(Uint8List publicKey) {
   assert(publicKey.length == 64);
-  return keccak256(publicKey).sublist(0, 160 ~/ 8);
+  final hashed = keccak256(publicKey);
+  assert(hashed.length == 32);
+  return hashed.sublist(12, 32);
 }
 
 /// Signatures used to sign Ethereum transactions and messages.
@@ -99,8 +101,8 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 Uint8List ecRecover(Uint8List messageHash, MsgSignature signatureData) {
   assert(signatureData.r != null);
   assert(signatureData.s != null);
-  final r = padUint8ListTo32(intToBytes(signatureData.r));
-  final s = padUint8ListTo32(intToBytes(signatureData.s));
+  final r = padUint8ListTo32(unsignedIntToBytes(signatureData.r));
+  final s = padUint8ListTo32(unsignedIntToBytes(signatureData.s));
   assert(r.length == 32);
   assert(s.length == 32);
 
@@ -118,7 +120,7 @@ Uint8List ecRecover(Uint8List messageHash, MsgSignature signatureData) {
   if (pubKey == null) {
     throw Exception('Could not recover public key from signature');
   }
-  return intToBytes(pubKey);
+  return unsignedIntToBytes(pubKey);
 }
 
 /// Given an arbitrary message hash, an Ethereum message signature encoded in bytes and

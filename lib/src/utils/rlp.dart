@@ -24,7 +24,7 @@ void _encodeString(Uint8List string, LengthTrackingByteSink builder) {
   // More than 55 bytes long, RLP is (0xb7 + length of encoded length), followed
   // by the length, followed by the actual string
   final length = string.length;
-  final encodedLength = intToBytes(BigInt.from(length));
+  final encodedLength = unsignedIntToBytes(BigInt.from(length));
 
   builder
     ..addByte(0xb7 + encodedLength.length)
@@ -45,7 +45,7 @@ void encodeList(List list, LengthTrackingByteSink builder) {
       ..add(subBuilder.asBytes());
     return;
   } else {
-    final encodedLength = intToBytes(BigInt.from(length));
+    final encodedLength = unsignedIntToBytes(BigInt.from(length));
 
     builder
       ..addByte(0xf7 + encodedLength.length)
@@ -59,7 +59,7 @@ void _encodeInt(BigInt val, LengthTrackingByteSink builder) {
   if (val == BigInt.zero) {
     _encodeString(Uint8List(0), builder);
   } else {
-    _encodeString(intToBytes(val), builder);
+    _encodeString(unsignedIntToBytes(val), builder);
   }
 }
 
