@@ -1,5 +1,4 @@
-// @dart=2.9
-part of 'package:web3dart/web3dart.dart';
+import 'package:meta/meta.dart';
 
 /// When the client is currently syncing its blockchain with the network, this
 /// representation can be used to find information about at which block the node
@@ -13,13 +12,14 @@ class SyncInformation {
   /// the highest block number this synchronisation will contain.
   /// When the client is not syncing at the moment, these fields will be null
   /// and [isSyncing] will be false.
-  final int startingBlock, currentBlock, finalBlock;
+  final int? startingBlock, currentBlock, finalBlock;
 
   /// Indicates whether this client is currently syncing its blockchain with
   /// other nodes.
   bool get isSyncing => startingBlock != null;
 
-  SyncInformation._(this.startingBlock, this.currentBlock, this.finalBlock);
+  @internal
+  SyncInformation(this.startingBlock, this.currentBlock, this.finalBlock);
 
   @override
   String toString() {

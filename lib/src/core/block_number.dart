@@ -1,6 +1,3 @@
-// @dart=2.9
-part of 'package:web3dart/web3dart.dart';
-
 /// For operations that are reading data from the blockchain without making a
 /// transaction that would modify it, the Ethereum client can read that data
 /// from previous states of the blockchain as well. This class specifies which

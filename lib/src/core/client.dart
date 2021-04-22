@@ -149,9 +149,9 @@ class Web3Client {
       final currentBlock = hexToInt(data['currentBlock'] as String).toInt();
       final highestBlock = hexToInt(data['highestBlock'] as String).toInt();
 
-      return SyncInformation._(startingBlock, currentBlock, highestBlock);
+      return SyncInformation(startingBlock, currentBlock, highestBlock);
     } else {
-      return SyncInformation._(null, null, null);
+      return SyncInformation(null, null, null);
     }
   }
 
