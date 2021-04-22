@@ -1,5 +1,11 @@
-// @dart=2.9
-part of 'package:web3dart/contracts.dart';
+import 'dart:typed_data';
+
+import 'package:meta/meta.dart';
+
+import '../../utils/length_tracking_byte_sink.dart';
+import 'arrays.dart';
+import 'integers.dart';
+import 'tuple.dart';
 
 /// The length of the encoding of a solidity type is always a multiplicative of
 /// this unit size.
@@ -30,7 +36,7 @@ abstract class AbiType<T> {
 class EncodingLengthInfo {
   /// When this encoding length is not [isDynamic], the length (in bytes) of
   /// an encoded payload. Otherwise null.
-  final int length;
+  final int? length;
 
   /// Whether the length of the encoding will depend on the data being encoded.
   ///
@@ -92,12 +98,13 @@ const Map<String, AbiType> _easyTypes = {
 };
 
 final RegExp _trailingDigits = RegExp(r'^(?:\D|\d)*\D(\d*)$');
-final RegExp _array = RegExp(r'^(.*)\[(\d*)\]$');
+@internal
+final RegExp array = RegExp(r'^(.*)\[(\d*)\]$');
 final RegExp _tuple = RegExp(r'^\((.*)\)$');
 
 int _trailingNumber(String str) {
   final match = _trailingDigits.firstMatch(str);
-  return int.parse(match.group(1));
+  return int.parse(match!.group(1)!);
 }
 
 final _openingParenthesis = '('.codeUnitAt(0);
@@ -105,14 +112,13 @@ final _closingParenthesis = ')'.codeUnitAt(0);
 final _comma = ','.codeUnitAt(0);
 
 /// Parses an ABI type from its [AbiType.name].
-@visibleForTesting
 AbiType parseAbiType(String name) {
-  if (_easyTypes.containsKey(name)) return _easyTypes[name];
+  if (_easyTypes.containsKey(name)) return _easyTypes[name]!;
 
-  final arrayMatch = _array.firstMatch(name);
+  final arrayMatch = array.firstMatch(name);
   if (arrayMatch != null) {
-    final type = parseAbiType(arrayMatch.group(1));
-    final length = arrayMatch.group(2);
+    final type = parseAbiType(arrayMatch.group(1)!);
+    final length = arrayMatch.group(2)!;
 
     if (length.isEmpty) {
       // T[], dynamic length then
@@ -124,7 +130,7 @@ AbiType parseAbiType(String name) {
 
   final tupleMatch = _tuple.firstMatch(name);
   if (tupleMatch != null) {
-    final inner = tupleMatch.group(1);
+    final inner = tupleMatch.group(1)!;
     final types = <AbiType>[];
 
     // types are separated by a comma. However, we can't just inner.split(')
@@ -159,11 +165,11 @@ AbiType parseAbiType(String name) {
   }
 
   if (name.startsWith('uint')) {
-    return UintType(length: _trailingNumber(name)).._validate();
+    return UintType(length: _trailingNumber(name))..validate();
   } else if (name.startsWith('int')) {
-    return IntType(length: _trailingNumber(name)).._validate();
+    return IntType(length: _trailingNumber(name))..validate();
   } else if (name.startsWith('bytes')) {
-    return FixedBytes(_trailingNumber(name)).._validate();
+    return FixedBytes(_trailingNumber(name))..validate();
   }
 
   throw ArgumentError('Could not parse abi type with name: $name');

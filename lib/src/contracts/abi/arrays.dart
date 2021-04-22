@@ -1,5 +1,12 @@
-// @dart=2.9
-part of 'package:web3dart/contracts.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:meta/meta.dart';
+
+import '../../utils/length_tracking_byte_sink.dart';
+import '../../utils/typed_data.dart';
+import 'integers.dart';
+import 'types.dart';
 
 /// The bytes<M> solidity type, which stores up to 32 bytes.
 class FixedBytes extends AbiType<Uint8List> {
@@ -17,7 +24,8 @@ class FixedBytes extends AbiType<Uint8List> {
 
   const FixedBytes(this.length) : assert(0 <= length && length <= 32);
 
-  void _validate() {
+  @internal
+  void validate() {
     if (length < 0 || length > 32) {
       throw Exception('Invalid length for bytes: was $length');
     }
@@ -147,17 +155,17 @@ class FixedLengthArray<T> extends AbiType<List<T>> {
     if (type.encodingLength.isDynamic) {
       return const EncodingLengthInfo.dynamic();
     }
-    return EncodingLengthInfo(type.encodingLength.length * length);
+    return EncodingLengthInfo(type.encodingLength.length! * length);
   }
 
-  const FixedLengthArray({@required this.type, @required this.length});
+  const FixedLengthArray({required this.type, required this.length});
 
   @override
   void encode(List<T> data, LengthTrackingByteSink buffer) {
     assert(data.length == length);
 
     if (encodingLength.isDynamic) {
-      const lengthEncoder = UintType._defaultInstance;
+      const lengthEncoder = UintType();
 
       final startPosition = buffer.length;
       var currentOffset = data.length * sizeUnitBytes;
@@ -232,7 +240,7 @@ class DynamicLengthArray<T> extends AbiType<List<T>> {
   @override
   String get name => '${type.name}[]';
 
-  const DynamicLengthArray({@required this.type});
+  const DynamicLengthArray({required this.type});
 
   @override
   void encode(List<T> data, LengthTrackingByteSink buffer) {

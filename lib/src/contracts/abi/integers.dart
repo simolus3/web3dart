@@ -1,5 +1,11 @@
-// @dart=2.9
-part of 'package:web3dart/contracts.dart';
+import 'dart:typed_data';
+
+import 'package:meta/meta.dart';
+
+import '../../../credentials.dart';
+import '../../crypto/formatting.dart';
+import '../../utils/length_tracking_byte_sink.dart';
+import 'types.dart';
 
 abstract class _IntTypeBase extends AbiType<BigInt> {
   /// The length of this uint, int bits. Must be a multiple of 8.
@@ -17,7 +23,8 @@ abstract class _IntTypeBase extends AbiType<BigInt> {
       : assert(length % 8 == 0),
         assert(0 < length && length <= 256);
 
-  void _validate() {
+  @internal
+  void validate() {
     if (length % 8 != 0 || length < 0 || length > 256) {
       throw Exception('Invalid length for int type: was $length');
     }
@@ -45,9 +52,6 @@ class UintType extends _IntTypeBase {
   String get _namePrefix => 'uint';
 
   const UintType({int length = 256}) : super(length);
-
-  // kept because of an analyzer bug: https://github.com/dart-lang/sdk/issues/38658
-  static const _defaultInstance = UintType(length: 256);
 
   @override
   void encode(BigInt data, LengthTrackingByteSink buffer) {
