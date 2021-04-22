@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:test/test.dart';
 import 'package:web3dart/contracts.dart';
 

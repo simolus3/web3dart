@@ -1,3 +1,4 @@
+// @dart=2.9
 part of 'package:web3dart/web3dart.dart';
 
 /// When the client is currently syncing its blockchain with the network, this

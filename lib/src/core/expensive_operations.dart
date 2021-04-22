@@ -1,3 +1,4 @@
+// @dart=2.9
 part of 'package:web3dart/web3dart.dart';
 
 /// Wrapper around some potentially expensive operations so that they can

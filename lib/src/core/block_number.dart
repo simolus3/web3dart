@@ -1,3 +1,4 @@
+// @dart=2.9
 part of 'package:web3dart/web3dart.dart';
 
 /// For operations that are reading data from the blockchain without making a

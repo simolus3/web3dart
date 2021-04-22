@@ -1,3 +1,4 @@
+// @dart=2.9
 part of 'package:web3dart/credentials.dart';
 
 /// The sign method from sec256k1, so that it can be used inside [Credentials].

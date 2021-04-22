@@ -1,4 +1,7 @@
-part of 'package:web3dart/crypto.dart';
+import 'dart:typed_data';
+import 'package:convert/convert.dart';
+// ignore: implementation_imports
+import 'package:pointycastle/src/utils.dart' as p_utils;
 
 /// If present, removes the 0x from the start of a hex-string.
 String strip0x(String hex) {
@@ -17,7 +20,7 @@ String strip0x(String hex) {
 /// prefix does not count for the length.
 String bytesToHex(List<int> bytes,
     {bool include0x = false,
-    int forcePadLength,
+    int? forcePadLength,
     bool padToEvenLength = false}) {
   var encoded = hex.encode(bytes);
 

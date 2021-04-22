@@ -1,3 +1,4 @@
+// @dart=2.9
 part of 'package:web3dart/contracts.dart';
 
 /// The length of the encoding of a solidity type is always a multiplicative of

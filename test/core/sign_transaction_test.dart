@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:web3dart/web3dart.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:test/test.dart';

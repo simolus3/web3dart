@@ -1,3 +1,4 @@
+// @dart=2.9
 library web3dart;
 
 import 'dart:async';

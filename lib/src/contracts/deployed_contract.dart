@@ -1,3 +1,4 @@
+// @dart=2.9
 part of 'package:web3dart/contracts.dart';
 
 /// Helper class that defines a contract with a known ABI that has been deployed

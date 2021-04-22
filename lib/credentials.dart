@@ -1,3 +1,5 @@
+// @dart=2.9
+
 /// Library to create and unlock Ethereum wallets and operate with private keys.
 library credentials;
 

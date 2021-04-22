@@ -1,4 +1,19 @@
-part of 'package:web3dart/crypto.dart';
+import 'dart:math';
+import 'dart:typed_data';
+
+import 'package:pointycastle/api.dart';
+import 'package:pointycastle/digests/sha256.dart';
+import 'package:pointycastle/ecc/api.dart';
+import 'package:pointycastle/ecc/curves/secp256k1.dart';
+import 'package:pointycastle/key_generators/api.dart';
+import 'package:pointycastle/key_generators/ec_key_generator.dart';
+import 'package:pointycastle/macs/hmac.dart';
+import 'package:pointycastle/signers/ecdsa_signer.dart';
+
+import '../utils/typed_data.dart';
+import 'formatting.dart';
+import 'keccac.dart';
+import 'random_bridge.dart';
 
 final ECDomainParameters _params = ECCurve_secp256k1();
 final BigInt _halfCurveOrder = _params.n >> 1;
@@ -12,7 +27,7 @@ Uint8List privateKeyBytesToPublic(Uint8List privateKey) {
 /// Generates a public key for the given private key using the ecdsa curve which
 /// Ethereum uses.
 Uint8List privateKeyToPublic(BigInt privateKey) {
-  final p = _params.G * privateKey;
+  final p = (_params.G * privateKey)!;
 
   //skip the type flag, https://github.com/ethereumjs/ethereumjs-util/blob/master/index.js#L319
   return Uint8List.view(p.getEncoded(false).buffer, 1);
@@ -29,7 +44,7 @@ BigInt generateNewPrivateKey(Random random) {
 
   final key = generator.generateKeyPair();
   final privateKey = key.privateKey as ECPrivateKey;
-  return privateKey.d;
+  return privateKey.d!;
 }
 
 /// Constructs the Ethereum address associated with the given public key by
@@ -99,8 +114,6 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 /// the public key that was used to sign it.
 /// https://github.com/web3j/web3j/blob/c0b7b9c2769a466215d416696021aa75127c2ff1/crypto/src/main/java/org/web3j/crypto/Sign.java#L241
 Uint8List ecRecover(Uint8List messageHash, MsgSignature signatureData) {
-  assert(signatureData.r != null);
-  assert(signatureData.s != null);
   final r = padUint8ListTo32(unsignedIntToBytes(signatureData.r));
   final s = padUint8ListTo32(unsignedIntToBytes(signatureData.s));
   assert(r.length == 32);
@@ -136,17 +149,17 @@ bool isValidSignature(
 /// including the leading 02 or 03
 Uint8List compressPublicKey(Uint8List compressedPubKey) {
   return Uint8List.view(
-      _params.curve.decodePoint(compressedPubKey).getEncoded(true).buffer);
+      _params.curve.decodePoint(compressedPubKey)!.getEncoded(true).buffer);
 }
 
 /// Given a byte array computes its expanded version and returns it as a byte array,
 /// including the leading 04
 Uint8List decompressPublicKey(Uint8List compressedPubKey) {
   return Uint8List.view(
-      _params.curve.decodePoint(compressedPubKey).getEncoded(false).buffer);
+      _params.curve.decodePoint(compressedPubKey)!.getEncoded(false).buffer);
 }
 
-BigInt _recoverFromSignature(
+BigInt? _recoverFromSignature(
     int recId, ECSignature sig, Uint8List msg, ECDomainParameters params) {
   final n = params.n;
   final i = BigInt.from(recId ~/ 2);
@@ -159,7 +172,7 @@ BigInt _recoverFromSignature(
   if (x.compareTo(prime) >= 0) return null;
 
   final R = _decompressKey(x, (recId & 1) == 1, params.curve);
-  if (!(R * n).isInfinity) return null;
+  if (!(R * n)!.isInfinity) return null;
 
   final e = bytesToUnsignedInt(msg);
 
@@ -168,9 +181,9 @@ BigInt _recoverFromSignature(
   final srInv = (rInv * sig.s) % n;
   final eInvrInv = (rInv * eInv) % n;
 
-  final q = (params.G * eInvrInv) + (R * srInv);
+  final q = (params.G * eInvrInv)! + (R * srInv);
 
-  final bytes = q.getEncoded(false);
+  final bytes = q!.getEncoded(false);
   return bytesToUnsignedInt(bytes.sublist(1));
 }
 
@@ -197,5 +210,5 @@ ECPoint _decompressKey(BigInt xBN, bool yBit, ECCurve c) {
 
   final compEnc = x9IntegerToBytes(xBN, 1 + ((c.fieldSize + 7) ~/ 8));
   compEnc[0] = yBit ? 0x03 : 0x02;
-  return c.decodePoint(compEnc);
+  return c.decodePoint(compEnc)!;
 }

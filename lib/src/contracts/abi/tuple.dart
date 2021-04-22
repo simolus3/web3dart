@@ -1,3 +1,4 @@
+// @dart=2.9
 part of 'package:web3dart/contracts.dart';
 
 class TupleType extends AbiType<List<dynamic>> {
