@@ -1,10 +1,10 @@
-// @dart=2.9
 import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
 
-import 'package:web3dart/web3dart.dart';
+import 'package:web3dart/contracts.dart';
+import 'package:web3dart/credentials.dart';
 import 'package:web3dart/crypto.dart';
 
 import 'data/basic_abi_tests.dart' as basic;

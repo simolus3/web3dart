@@ -1,6 +1,5 @@
-// @dart=2.9
 import 'package:test/test.dart';
-import 'package:web3dart/web3dart.dart';
+import 'package:web3dart/contracts.dart';
 
 import 'utils.dart';
 

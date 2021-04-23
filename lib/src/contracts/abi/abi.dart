@@ -90,7 +90,7 @@ class ContractAbi {
         continue;
       }
 
-      final mutability = _mutabilityNames[element['stateMutability']]!;
+      final mutability = _mutabilityNames[element['stateMutability']];
       final parsedType = _functionTypeNames[element['type']]!;
 
       final inputs = _parseParams(element['inputs'] as List);
@@ -101,7 +101,7 @@ class ContractAbi {
         inputs,
         outputs: outputs,
         type: parsedType,
-        mutability: mutability,
+        mutability: mutability ?? StateMutability.nonPayable,
       ));
     }
 
