@@ -108,7 +108,7 @@ final funSendTransaction = refer('client.sendTransaction');
 final funCall = refer('client.call');
 final funFunction = refer('contract.function');
 final funWrite = refer('_write').call([argCredentials, argTransaction]).returned;
-final funConstantReturn = refer('_read').call([argContract, argFunction, argParams]).asA(futurize(bigInt)).awaited.returned;
+// final funConstantReturn = ;
 final funCredentialsFromPrivateKey = refer('client.credentialsFromPrivateKey').awaited;
 final funCallContract = refer('Transaction.callContract');
 final funDeployedContract = refer('DeployedContract');
@@ -172,20 +172,24 @@ final readAndWriteMethods = [
     ]))
 ];
 
-extension ABIParsing on String {
+extension ABIParsing on Type {
   Reference toDart() {
-    switch (this) {
-      case 'uint256':
+
+    switch (toString()) {
+      case 'UintType':
         return bigInt;
         break;
-      case 'string':
+      case 'StringType':
         return string;
         break;
-      case 'address':
+      case 'AddressType':
         return ethereumAddress;
         break;
+      case 'BoolType':
+        return dartBool;
+        break;
       default:
-        return refer(this);
+        return refer(toString());
     }
   }
 }

@@ -65,36 +65,50 @@ class ContractGenerator implements Builder {
 
   // Create custom classes to encapsulate response for functions that return multiple values
   List<Class> _customClasses(List<ContractFunction> functions) {
+    functions.removeWhere((element) => element.outputs.length < 2);
     final customClasses = <Class>[];
     for (final function in functions) {
-      if (function.outputs.length > 1) {
-        function.outputs.asMap()
+      final params = <Parameter>[];
+      final fields = <Field>[];
+      final initializers = <Code>[];
+      for (var i = 0; i < function.outputs.length; i++) {
+        final name = function.outputs[i].name.isEmpty
+            ? 'var${i + 1}'
+            : function.outputs[i].name;
+        final type = function.outputs[i].type.runtimeType.toDart();
+        // print(function.outputs[i].type.runtimeType);
 
-        final fields = function.outputs.map((out) => Field((b) => b
-          ..name = out.name.isEmpty?'':out.name
-          ..modifier = FieldModifier.final$
-          ..type = out.type.name.toDart()));
+        params.add(Parameter((b) => b
+          ..name = name
+          // ..type = type
+          ..toThis = true));
 
-        final params = function.outputs.map((out) => Parameter((b) => b
-          ..name = out.name.isEmpty?'':out.name
-          ..type = out.type.name.toDart()));
+        fields.add(Field((b) => b
+          ..name = name
+          ..type = type
+          ..modifier = FieldModifier.final$));
 
-        customClasses.add(Class((b) => b
-          ..name = _customClassName(function.name)
-          ..constructors.add(Constructor((b) => b
-            ..requiredParameters.addAll(params)))
-          ..fields.addAll(fields)));
-        index++;
+        initializers.add(refer(name).assign(refer('response[$i]')).code);
       }
 
+      customClasses.add(Class((b) => b
+        ..name = _customClassName(function.name)
+        ..fields.addAll(fields)
+        ..constructors
+            .add(Constructor((b) => b..requiredParameters.add(Parameter((b)=>b
+        ..name = 'response'
+            ..type = listify(dynamicType)
+        )
+        )..initializers.addAll(initializers)))));
     }
+
     return customClasses;
   }
 
   List<Method> _getMethods(List<ContractFunction> functions) {
     final methods = <Method>[];
+    functions.removeWhere((element) => element.isConstructor);
     for (final function in functions) {
-      if (!function.isConstructor) {
         methods.add(Method((b) => b
           ..modifier = MethodModifier.async
           ..returns = _returnStatement(function)
@@ -104,7 +118,7 @@ class ContractGenerator implements Builder {
               : _notConstantBody(function)
           ..requiredParameters.addAll(_getParameters(function))));
       }
-    }
+
     methods.addAll(readAndWriteMethods);
 
     return methods;
@@ -113,23 +127,27 @@ class ContractGenerator implements Builder {
   List<Parameter> _getParameters(ContractFunction function) {
     final parameters = <Parameter>[];
     for (final param in function.parameters) {
+      // print('${param.type.name}: ${param.type.runtimeType}');
       parameters.add(Parameter((b) => b
         ..name = param.name
-        ..type = param.type.name.toDart()));
+        ..type = param.type.runtimeType.toDart()));
     }
     return parameters;
   }
 
   Code _constantBody(ContractFunction function) {
     final params = function.parameters.map((e) => e.name).toList();
-    final returnParams = function.outputs.map((e) => Parameter((b) => b));
+
     return Block((b) => b
       ..addExpression(
           CodeExpression(funFunction.call([literalString(function.name)]).code)
               .assignFinal('function'))
       ..addExpression(
           CodeExpression(Code('[${params.join(', ')}]')).assignFinal('params'))
-      ..addExpression(funConstantReturn));
+      ..addExpression(refer('_read').call([argContract, argFunction, argParams]).awaited.assignFinal('response'))
+      ..addExpression(function.outputs.length > 1
+              ? refer(_customClassName(function.name)).call([refer('response')]).returned
+              : function.outputs[0].type.runtimeType.toDart().returned));
   }
 
   Code _notConstantBody(ContractFunction function) {
@@ -157,11 +175,11 @@ Reference _returnStatement(ContractFunction function) {
   } else if (function.outputs.length > 1) {
     return futurize(refer(_customClassName(function.name)));
   } else {
-    return futurize(function.outputs[0].type.name.toDart());
+    return futurize(function.outputs[0].type.runtimeType.toDart());
   }
 }
 
-Reference _constantFunctionReturn() {}
+// Reference _constantFunctionReturn() {}
 
 final _classFields = [
   Field((b) => b
@@ -211,4 +229,4 @@ final _optionalConstructorParams = [
 ];
 
 String _customClassName(String functionName) =>
-    '${functionName[0].toUpperCase()}${functionName.substring(1)}Response';
+    '${functionName[0].toUpperCase()}${functionName.substring(1)}';
