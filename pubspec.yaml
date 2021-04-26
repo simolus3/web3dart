@@ -12,10 +12,10 @@ dependencies:
   meta: ^1.1.0
   http: ^0.13.0
   uuid: ^3.0.1
-  isolate: ^2.0.0
   typed_data: ^1.1.6
   stream_channel: ^2.0.0
-  json_rpc_2: ^2.1.0
+  json_rpc_2:
+    git: https://github.com/dart-lang/json_rpc_2.git
   collection: ^1.14.11
 
 dev_dependencies:
@@ -24,4 +24,3 @@ dev_dependencies:
   test: ^1.16.0
   mockito: ^5.0.2
   coverage: ^1.0.2
-

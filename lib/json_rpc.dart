@@ -6,12 +6,12 @@ import 'dart:convert';
 import 'package:http/http.dart';
 
 class JsonRPC {
+  JsonRPC(this.url, this.client);
+
   final String url;
   final Client client;
 
   int _currentRequestId = 1;
-
-  JsonRPC(this.url, this.client);
 
   /// Performs an RPC request, asking the server to execute the function with
   /// the given name and the associated parameters, which need to be encodable
