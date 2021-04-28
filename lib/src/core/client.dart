@@ -21,6 +21,10 @@ typedef SocketConnector = StreamChannel<String> Function();
 /// to create transactions, you will instead have to obtain private keys of
 /// accounts yourself.
 class Web3Client {
+  /// Starts a client that connects to a JSON rpc API, available at [url]. The
+  /// [httpClient] will be used to send requests to the rpc server.
+  /// Am isolate will be used to perform expensive operations, such as signing
+  /// transactions or computing private keys.
   Web3Client(String url, Client httpClient, {this.socketConnector})
       : _jsonRpc = JsonRPC(url, httpClient) {
     _operations = _ExpensiveOperations();
@@ -44,11 +48,6 @@ class Web3Client {
 
   ///Whether errors, handled or not, should be printed to the console.
   bool printErrors = false;
-
-  /// Starts a client that connects to a JSON rpc API, available at [url]. The
-  /// [httpClient] will be used to send requests to the rpc server.
-  /// Am isolate will be used to perform expensive operations, such as signing
-  /// transactions or computing private keys.
 
   Future<T> _makeRPCCall<T>(String function, [List<dynamic>? params]) async {
     try {
