@@ -43,7 +43,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: .dart_tool
-          key: dart-dependencies
+          key: dart-dependencies-${{ hashFiles('pubspec.yaml') }}
       - uses: dart-lang/setup-dart@v1
       - run: dart analyze --fatal-infos
 
@@ -56,7 +56,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: .dart_tool
-          key: dart-dependencies
+          key: dart-dependencies-${{ hashFiles('pubspec.yaml') }}
       - uses: dart-lang/setup-dart@v1
       - run: dart test --coverage test_coverage
       - run: dart run tool/format_coverage.dart
@@ -73,7 +73,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: .dart_tool
-          key: dart-dependencies
+          key: dart-dependencies-${{ hashFiles('pubspec.yaml') }}
       - uses: dart-lang/setup-dart@v1
       - run: dart test -x expensive --platform chrome,firefox
   
@@ -86,7 +86,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: .dart_tool
-          key: dart-dependencies
+          key: dart-dependencies-${{ hashFiles('pubspec.yaml') }}
       - uses: dart-lang/setup-dart@v1
       - run: sudo npm i -g ganache-cli
       - run: dart run tool/integration_test.dart

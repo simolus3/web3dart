@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0-dev.9
+## 2.0.0
 
 - __Breaking__: Renamed `TransactionReceipt.fromJson` to `TransactionReceipt.fromMap`
 - __Breaking__: Removed the `backgroundIsolate` option from `Web3Client`. 
@@ -9,11 +9,13 @@
   `BigInt`
 - __Breaking__: When not setting the `maxGas` argument, this library will now estimate it instead of using
   a fixed upper bound.
+- Migrate to null safety
 - Add `ecRecover` and `isValidSignature` to verify messages. Thanks, [brickpop](https://github.com/brickpop)!
 - Add `compressPublicKey` and `decompressPublicKey` to obtain a compressed or expanded version of keys.
 - Add `getLogs` method to `Web3Client`. Thanks, [jmank88](https://github.com/jmank88)!
 - Add `sendRawTransaction` to send a raw, signed transaction.
 - Fix `hexToDartInt` not actually parsing hex ([#81](https://github.com/simolus3/web3dart/issues/81))
+- Support for background isolates is temporarily disabled until `package:isolate` migrates to null safety
 
 ## 1.2.3
 
