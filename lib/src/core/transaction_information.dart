@@ -27,9 +27,9 @@ class TransactionInformation {
   /// not been mined yet and is thus in no block, it will be `null`
   final String? blockHash;
 
-  /// [BlockNum] of the block containing this transaction. `null` when it's
-  /// pending
-  final BlockNum? blockNumber;
+  /// [BlockNum] of the block containing this transaction, or [BlockNum.pending]
+  /// when the transaction is not part of any block yet.
+  final BlockNum blockNumber;
 
   /// The sender of this transaction.
   final EthereumAddress from;

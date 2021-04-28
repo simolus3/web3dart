@@ -126,7 +126,7 @@ class FilterEvent {
       this.topics});
 
   FilterEvent.fromMap(Map<String, dynamic> log)
-      : removed = log['removed'] as bool,
+      : removed = log['removed'] as bool? ?? false,
         logIndex = log['logIndex'] != null
             ? hexToInt(log['logIndex'] as String).toInt()
             : null,
@@ -142,8 +142,8 @@ class FilterEvent {
             ? hexToInt(log['blockNumber'] as String).toInt()
             : null,
         address = EthereumAddress.fromHex(log['address'] as String),
-        data = log['data'] as String,
-        topics = (log['topics'] as List).cast<String>();
+        data = log['data'] as String?,
+        topics = (log['topics'] as List?)?.cast<String>();
 
   /// Whether the log was removed, due to a chain reorganization. False if it's
   /// a valid log.
@@ -287,10 +287,9 @@ class _FilterEngine {
   Stream<T> addFilter<T>(_Filter<T> filter) {
     final pubSubParams = filter.createPubSub();
     final pubSubAvailable = _client.socketConnector != null;
-    final supportsPubSub = pubSubParams != null && pubSubAvailable;
 
     late _InstantiatedFilter<T> instantiated;
-    instantiated = _InstantiatedFilter(filter, supportsPubSub, () {
+    instantiated = _InstantiatedFilter(filter, pubSubAvailable, () {
       _pendingUnsubcriptions.add(uninstall(instantiated));
     });
     _filters.add(instantiated);

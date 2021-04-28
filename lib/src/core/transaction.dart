@@ -2,6 +2,9 @@ part of 'package:web3dart/web3dart.dart';
 
 class Transaction {
   /// The address of the sender of this transaction.
+  ///
+  /// This can be set to null, in which case the client will use the address
+  /// belonging to the credentials used to this transaction.
   final EthereumAddress? from;
 
   /// The recipient of this transaction, or null for transactions that create a

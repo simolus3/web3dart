@@ -16,11 +16,10 @@ Future<_SigningInput> _fillMissingData({
   bool loadChainIdFromNetwork = false,
   Web3Client? client,
 }) async {
-  // assert(credentials != null);
-  // assert(transaction != null);
-  // assert(loadChainIdFromNetwork != null);
-  // assert(!loadChainIdFromNetwork || chainId != null,
-  //     "You can't specify loadChainIdFromNetwork and specify a custom chain id!");
+  if (loadChainIdFromNetwork && chainId != null) {
+    throw ArgumentError(
+        "You can't specify loadChainIdFromNetwork and specify a custom chain id!");
+  }
 
   final sender = transaction.from ?? await credentials.extractAddress();
   var gasPrice = transaction.gasPrice;
