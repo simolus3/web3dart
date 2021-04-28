@@ -42,7 +42,7 @@ class Web3Client {
   @experimental
   final SocketConnector? socketConnector;
 
-  late rpc.Peer? _streamRpcPeer;
+  rpc.Peer? _streamRpcPeer;
   late _ExpensiveOperations _operations;
   late _FilterEngine _filters;
 
