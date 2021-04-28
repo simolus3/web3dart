@@ -19,7 +19,7 @@ jobs:
      - uses: actions/cache@v2
        with:
          path: .dart_tool
-         key: dart-dependencies
+         key: dart-dependencies-${{ hashFiles('pubspec.yaml') }}
      - name: "Get dependencies"
        env:
          PUB_CACHE: ".dart_tool/pub_cache"
