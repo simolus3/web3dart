@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 

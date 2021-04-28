@@ -1,26 +1,25 @@
-// @dart=2.9
 part of 'package:web3dart/web3dart.dart';
 
 class _SigningInput {
+  _SigningInput(
+      {required this.transaction, required this.credentials, this.chainId});
+
   final Transaction transaction;
   final Credentials credentials;
-  final int chainId;
-
-  _SigningInput({this.transaction, this.credentials, this.chainId});
+  final int? chainId;
 }
 
 Future<_SigningInput> _fillMissingData({
-  @required Credentials credentials,
-  @required Transaction transaction,
-  int chainId,
+  required Credentials credentials,
+  required Transaction transaction,
+  int? chainId,
   bool loadChainIdFromNetwork = false,
-  Web3Client client,
+  Web3Client? client,
 }) async {
-  assert(credentials != null);
-  assert(transaction != null);
-  assert(loadChainIdFromNetwork != null);
-  assert(!loadChainIdFromNetwork || chainId != null,
-      "You can't specify loadChainIdFromNetwork and specify a custom chain id!");
+  if (loadChainIdFromNetwork && chainId != null) {
+    throw ArgumentError(
+        "You can't specify loadChainIdFromNetwork and specify a custom chain id!");
+  }
 
   final sender = transaction.from ?? await credentials.extractAddress();
   var gasPrice = transaction.gasPrice;
@@ -37,7 +36,7 @@ Future<_SigningInput> _fillMissingData({
   }
 
   final maxGas = transaction.maxGas ??
-      await client
+      await client!
           .estimateGas(
             sender: sender,
             to: transaction.to,
@@ -59,7 +58,7 @@ Future<_SigningInput> _fillMissingData({
 
   int resolvedChainId;
   if (!loadChainIdFromNetwork) {
-    resolvedChainId = chainId;
+    resolvedChainId = chainId!;
   } else {
     if (client == null) {
       throw ArgumentError(
@@ -77,7 +76,7 @@ Future<_SigningInput> _fillMissingData({
 }
 
 Future<Uint8List> _signTransaction(
-    Transaction transaction, Credentials c, int chainId) async {
+    Transaction transaction, Credentials c, int? chainId) async {
   final innerSignature =
       chainId == null ? null : MsgSignature(BigInt.zero, BigInt.zero, chainId);
 
@@ -88,20 +87,20 @@ Future<Uint8List> _signTransaction(
   return uint8ListFromList(rlp.encode(_encodeToRlp(transaction, signature)));
 }
 
-List<dynamic> _encodeToRlp(Transaction transaction, MsgSignature signature) {
+List<dynamic> _encodeToRlp(Transaction transaction, MsgSignature? signature) {
   final list = [
     transaction.nonce,
-    transaction.gasPrice.getInWei,
+    transaction.gasPrice?.getInWei,
     transaction.maxGas,
   ];
 
   if (transaction.to != null) {
-    list.add(transaction.to.addressBytes);
+    list.add(transaction.to!.addressBytes);
   } else {
     list.add('');
   }
 
-  list..add(transaction.value.getInWei)..add(transaction.data);
+  list..add(transaction.value?.getInWei)..add(transaction.data);
 
   if (signature != null) {
     list..add(signature.v)..add(signature.r)..add(signature.s);

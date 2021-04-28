@@ -1,36 +1,25 @@
-// @dart=2.9
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:web3dart/json_rpc.dart';
 
-class MockClient extends Mock implements Client {}
+final uri = Uri.parse('url');
 
 void main() {
-  final client = MockClient();
-  when(client.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
-      .thenAnswer((i) {
-    return Future.value(Response(
-      '{"id": 1, "jsonrpc": "2.0", "result": "0x1"}',
-      200,
-    ));
-  });
+  late MockClient client;
 
-  setUp(() => clearInteractions(client));
+  setUp(() {
+    client = MockClient();
+  });
 
   test('encodes and sends requests', () async {
     await JsonRPC('url', client).call('eth_gasPrice', ['param', 'another']);
 
-    verify(client.post(
-      Uri.parse('url'),
-      headers: argThat(
-        containsPair('Content-Type', 'application/json'),
-        named: 'headers',
-      ),
-      body: anyNamed('body'),
-    ));
+    final request = client.request!;
+    expect(request.headers,
+        containsPair('Content-Type', startsWith('application/json')));
   });
 
   test('increments request id', () async {
@@ -38,27 +27,34 @@ void main() {
     await rpc.call('eth_gasPrice', ['param', 'another']);
     await rpc.call('eth_gasPrice', ['param', 'another']);
 
-    verify(client.post(
-      Uri.parse('url'),
-      headers: argThat(
-        containsPair('Content-Type', 'application/json'),
-        named: 'headers',
-      ),
-      body: argThat(contains('"id":2'), named: 'body'),
-    ));
+    final lastRequest = client.request!;
+    expect(
+        lastRequest.finalize().bytesToString(), completion(contains('"id":2')));
   });
 
   test('throws errors', () {
     final rpc = JsonRPC('url', client);
-    when(client.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
-        .thenAnswer((i) {
-      return Future.value(Response(
-        '{"id": 1, "jsonrpc": "2.0", '
-        '"error": {"code": 1, "message": "Message", "data": "data"}}',
-        200,
-      ));
-    });
+    client.nextResponse = StreamedResponse(
+      Stream.value(utf8.encode('{"id": 1, "jsonrpc": "2.0", '
+          '"error": {"code": 1, "message": "Message", "data": "data"}}')),
+      200,
+    );
 
     expect(rpc.call('eth_gasPrice'), throwsException);
   });
+}
+
+class MockClient extends BaseClient {
+  StreamedResponse? nextResponse;
+  BaseRequest? request;
+
+  @override
+  Future<StreamedResponse> send(BaseRequest request) {
+    this.request = request;
+    return Future.value(nextResponse ??
+        StreamedResponse(
+            Stream.value(
+                utf8.encode('{"id": 1, "jsonrpc": "2.0", "result": "0x1"}')),
+            200));
+  }
 }

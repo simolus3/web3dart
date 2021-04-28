@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'dart:io';
 
 import 'package:http/http.dart';
@@ -12,13 +11,13 @@ const _privateKey2 =
     'ea3f9ce401bc7fc73284bf1dd25603bd13f120fea2a66822b760d2d96c68194d';
 
 void main() {
-  Process ganacheCli;
-  int rpcPort;
+  late Process ganacheCli;
+  late int rpcPort;
 
-  EthPrivateKey first;
-  EthPrivateKey second;
+  late EthPrivateKey first;
+  late EthPrivateKey second;
 
-  Web3Client client;
+  late Web3Client client;
 
   setUpAll(() async {
     rpcPort = await _findUnusedPort();

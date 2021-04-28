@@ -1,4 +1,3 @@
-// @dart=2.9
 part of 'package:web3dart/web3dart.dart';
 
 /// Signature for a function that opens a socket on which json-rpc operations
@@ -22,6 +21,16 @@ typedef SocketConnector = StreamChannel<String> Function();
 /// to create transactions, you will instead have to obtain private keys of
 /// accounts yourself.
 class Web3Client {
+  /// Starts a client that connects to a JSON rpc API, available at [url]. The
+  /// [httpClient] will be used to send requests to the rpc server.
+  /// Am isolate will be used to perform expensive operations, such as signing
+  /// transactions or computing private keys.
+  Web3Client(String url, Client httpClient, {this.socketConnector})
+      : _jsonRpc = JsonRPC(url, httpClient) {
+    _operations = _ExpensiveOperations();
+    _filters = _FilterEngine(this);
+  }
+
   static const BlockNum _defaultBlock = BlockNum.current();
 
   final JsonRPC _jsonRpc;
@@ -31,32 +40,16 @@ class Web3Client {
   /// event requests and parse responses. Can be null, in which case a polling
   /// implementation for events will be used.
   @experimental
-  final SocketConnector socketConnector;
+  final SocketConnector? socketConnector;
 
-  rpc.Peer _streamRpcPeer;
-
-  _ExpensiveOperations _operations;
-  _FilterEngine _filters;
+  rpc.Peer? _streamRpcPeer;
+  late _ExpensiveOperations _operations;
+  late _FilterEngine _filters;
 
   ///Whether errors, handled or not, should be printed to the console.
   bool printErrors = false;
 
-  /// Starts a client that connects to a JSON rpc API, available at [url]. The
-  /// [httpClient] will be used to send requests to the rpc server.
-  /// The [runner] will be used to perform expensive operations, such as signing
-  /// transactions or computing private keys. By default, a [Runner] on the same
-  /// isolate will be used. You can use `IsolateRunner.spawn` to use a
-  /// background runner instead.
-  /// The runner will automatically be disposed by web3dart when [dispose] is
-  /// called.
-  Web3Client(String url, Client httpClient,
-      {this.socketConnector, Runner runner})
-      : _jsonRpc = JsonRPC(url, httpClient) {
-    _operations = _ExpensiveOperations(runner ?? Runner());
-    _filters = _FilterEngine(this);
-  }
-
-  Future<T> _makeRPCCall<T>(String function, [List<dynamic> params]) async {
+  Future<T> _makeRPCCall<T>(String function, [List<dynamic>? params]) async {
     try {
       final data = await _jsonRpc.call(function, params);
       // ignore: only_throw_errors
@@ -71,19 +64,19 @@ class Web3Client {
     }
   }
 
-  rpc.Peer _connectWithPeer() {
-    if (_streamRpcPeer != null && !_streamRpcPeer.isClosed) {
+  rpc.Peer? _connectWithPeer() {
+    if (_streamRpcPeer != null && !_streamRpcPeer!.isClosed) {
       return _streamRpcPeer;
     }
     if (socketConnector == null) return null;
 
-    final socket = socketConnector();
+    final socket = socketConnector!();
     _streamRpcPeer = rpc.Peer(socket)
       ..registerMethod('eth_subscription', (rpc.Parameters params) {
         _filters.handlePubSubNotification(params);
       });
 
-    _streamRpcPeer.listen().then((_) {
+    _streamRpcPeer?.listen().then((_) {
       // .listen() will complete when the socket is closed, so reset client
       _streamRpcPeer = null;
       _filters.handleConnectionClosed();
@@ -92,7 +85,7 @@ class Web3Client {
     return _streamRpcPeer;
   }
 
-  String _getBlockParam(BlockNum block) {
+  String _getBlockParam(BlockNum? block) {
     return (block ?? _defaultBlock).toBlockParam();
   }
 
@@ -191,7 +184,7 @@ class Web3Client {
   ///
   /// This function allows specifying a custom block mined in the past to get
   /// historical data. By default, [BlockNum.current] will be used.
-  Future<EtherAmount> getBalance(EthereumAddress address, {BlockNum atBlock}) {
+  Future<EtherAmount> getBalance(EthereumAddress address, {BlockNum? atBlock}) {
     final blockParam = _getBlockParam(atBlock);
 
     return _makeRPCCall<String>('eth_getBalance', [address.hex, blockParam])
@@ -207,7 +200,7 @@ class Web3Client {
   /// This function allows specifying a custom block mined in the past to get
   /// historical data. By default, [BlockNum.current] will be used.
   Future<Uint8List> getStorage(EthereumAddress address, BigInt position,
-      {BlockNum atBlock}) {
+      {BlockNum? atBlock}) {
     final blockParam = _getBlockParam(atBlock);
 
     return _makeRPCCall<String>('eth_getStorageAt', [
@@ -221,7 +214,8 @@ class Web3Client {
   ///
   /// This function allows specifying a custom block mined in the past to get
   /// historical data. By default, [BlockNum.current] will be used.
-  Future<int> getTransactionCount(EthereumAddress address, {BlockNum atBlock}) {
+  Future<int> getTransactionCount(EthereumAddress address,
+      {BlockNum? atBlock}) {
     final blockParam = _getBlockParam(atBlock);
 
     return _makeRPCCall<String>(
@@ -241,14 +235,14 @@ class Web3Client {
   Future<TransactionReceipt> getTransactionReceipt(String hash) {
     return _makeRPCCall<Map<String, dynamic>>(
             'eth_getTransactionReceipt', [hash])
-        .then((s) => s != null ? TransactionReceipt.fromMap(s) : null);
+        .then((s) => TransactionReceipt.fromMap(s));
   }
 
   /// Gets the code of a contract at the specified [address]
   ///
   /// This function allows specifying a custom block mined in the past to get
   /// historical data. By default, [BlockNum.current] will be used.
-  Future<Uint8List> getCode(EthereumAddress address, {BlockNum atBlock}) {
+  Future<Uint8List> getCode(EthereumAddress address, {BlockNum? atBlock}) {
     return _makeRPCCall<String>(
         'eth_getCode', [address.hex, _getBlockParam(atBlock)]).then(hexToBytes);
   }
@@ -262,7 +256,7 @@ class Web3Client {
     final filter = _EventFilter(options);
     return _makeRPCCall<List<dynamic>>(
         'eth_getLogs', [filter._createParamsObject(true)]).then((logs) {
-      return logs?.map(filter.parseChanges)?.toList();
+      return logs.map(filter.parseChanges).toList();
     });
   }
 
@@ -325,11 +319,11 @@ class Web3Client {
   /// This function allows specifying a custom block mined in the past to get
   /// historical data. By default, [BlockNum.current] will be used.
   Future<List<dynamic>> call({
-    EthereumAddress sender,
-    @required DeployedContract contract,
-    @required ContractFunction function,
-    @required List<dynamic> params,
-    BlockNum atBlock,
+    EthereumAddress? sender,
+    required DeployedContract contract,
+    required ContractFunction function,
+    required List<dynamic> params,
+    BlockNum? atBlock,
   }) async {
     final encodedResult = await callRaw(
       sender: sender,
@@ -345,13 +339,13 @@ class Web3Client {
   /// sent via [sendTransaction]. Note that the estimate may be significantly
   /// higher than the amount of gas actually used by the transaction.
   Future<BigInt> estimateGas({
-    EthereumAddress sender,
-    EthereumAddress to,
-    EtherAmount value,
-    BigInt amountOfGas,
-    EtherAmount gasPrice,
-    Uint8List data,
-    @Deprecated('Parameter is ignored') BlockNum atBlock,
+    EthereumAddress? sender,
+    EthereumAddress? to,
+    EtherAmount? value,
+    BigInt? amountOfGas,
+    EtherAmount? gasPrice,
+    Uint8List? data,
+    @Deprecated('Parameter is ignored') BlockNum? atBlock,
   }) async {
     final amountHex = await _makeRPCCall<String>(
       'eth_estimateGas',
@@ -385,10 +379,10 @@ class Web3Client {
   /// - [call], which automatically encodes function parameters and parses a
   /// response.
   Future<String> callRaw({
-    EthereumAddress sender,
-    @required EthereumAddress contract,
-    @required Uint8List data,
-    BlockNum atBlock,
+    EthereumAddress? sender,
+    required EthereumAddress contract,
+    required Uint8List data,
+    BlockNum? atBlock,
   }) {
     final call = {
       'to': contract.hex,
@@ -440,7 +434,6 @@ class Web3Client {
   /// Closes resources managed by this client, such as the optional background
   /// isolate for calculations and managed streams.
   Future<void> dispose() async {
-    await _operations.stop();
     await _filters.dispose();
     await _streamRpcPeer?.close();
   }

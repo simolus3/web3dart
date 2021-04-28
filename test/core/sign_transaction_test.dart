@@ -1,6 +1,6 @@
-// @dart=2.9
 import 'package:web3dart/web3dart.dart';
 import 'package:web3dart/crypto.dart';
+import 'package:http/http.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -16,7 +16,7 @@ void main() {
       value: EtherAmount.inWei(BigInt.from(10)),
     );
 
-    final client = Web3Client(null, null);
+    final client = Web3Client('', Client());
     final signature = await client.signTransaction(credentials, transaction);
 
     expect(bytesToHex(signature),
@@ -36,7 +36,7 @@ void main() {
       value: EtherAmount.inWei(BigInt.from(1000000000000000000)),
     );
 
-    final client = Web3Client(null, null);
+    final client = Web3Client('', Client());
     final signature = await client.signTransaction(credentials, transaction);
 
     expect(
