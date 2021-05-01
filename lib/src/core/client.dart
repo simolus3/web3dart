@@ -270,6 +270,10 @@ class Web3Client {
   /// about the transaction.
   Future<String> sendTransaction(Credentials cred, Transaction transaction,
       {int chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
+    if (cred is CustomTransactionSender) {
+      return cred.sendTransaction(transaction);
+    }
+
     final signed = await signTransaction(cred, transaction,
         chainId: chainId, fetchChainIdFromNetworkId: fetchChainIdFromNetworkId);
 

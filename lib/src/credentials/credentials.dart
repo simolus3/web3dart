@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 
+import '../../web3dart.dart' show Transaction;
 import '../crypto/formatting.dart';
 import '../crypto/keccak.dart';
 import '../crypto/secp256k1.dart';
@@ -66,6 +67,12 @@ abstract class CredentialsWithKnownAddress extends Credentials {
   Future<EthereumAddress> extractAddress() async {
     return Future.value(address);
   }
+}
+
+/// Interface for [Credentials] that don't sign transactions locally, for
+/// instance because the private key is not known to this library.
+abstract class CustomTransactionSender extends Credentials {
+  Future<String> sendTransaction(Transaction transaction);
 }
 
 /// Credentials that can sign payloads with an Ethereum private key.
