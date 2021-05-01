@@ -31,9 +31,11 @@ class Web3Client {
     _filters = _FilterEngine(this);
   }
 
+  Web3Client.custom(RpcService rpc, {this.socketConnector}) : _jsonRpc = rpc;
+
   static const BlockNum _defaultBlock = BlockNum.current();
 
-  final JsonRPC _jsonRpc;
+  final RpcService _jsonRpc;
 
   /// Some ethereum nodes support an event channel over websockets. Web3dart
   /// will use the [StreamChannel] returned by this function as a socket to send

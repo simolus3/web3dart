@@ -276,7 +276,7 @@ class _FilterEngine {
   final List<_InstantiatedFilter> _filters = [];
   final Web3Client _client;
 
-  JsonRPC get _rpc => _client._jsonRpc;
+  RpcService get _rpc => _client._jsonRpc;
 
   Timer? _ticker;
   bool _isRefreshing = false;

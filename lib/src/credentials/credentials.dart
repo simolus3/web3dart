@@ -57,8 +57,19 @@ abstract class Credentials {
   }
 }
 
+/// Credentials where the [address] is known synchronously.
+abstract class CredentialsWithKnownAddress extends Credentials {
+  /// The ethereum address belonging to this credential.
+  EthereumAddress get address;
+
+  @override
+  Future<EthereumAddress> extractAddress() async {
+    return Future.value(address);
+  }
+}
+
 /// Credentials that can sign payloads with an Ethereum private key.
-class EthPrivateKey extends Credentials {
+class EthPrivateKey extends CredentialsWithKnownAddress {
   final Uint8List privateKey;
   EthereumAddress? _cachedAddress;
 
@@ -81,7 +92,7 @@ class EthPrivateKey extends Credentials {
   final bool isolateSafe = true;
 
   @override
-  Future<EthereumAddress> extractAddress() async {
+  EthereumAddress get address {
     return _cachedAddress ??= EthereumAddress(
         publicKeyToAddress(privateKeyBytesToPublic(privateKey)));
   }

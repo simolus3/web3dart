@@ -11,6 +11,7 @@ dependencies:
   convert: ^3.0.0
   meta: ^1.1.0
   http: ^0.13.0
+  js: ^0.6.3
   uuid: ^3.0.1
   typed_data: ^1.1.6
   stream_channel: ^2.0.0

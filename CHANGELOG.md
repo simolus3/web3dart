@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0
+
+- Add `package:web3dart/browser.dart`, a library for using this package in
+  Ethereum-enabled browsers.
+
 ## 2.0.0
 
 - __Breaking__: Renamed `TransactionReceipt.fromJson` to `TransactionReceipt.fromMap`

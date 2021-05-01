@@ -5,7 +5,19 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 
-class JsonRPC {
+// ignore: one_member_abstracts
+abstract class RpcService {
+  /// Performs an RPC request, asking the server to execute the function with
+  /// the given name and the associated parameters, which need to be encodable
+  /// with the [json] class of dart:convert.
+  ///
+  /// When the request is successful, an [RPCResponse] with the request id and
+  /// the data from the server will be returned. If not, an RPCError will be
+  /// thrown. Other errors might be thrown if an IO-Error occurs.
+  Future<RPCResponse> call(String function, [List<dynamic>? params]);
+}
+
+class JsonRPC extends RpcService {
   JsonRPC(this.url, this.client);
 
   final String url;
@@ -20,6 +32,7 @@ class JsonRPC {
   /// When the request is successful, an [RPCResponse] with the request id and
   /// the data from the server will be returned. If not, an RPCError will be
   /// thrown. Other errors might be thrown if an IO-Error occurs.
+  @override
   Future<RPCResponse> call(String function, [List<dynamic>? params]) async {
     params ??= [];
 
