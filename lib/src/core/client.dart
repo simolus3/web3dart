@@ -269,7 +269,7 @@ class Web3Client {
   /// included in a mined block, can be used to obtain detailed information
   /// about the transaction.
   Future<String> sendTransaction(Credentials cred, Transaction transaction,
-      {int chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
+      {int? chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
     if (cred is CustomTransactionSender) {
       return cred.sendTransaction(transaction);
     }
@@ -300,7 +300,7 @@ class Web3Client {
   ///  - [bytesToHex], which can be used to get the more common hexadecimal
   /// representation of the transaction.
   Future<Uint8List> signTransaction(Credentials cred, Transaction transaction,
-      {int chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
+      {int? chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
     final signingInput = await _fillMissingData(
       credentials: cred,
       transaction: transaction,

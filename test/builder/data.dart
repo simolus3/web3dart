@@ -43,18 +43,22 @@ import 'package:web3dart/web3dart.dart' as _i1;
 
 class Contract extends _i1.GeneratedContract {
   Contract(
-      {required _i1.EthereumAddress address, required client, int? chainId})
+      {required _i1.EthereumAddress address,
+      required _i1.Web3Client client,
+      int? chainId})
       : super(
-            _i1.DeployedContract(_i1.ContractAbi.fromJson(
-                '[{"inputs":[{"internalType":"uint240","name":"first","type":"uint240"},{"internalType":"uint248","name":"second","type":"uint248"}],"name":"retrieve3","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"}]',
-                'Contract')),
+            _i1.DeployedContract(
+                _i1.ContractAbi.fromJson(
+                    '[{"inputs":[{"internalType":"uint240","name":"first","type":"uint240"},{"internalType":"uint248","name":"second","type":"uint248"}],"name":"retrieve3","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"}]',
+                    'Contract'),
+                address),
             client,
             chainId);
 
   Future<Retrieve3> retrieve3(BigInt first, BigInt second) async {
     final function = self.function('retrieve3');
-    final params = ['first', 'second'];
-    final response = await read(self, function, params);
+    final params = [first, second];
+    final response = await read(function, params);
     return Retrieve3(response);
   }
 }
@@ -131,33 +135,37 @@ import 'package:web3dart/web3dart.dart' as _i1;
 
 class Contract extends _i1.GeneratedContract {
   Contract(
-      {required _i1.EthereumAddress address, required client, int? chainId})
+      {required _i1.EthereumAddress address,
+      required _i1.Web3Client client,
+      int? chainId})
       : super(
-            _i1.DeployedContract(_i1.ContractAbi.fromJson(
-                '[{"inputs":[],"name":"giveMeHello","outputs":[{"internalType":"string","name":"message","type":"string"},{"internalType":"uint256","name":"num1","type":"uint256"},{"internalType":"uint256","name":"num2","type":"uint256"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"retrieve","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"num","type":"uint256"}],"name":"store","outputs":[],"stateMutability":"nonpayable","type":"function"}]',
-                'Contract')),
+            _i1.DeployedContract(
+                _i1.ContractAbi.fromJson(
+                    '[{"inputs":[],"name":"giveMeHello","outputs":[{"internalType":"string","name":"message","type":"string"},{"internalType":"uint256","name":"num1","type":"uint256"},{"internalType":"uint256","name":"num2","type":"uint256"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"retrieve","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"num","type":"uint256"}],"name":"store","outputs":[],"stateMutability":"nonpayable","type":"function"}]',
+                    'Contract'),
+                address),
             client,
             chainId);
 
   Future<GiveMeHello> giveMeHello() async {
     final function = self.function('giveMeHello');
     final params = [];
-    final response = await read(self, function, params);
+    final response = await read(function, params);
     return GiveMeHello(response);
   }
 
   Future<BigInt> retrieve() async {
     final function = self.function('retrieve');
     final params = [];
-    final response = await read(self, function, params);
+    final response = await read(function, params);
     return (response[0] as BigInt);
   }
 
   Future<String> store(BigInt num,
       {required _i1.Credentials credentials}) async {
     final function = self.function('store');
-    final params = ['num'];
-    final transaction = Transaction.callContract(
+    final params = [num];
+    final transaction = _i1.Transaction.callContract(
         contract: self, function: function, parameters: params);
     return write(credentials, transaction);
   }

@@ -16,78 +16,25 @@ final dartBool = referType('bool', 'dart:core');
 final string = referType('String', 'dart:core');
 final bigInt = referType('BigInt', 'dart:core');
 final uint8List = referType('Uint8List', 'dart:typed_data');
-
-/// [Web3Client]
-final web3Client = referType('Web3Client', package);
-
-/// Refers to the [EthereumAddress] type.
-final ethereumAddress = referType('EthereumAddress', package);
-
-/// [Credentials].
-final credentials = referType('Credentials', package);
-
-/// [ContractAbi]
-final contractAbi = referType('ContractAbi', package);
-
-/// [DeployedContract]
-final deployedContract = referType('DeployedContract', package);
-
-final generatedContract = referType('GeneratedContract', package);
-
-/// [ContractFunction]
-final contractFunction = referType('ContractFunction', package);
-
-/// [FunctionParameter]
-final functionParameter = referType('FunctionParameter', package);
-
-/// [CompositeFunctionParameter]
-final compositeFunctionParameter =
-    referType('CompositeFunctionParameter', package);
-
-/// [UintType]
-final uIntType = referType('UintType', package);
-
-/// [IntType]
-final intType = referType('IntType', package);
-
-/// [BoolType]
-final boolType = referType('BoolType', package);
-
-/// [AddressType]
-final addressType = referType('AddressType', package);
-
-/// [FixedBytes]
-final fixedBytes = referType('FixedBytes', package);
-
-/// [FunctionType]
-final functionType = referType('FunctionType', package);
-
-/// Unknown, dynamic types.
 final dynamicType = referType('dynamic', 'dart:core');
 
-/// [DynamicBytes]
-final dynamicBytes = referType('DynamicBytes', package);
-
-/// [StringType]
-final stringType = referType('StringType', package);
-
-/// [transactionType]
+final web3Client = referType('Web3Client', package);
+final ethereumAddress = referType('EthereumAddress', package);
+final blockNum = referType('BlockNum', package);
+final credentials = referType('Credentials', package);
+final contractAbi = referType('ContractAbi', package);
+final deployedContract = referType('DeployedContract', package);
+final generatedContract = referType('GeneratedContract', package);
 final transactionType = referType('Transaction', package);
-
-/// [FixedLengthArray]
-final fixedLengthArray = referType('FixedLengthArray', package);
-
-/// [DynamicLengthArray]
-final dynamicLengthArray = referType('DynamicLengthArray', package);
-
-/// [TupleType]
-final tupleType = referType('TupleType', package);
+final filterOptions = referType('FilterOptions', package);
+final filterEvent = referType('FilterEvent', package);
+final stateMutability = referType('StateMutability', package);
 
 final mutabilities = {
-  StateMutability.pure: refer('StateMutability.pure', package),
-  StateMutability.view: refer('StateMutability.view', package),
-  StateMutability.nonPayable: refer('StateMutability.nonPayable', package),
-  StateMutability.payable: refer('StateMutability.payable', package),
+  StateMutability.pure: stateMutability.property('pure'),
+  StateMutability.view: stateMutability.property('view'),
+  StateMutability.nonPayable: stateMutability.property('nonPayable'),
+  StateMutability.payable: stateMutability.property('payable'),
 };
 
 final functionTypes = {
@@ -105,6 +52,12 @@ Reference futurize(Reference r) {
     ..types.add(r));
 }
 
+Reference streamOf(Reference r) {
+  return TypeReference((b) => b
+    ..symbol = 'Stream'
+    ..types.add(r));
+}
+
 Reference listify(Reference r) {
   return TypeReference((b) => b
     ..symbol = 'List'
@@ -119,13 +72,7 @@ Expression callSuper(List<Expression> args) {
 
 final funSendTransaction = refer('client.sendTransaction');
 final funCall = refer('client.call');
-final funFunction = refer('self.function');
 final funWrite = refer('write').call([argCredentials, argTransaction]).returned;
-// final funConstantReturn = ;
-final funCredentialsFromPrivateKey =
-    refer('client.credentialsFromPrivateKey').awaited;
-final funCallContract = refer('Transaction.callContract');
-final funContractABI = refer('ContractAbi.fromJson');
 
 /// Arguments
 
@@ -150,8 +97,8 @@ extension AbiTypeToDart on AbiType {
       return string;
     } else if (this is BoolType) {
       return dartBool;
+    } else {
+      return dynamicType;
     }
-
-    throw UnsupportedError('Type $this');
   }
 }

@@ -21,12 +21,7 @@ abstract class GeneratedContract {
 
   @protected
   Future<String> write(Credentials credentials, Transaction transaction) {
-    final chain = chainId;
-    if (chain == null) {
-      return client.sendTransaction(credentials, transaction,
-          fetchChainIdFromNetworkId: true);
-    } else {
-      return client.sendTransaction(credentials, transaction, chainId: chain);
-    }
+    return client.sendTransaction(credentials, transaction,
+        chainId: chainId, fetchChainIdFromNetworkId: chainId == null);
   }
 }
