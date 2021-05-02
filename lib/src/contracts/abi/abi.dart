@@ -1,4 +1,12 @@
-part of 'package:web3dart/contracts.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+
+import '../../crypto/formatting.dart';
+import '../../crypto/keccak.dart';
+import '../../utils/length_tracking_byte_sink.dart';
+import 'arrays.dart';
+import 'tuple.dart';
+import 'types.dart';
 
 enum ContractFunctionType {
   function,
@@ -67,7 +75,7 @@ class ContractAbi {
 
     for (final element in data) {
       final type = element['type'] as String;
-      final name = (element['name'] as String) ?? '';
+      final name = (element['name'] as String?) ?? '';
 
       if (type == 'event') {
         final anonymous = element['anonymous'] as bool;
@@ -83,7 +91,7 @@ class ContractAbi {
       }
 
       final mutability = _mutabilityNames[element['stateMutability']];
-      final parsedType = _functionTypeNames[element['type']];
+      final parsedType = _functionTypeNames[element['type']]!;
 
       final inputs = _parseParams(element['inputs'] as List);
       final outputs = _parseParams(element['outputs'] as List);
@@ -93,14 +101,14 @@ class ContractAbi {
         inputs,
         outputs: outputs,
         type: parsedType,
-        mutability: mutability,
+        mutability: mutability ?? StateMutability.nonPayable,
       ));
     }
 
     return ContractAbi(name, functions, events);
   }
 
-  static List<FunctionParameter> _parseParams(List data) {
+  static List<FunctionParameter> _parseParams(List? data) {
     if (data == null || data.isEmpty) return [];
 
     final elements = <FunctionParameter>[];
@@ -131,14 +139,14 @@ class ContractAbi {
     assert(RegExp(r'^tuple(?:\[\d*\])*$').hasMatch(typeName),
         '$typeName is an invalid tuple type');
 
-    final arrayLengths = <int>[];
+    final arrayLengths = <int?>[];
     var remainingName = typeName;
 
     while (remainingName != 'tuple') {
-      final arrayMatch = _array.firstMatch(remainingName);
-      remainingName = arrayMatch.group(1);
+      final arrayMatch = array.firstMatch(remainingName)!;
+      remainingName = arrayMatch.group(1)!;
 
-      final insideSquareBrackets = arrayMatch.group(2);
+      final insideSquareBrackets = arrayMatch.group(2)!;
       if (insideSquareBrackets.isEmpty) {
         arrayLengths.insert(0, null);
       } else {
@@ -271,7 +279,7 @@ class ContractEvent {
 
   ContractEvent(this.anonymous, this.name, this.components);
 
-  Uint8List _signature;
+  Uint8List? _signature;
 
   /// The signature of this event, which is the keccak hash of the event's name
   /// followed by it's components.
@@ -283,7 +291,7 @@ class ContractEvent {
       _signature = keccakUtf8(encodedName);
     }
 
-    return _signature;
+    return _signature!;
   }
 
   /// Decodes the fields of this event from the event's [topics] and its [data]
@@ -320,7 +328,7 @@ class ContractEvent {
         // dynamic type, are not included in [topics]. A hash of the data will
         // be included instead. We can't decode these, so they will be skipped.
         final length = component.parameter.type.encodingLength;
-        if (length.isDynamic || length.length > 32) {
+        if (length.isDynamic || length.length! > 32) {
           topicIndex++;
           continue;
         }
@@ -382,13 +390,13 @@ class CompositeFunctionParameter extends FunctionParameter<dynamic> {
   /// arrays. For instance, given a struct `S`, the type `S[3][][4]` would be
   /// represented with a [CompositeFunctionParameter] that has the components of
   /// `S` and [arrayLengths] of `[3, null, 4]`.
-  final List<int> arrayLengths;
+  final List<int?> arrayLengths;
 
   CompositeFunctionParameter(String name, this.components, this.arrayLengths)
       : super(name, _constructType(components, arrayLengths));
 
   static AbiType<dynamic> _constructType(
-      List<FunctionParameter> components, List<int> arrayLengths) {
+      List<FunctionParameter> components, List<int?> arrayLengths) {
     AbiType type = TupleType(components.map((c) => c.type).toList());
 
     for (final len in arrayLengths) {

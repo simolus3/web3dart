@@ -1,4 +1,11 @@
-part of 'package:web3dart/contracts.dart';
+import 'dart:typed_data';
+
+import 'package:meta/meta.dart';
+
+import '../../../credentials.dart';
+import '../../crypto/formatting.dart';
+import '../../utils/length_tracking_byte_sink.dart';
+import 'types.dart';
 
 abstract class _IntTypeBase extends AbiType<BigInt> {
   /// The length of this uint, int bits. Must be a multiple of 8.
@@ -16,7 +23,8 @@ abstract class _IntTypeBase extends AbiType<BigInt> {
       : assert(length % 8 == 0),
         assert(0 < length && length <= 256);
 
-  void _validate() {
+  @internal
+  void validate() {
     if (length % 8 != 0 || length < 0 || length > 256) {
       throw Exception('Invalid length for int type: was $length');
     }
@@ -45,15 +53,12 @@ class UintType extends _IntTypeBase {
 
   const UintType({int length = 256}) : super(length);
 
-  // kept because of an analyzer bug: https://github.com/dart-lang/sdk/issues/38658
-  static const _defaultInstance = UintType(length: 256);
-
   @override
   void encode(BigInt data, LengthTrackingByteSink buffer) {
     assert(data < BigInt.one << length);
     assert(!data.isNegative);
 
-    final bytes = intToBytes(data);
+    final bytes = unsignedIntToBytes(data);
     final padLen = calculatePadLength(bytes.length);
     buffer
       ..add(Uint8List(padLen)) // will be filled with 0
@@ -62,7 +67,7 @@ class UintType extends _IntTypeBase {
 
   void encodeReplace(
       int startIndex, BigInt data, LengthTrackingByteSink buffer) {
-    final bytes = intToBytes(data);
+    final bytes = unsignedIntToBytes(data);
     final padLen = calculatePadLength(bytes.length);
 
     buffer
@@ -74,7 +79,7 @@ class UintType extends _IntTypeBase {
   BigInt _decode32Bytes(Uint8List data) {
     // The padded zeroes won't make a difference when parsing so we can ignore
     // them.
-    return bytesToInt(data);
+    return bytesToUnsignedInt(data);
   }
 
   @override
@@ -172,9 +177,9 @@ class IntType extends _IntTypeBase {
 
     if (negative) {
       // twos complement
-      bytesData = intToBytes((BigInt.one << length) + data);
+      bytesData = unsignedIntToBytes((BigInt.one << length) + data);
     } else {
-      bytesData = intToBytes(data);
+      bytesData = unsignedIntToBytes(data);
     }
 
     final padLen = calculatePadLength(bytesData.length);
@@ -191,12 +196,7 @@ class IntType extends _IntTypeBase {
 
   @override
   BigInt _decode32Bytes(Uint8List data) {
-    final negative = data[0] >= 128; // first bit set?
-    final lengthInBytes = length ~/ 8;
-    // don't read sign-extended padding from the start
-    final asUnsigned = bytesToInt(data.sublist(32 - lengthInBytes));
-
-    return negative ? asUnsigned.toSigned(length) : asUnsigned;
+    return bytesToInt(data);
   }
 
   @override

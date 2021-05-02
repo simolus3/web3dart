@@ -4,7 +4,7 @@ import 'package:coverage/coverage.dart';
 
 Future<void> main() async {
   final dir = Directory('test_coverage');
-  final resolver = Resolver(packagesPath: '.packages', packageRoot: '.');
+  final resolver = Resolver(packagesPath: '.packages');
 
   final files = await dir
       .list(recursive: true)

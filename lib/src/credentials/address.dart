@@ -1,4 +1,11 @@
-part of 'package:web3dart/credentials.dart';
+import 'dart:typed_data';
+
+import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
+
+import '../crypto/formatting.dart';
+import '../crypto/keccak.dart';
+import '../crypto/secp256k1.dart';
 
 /// Represents an Ethereum address.
 @immutable
