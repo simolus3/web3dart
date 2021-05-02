@@ -93,8 +93,8 @@ class ContractAbi {
       final mutability = _mutabilityNames[element['stateMutability']];
       final parsedType = _functionTypeNames[element['type']]!;
 
-      final inputs = _parseParams(element['inputs'] as List);
-      final outputs = _parseParams(element['outputs'] as List);
+      final inputs = _parseParams(element['inputs'] as List?);
+      final outputs = _parseParams(element['outputs'] as List?);
 
       functions.add(ContractFunction(
         name,
