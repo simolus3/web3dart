@@ -9,3 +9,4 @@ export 'src/contracts/abi/integers.dart';
 export 'src/contracts/abi/tuple.dart';
 export 'src/contracts/abi/types.dart' hide array;
 export 'src/contracts/deployed_contract.dart';
+export 'src/contracts/generated_contract.dart';
