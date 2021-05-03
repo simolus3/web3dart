@@ -17,6 +17,7 @@ final string = referType('String', 'dart:core');
 final bigInt = referType('BigInt', 'dart:core');
 final uint8List = referType('Uint8List', 'dart:typed_data');
 final dynamicType = referType('dynamic', 'dart:core');
+final listType = listify(dynamicType);
 
 final web3Client = referType('Web3Client', package);
 final ethereumAddress = referType('EthereumAddress', package);
@@ -58,7 +59,7 @@ Reference streamOf(Reference r) {
     ..types.add(r));
 }
 
-Reference listify(Reference r) {
+TypeReference listify(Reference r) {
   return TypeReference((b) => b
     ..symbol = 'List'
     ..types.add(r));
@@ -97,8 +98,22 @@ extension AbiTypeToDart on AbiType {
       return string;
     } else if (this is BoolType) {
       return dartBool;
+    } else if (this is FixedBytes || this is DynamicBytes) {
+      return uint8List;
+    } else if (this is StringType) {
+      return string;
+    } else if (this is BaseArrayType) {
+      return listify((this as BaseArrayType).type.toDart());
     } else {
       return dynamicType;
+    }
+  }
+
+  TypeReference erasedDartType() {
+    if (this is BaseArrayType) {
+      return listType;
+    } else {
+      return toDart();
     }
   }
 }

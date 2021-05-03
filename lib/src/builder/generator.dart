@@ -159,7 +159,7 @@ class _ContractGeneration {
     } else {
       returnValue = refer('response')
           .index(literalNum(0))
-          .asA(function.outputs.single.type.toDart());
+          .castTo(function.outputs.single.type);
     }
 
     return Block((b) => b
@@ -208,15 +208,16 @@ class _ContractGeneration {
       var name = params[i].name.isEmpty ? 'var${i + 1}' : params[i].name;
       name = name.replaceAll('_', '');
 
-      final type = params[i].type.toDart();
+      final solidityType = params[i].type;
+      final type = solidityType.toDart();
 
       fields.add(Field((b) => b
         ..name = name
         ..type = type
         ..modifier = FieldModifier.final$));
 
-      initializers
-          .add(refer(name).assign(refer('response[$i]').asA(type)).code);
+      initializers.add(
+          refer(name).assign(refer('response[$i]').castTo(solidityType)).code);
     }
 
     _additionalSpecs.add(Class((b) => b
@@ -300,5 +301,53 @@ class _ContractGeneration {
     } else {
       return futurize(function.outputs[0].type.toDart());
     }
+  }
+}
+
+extension on Expression {
+  Expression castTo(AbiType type, {bool knownToBeList = false}) {
+    var result = this;
+
+    if (type is BaseArrayType) {
+      // Invoke (x as List).cast<inner>() to transform the first list.
+      if (!knownToBeList) result = result.asA(listType);
+
+      final inner = type.type;
+      result = result.property('cast').call(
+        const [],
+        const {},
+        [inner.erasedDartType()],
+      );
+
+      if (inner is BaseArrayType) {
+        // If we have nested list structures, we need to cast the inner ones by
+        // using .map((e) => (e as List).cast())
+        final m = Method(
+          (b) => b
+            ..requiredParameters.add(
+              Parameter((b) => b.name = 'e'),
+            )
+            ..body = Block(
+              (b) => b
+                ..addExpression(
+                    refer('e').castTo(inner, knownToBeList: true).returned),
+            ),
+        );
+        result = result
+            .property('map')
+            .call(
+              [m.closure],
+              const {},
+              [inner.toDart()],
+            )
+            .property('toList')
+            .call(const []);
+      }
+
+      return result;
+    }
+
+    // Ok, not a list. Let's just do a regular Dart cast then.
+    return result.asA(type.toDart());
   }
 }

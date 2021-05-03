@@ -23,4 +23,5 @@ targets:
       ":abi_generator":
         enabled: true
         generate_for:
-          - example/token.abi.json
+          - example/**
+          - lib/**

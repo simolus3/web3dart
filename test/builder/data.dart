@@ -184,4 +184,53 @@ class GiveMeHello {
   final BigInt num2;
 }
 ''',
+'''
+[
+    {
+        "inputs": [],
+        "name": "test",
+        "outputs": [
+            {
+                "internalType": "string[][6][3]",
+                "name": "",
+                "type": "string[][6][3]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]''':
+'''
+// Generated code, do not modify. Run `build_runner build` to re-generate!
+// @dart=2.12
+import 'package:web3dart/web3dart.dart' as _i1;
+
+class Contract extends _i1.GeneratedContract {
+  Contract(
+      {required _i1.EthereumAddress address,
+      required _i1.Web3Client client,
+      int? chainId})
+      : super(
+            _i1.DeployedContract(
+                _i1.ContractAbi.fromJson(
+                    '[{"inputs":[],"name":"test","outputs":[{"internalType":"string[][6][3]","name":"","type":"string[][6][3]"}],"stateMutability":"view","type":"function"}]',
+                    'Contract'),
+                address),
+            client,
+            chainId);
+
+  Future<List<List<List<String>>>> test() async {
+    final function = self.function('test');
+    final params = [];
+    final response = await read(function, params);
+    return (response[0] as List<dynamic>)
+        .cast<List<dynamic>>()
+        .map<List<List<String>>>((e) {
+      return e.cast<List<dynamic>>().map<List<String>>((e) {
+        return e.cast<String>();
+      }).toList();
+    }).toList();
+  }
+}
+''',
 };

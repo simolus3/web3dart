@@ -1,0 +1,15 @@
+[
+    {
+        "inputs": [],
+        "name": "test",
+        "outputs": [
+            {
+                "internalType": "string[][6][3]",
+                "name": "",
+                "type": "string[][6][3]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]

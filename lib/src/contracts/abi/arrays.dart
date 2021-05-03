@@ -142,9 +142,16 @@ class StringType extends AbiType<String> {
   }
 }
 
-/// The solidity T\[k\] type for arrays whose length is known.
-class FixedLengthArray<T> extends AbiType<List<T>> {
+/// Base class for (non-byte) arrays in solidity.
+abstract class BaseArrayType<T> extends AbiType<List<T>> {
+  /// The inner abi type.
   final AbiType<T> type;
+
+  const BaseArrayType._(this.type);
+}
+
+/// The solidity T\[k\] type for arrays whose length is known.
+class FixedLengthArray<T> extends BaseArrayType<T> {
   final int length;
 
   @override
@@ -158,7 +165,8 @@ class FixedLengthArray<T> extends AbiType<List<T>> {
     return EncodingLengthInfo(type.encodingLength.length! * length);
   }
 
-  const FixedLengthArray({required this.type, required this.length});
+  const FixedLengthArray({required AbiType<T> type, required this.length})
+      : super._(type);
 
   @override
   void encode(List<T> data, LengthTrackingByteSink buffer) {
@@ -232,15 +240,13 @@ class FixedLengthArray<T> extends AbiType<List<T>> {
 }
 
 /// The solidity T[] type for arrays with an dynamic length.
-class DynamicLengthArray<T> extends AbiType<List<T>> {
-  final AbiType<T> type;
-
+class DynamicLengthArray<T> extends BaseArrayType<T> {
   @override
   EncodingLengthInfo get encodingLength => const EncodingLengthInfo.dynamic();
   @override
   String get name => '${type.name}[]';
 
-  const DynamicLengthArray({required this.type});
+  const DynamicLengthArray({required AbiType<T> type}) : super._(type);
 
   @override
   void encode(List<T> data, LengthTrackingByteSink buffer) {
