@@ -4,6 +4,11 @@
 
 - Add `package:web3dart/browser.dart`, a library for using this package in
   Ethereum-enabled browsers.
+- Add code generator for smart contracts. To use it, just put the generated abi
+  json into a `.abi.json` file, add a dev-dependency on `build_runner` and run
+  `(flutter | dart) pub run build_runner build`.
+- Add the `package:web3dart/contracts/erc20.dart` library for interacting with an
+  [ERC-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md) smart contract.
 
 ## 2.0.0
 

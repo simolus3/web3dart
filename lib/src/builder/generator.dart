@@ -7,6 +7,7 @@ import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart';
 import 'package:web3dart/contracts.dart';
 
+import 'documentation.dart';
 import 'utils.dart';
 
 class ContractGenerator implements Builder {
@@ -23,13 +24,27 @@ class ContractGenerator implements Builder {
     final withoutExtension =
         inputId.path.substring(0, inputId.path.length - '.abi.json'.length);
 
-    var abiCode = await buildStep.readAsString(inputId);
-    // Remove unnecessary whitespace
-    abiCode = json.encode(json.decode(abiCode));
+    final source = json.decode(await buildStep.readAsString(inputId));
+    Documentation? documentation;
+
+    String abiCode;
+    if (source is Map) {
+      abiCode = json.encode(source['abi']);
+    } else {
+      // Remove unnecessary whitespace
+      abiCode = json.encode(source);
+    }
+
     final abi = ContractAbi.fromJson(abiCode, _suggestName(withoutExtension));
 
+    if (source is Map) {
+      final doc = source['devdoc'];
+      if (doc is Map) documentation = Documentation.fromJson(doc.cast(), abi);
+    }
+
     final outputId = AssetId(inputId.package, '$withoutExtension.g.dart');
-    await buildStep.writeAsString(outputId, _generateForAbi(abi, abiCode));
+    await buildStep.writeAsString(
+        outputId, _generateForAbi(abi, abiCode, documentation));
   }
 
   String _suggestName(String pathWithoutExtension) {
@@ -38,8 +53,8 @@ class ContractGenerator implements Builder {
   }
 
   //main method that parses abi to dart code
-  String _generateForAbi(ContractAbi abi, String abiCode) {
-    final generation = _ContractGeneration(abi, abiCode);
+  String _generateForAbi(ContractAbi abi, String abiCode, Documentation? docs) {
+    final generation = _ContractGeneration(abi, abiCode, docs);
     final library = generation.generate();
 
     final emitter = DartEmitter(
@@ -55,6 +70,7 @@ ${library.accept(emitter)}
 class _ContractGeneration {
   final ContractAbi _abi;
   final String _abiCode;
+  final Documentation? documentation;
 
   final List<Spec> _additionalSpecs = [];
   final Map<ContractFunction, Reference> _functionToResultClass = {};
@@ -65,7 +81,7 @@ class _ContractGeneration {
   // The `client` field, storing a reference to the web3client instance.
   static final client = refer('client');
 
-  _ContractGeneration(this._abi, this._abiCode);
+  _ContractGeneration(this._abi, this._abiCode, this.documentation);
 
   Library generate() {
     return Library((b) {
@@ -87,6 +103,9 @@ class _ContractGeneration {
         for (final event in _abi.events)
           Method((b) => _methodForEvent(event, b))
       ]);
+
+    final details = documentation?.forContract();
+    if (details != null) b.docs.add(details);
   }
 
   void _createContractConstructor(ConstructorBuilder b) {
@@ -136,6 +155,9 @@ class _ContractGeneration {
         ..named = true
         ..required = true));
     }
+
+    final docs = documentation?.forFunction(fun);
+    if (docs != null) b.docs.add(docs);
   }
 
   List<Parameter> _parametersFor(ContractFunction function) {
@@ -201,7 +223,8 @@ class _ContractGeneration {
     });
   }
 
-  Reference _generateResultClass(List<FunctionParameter> params, String name) {
+  Reference _generateResultClass(List<FunctionParameter> params, String name,
+      {String? docs}) {
     final fields = <Field>[];
     final initializers = <Code>[];
     for (var i = 0; i < params.length; i++) {
@@ -220,14 +243,18 @@ class _ContractGeneration {
           refer(name).assign(refer('response[$i]').castTo(solidityType)).code);
     }
 
-    _additionalSpecs.add(Class((b) => b
-      ..name = name
-      ..fields.addAll(fields)
-      ..constructors.add(Constructor((b) => b
-        ..requiredParameters.add(Parameter((b) => b
-          ..name = 'response'
-          ..type = listify(dynamicType)))
-        ..initializers.addAll(initializers)))));
+    _additionalSpecs.add(Class((b) {
+      b
+        ..name = name
+        ..fields.addAll(fields)
+        ..constructors.add(Constructor((b) => b
+          ..requiredParameters.add(Parameter((b) => b
+            ..name = 'response'
+            ..type = listify(dynamicType)))
+          ..initializers.addAll(initializers)));
+
+      if (docs != null) b.docs.add(docs);
+    }));
 
     return refer(name);
   }
@@ -235,7 +262,8 @@ class _ContractGeneration {
   void _methodForEvent(ContractEvent event, MethodBuilder b) {
     final name = event.name;
     final eventClass = _generateResultClass(
-        event.components.map((e) => e.parameter).toList(), name);
+        event.components.map((e) => e.parameter).toList(), name,
+        docs: documentation?.forEvent(event));
     final nullableBlockNum = blockNum.rebuild((b) => b.isNullable = true);
 
     final mapper = Method(
@@ -258,6 +286,8 @@ class _ContractGeneration {
 
     b
       ..returns = streamOf(eventClass)
+      ..docs.add('/// Returns a live stream of all ${eventClass.symbol} '
+          'events emitted by this contract.')
       ..name = '${name.substring(0, 1).toLowerCase()}${name.substring(1)}'
       ..optionalParameters.add(Parameter((b) => b
         ..name = 'fromBlock'

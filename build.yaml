@@ -16,12 +16,3 @@ post_process_builders:
     defaults:
       release_options:
         enabled: true
-
-targets:
-  $default:
-    builders:
-      ":abi_generator":
-        enabled: true
-        generate_for:
-          - example/**
-          - lib/**

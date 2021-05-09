@@ -1,0 +1,27 @@
+# This file configures the build in this package, but it does not affect
+# builds for packages depending on web3dart.
+
+builders:
+  solc_builder:
+    build_extensions:
+      ".sol": [".abi.json"]
+    import: 'tool/solc_builder.dart'
+    builder_factories: ["solcBuilder"]
+    auto_apply: root_package
+    build_to: cache
+    runs_before: [":abi_generator"]
+    defaults:
+      generate_for:
+        - "lib/src/generated/**"
+
+  abi_generator:
+    build_extensions: 
+      ".abi.json": [".g.dart"]
+    import: "package:web3dart/src/builder/builders.dart"
+    builder_factories: ["abiGenerator"]
+    build_to: source
+    auto_apply: root_package
+    defaults:
+      generate_for:
+       - "example/*"
+       - "lib/src/generated/**"

@@ -11,7 +11,6 @@ analyzer:
     - "**/*.g.dart"
     # Will be analyzed anyway, nobody knows why ¯\_(ツ)_/¯. We're only analyzing lib/ and test/ as a workaround
     - ".dart_tool/build/entrypoint/build.dart"
-    - "tool/**"
 
 # this should always include all rules. Those we don't use are commented out
 linter:
@@ -170,4 +169,4 @@ linter:
     - void_checks
     # PUB RULES
     - package_names
-#   - sort_pub_dependencies (we prefer to group them by what they do)d
+#   - sort_pub_dependencies (we prefer to group them by what they do)

@@ -279,20 +279,16 @@ class ContractEvent {
 
   ContractEvent(this.anonymous, this.name, this.components);
 
-  Uint8List? _signature;
+  /// The user-visible signature of this event, consisting of its name and the
+  /// type of its parameters.
+  String get stringSignature {
+    final parameters = components.map((c) => c.parameter);
+    return '$name(${_encodeParameters(parameters)})';
+  }
 
   /// The signature of this event, which is the keccak hash of the event's name
   /// followed by it's components.
-  Uint8List get signature {
-    if (_signature == null) {
-      final parameters = components.map((c) => c.parameter);
-      final encodedName = '$name(${_encodeParameters(parameters)})';
-
-      _signature = keccakUtf8(encodedName);
-    }
-
-    return _signature!;
-  }
+  late final Uint8List signature = keccakUtf8(stringSignature);
 
   /// Decodes the fields of this event from the event's [topics] and its [data]
   /// payload.
