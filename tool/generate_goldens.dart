@@ -49,6 +49,7 @@ Future<void> main() async {
 class _StubResolvers extends Resolvers {
   const _StubResolvers();
 
+  @override
   Future<ReleasableResolver> get(BuildStep step) {
     throw UnsupportedError('stub');
   }
