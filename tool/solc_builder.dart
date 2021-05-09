@@ -4,6 +4,10 @@ import 'dart:io';
 
 import 'package:build/build.dart';
 
+/// A builder that transforms `.sol` contract definitions into an `.abi.json`
+/// file representing their abi.
+///
+/// This wraps the `solc` command-line process through Dart's build system.
 Builder solcBuilder(BuilderOptions _) => _SolcBuilder();
 
 class _SolcBuilder implements Builder {
