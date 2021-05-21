@@ -1,4 +1,6 @@
-# Changelog
+## 2.1.1
+
+- Respect the `value` parameter in `estimateGas`
 
 ## 2.1.0
 
