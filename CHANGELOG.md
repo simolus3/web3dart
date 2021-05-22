@@ -1,3 +1,9 @@
+## 2.1.2
+
+- Fix contract generation for events
+- Don't generate a method for the fallback method
+- Fix parsing contract abis in the presence of unknown function types
+
 ## 2.1.1
 
 - Respect the `value` parameter in `estimateGas`

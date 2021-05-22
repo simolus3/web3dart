@@ -185,6 +185,37 @@ class GiveMeHello {
   '''
 [
     {
+        "payable": true,
+        "stateMutability": "payable",
+        "type": "fallback"
+    },
+    {
+        "stateMutability":"payable",
+        "type":"receive"
+    }
+]''': '''
+// Generated code, do not modify. Run `build_runner build` to re-generate!
+// @dart=2.12
+import 'package:web3dart/web3dart.dart' as _i1;
+
+class Contract extends _i1.GeneratedContract {
+  Contract(
+      {required _i1.EthereumAddress address,
+      required _i1.Web3Client client,
+      int? chainId})
+      : super(
+            _i1.DeployedContract(
+                _i1.ContractAbi.fromJson(
+                    '[{"payable":true,"stateMutability":"payable","type":"fallback"},{"stateMutability":"payable","type":"receive"}]',
+                    'Contract'),
+                address),
+            client,
+            chainId);
+}
+''',
+  '''
+[
+    {
         "inputs": [],
         "name": "test",
         "outputs": [

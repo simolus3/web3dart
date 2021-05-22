@@ -98,7 +98,7 @@ class _ContractGeneration {
       ..constructors.add(Constructor(_createContractConstructor))
       ..methods.addAll([
         for (final function in _abi.functions)
-          if (!function.isConstructor)
+          if (!function.isConstructor && !function.isDefault)
             Method((b) => _methodForFunction(function, b)),
         for (final event in _abi.events)
           Method((b) => _methodForEvent(event, b))
