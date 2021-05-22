@@ -288,7 +288,7 @@ class _ContractGeneration {
       ..returns = streamOf(eventClass)
       ..docs.add('/// Returns a live stream of all ${eventClass.symbol} '
           'events emitted by this contract.')
-      ..name = '${name.substring(0, 1).toLowerCase()}${name.substring(1)}'
+      ..name = '${name.substring(0, 1).toLowerCase()}${name.substring(1)}Events'
       ..optionalParameters.add(Parameter((b) => b
         ..name = 'fromBlock'
         ..named = true

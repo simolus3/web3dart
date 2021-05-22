@@ -74,7 +74,8 @@ class Erc20 extends _i1.GeneratedContract {
   }
 
   /// Returns a live stream of all Approval events emitted by this contract.
-  Stream<Approval> approval({_i1.BlockNum? fromBlock, _i1.BlockNum? toBlock}) {
+  Stream<Approval> approvalEvents(
+      {_i1.BlockNum? fromBlock, _i1.BlockNum? toBlock}) {
     final event = self.event('Approval');
     final filter = _i1.FilterOptions.events(
         contract: self, event: event, fromBlock: fromBlock, toBlock: toBlock);
@@ -85,7 +86,8 @@ class Erc20 extends _i1.GeneratedContract {
   }
 
   /// Returns a live stream of all Transfer events emitted by this contract.
-  Stream<Transfer> transfer({_i1.BlockNum? fromBlock, _i1.BlockNum? toBlock}) {
+  Stream<Transfer> transferEvents(
+      {_i1.BlockNum? fromBlock, _i1.BlockNum? toBlock}) {
     final event = self.event('Transfer');
     final filter = _i1.FilterOptions.events(
         contract: self, event: event, fromBlock: fromBlock, toBlock: toBlock);

@@ -7,6 +7,7 @@ import 'data.dart';
 
 void main() {
   var i = 0;
+  // Note: Re-generate goldens with tool/generate_goldens.dart
   testCases.forEach((key, value) {
     test('builder test #${i++}', () {
       return testBuilder(

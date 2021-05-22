@@ -71,7 +71,7 @@ Future<void> main() async {
   final token = Token(address: contractAddr, client: client);
 
   // listen for the Transfer event when it's emitted by the contract above
-  final subscription = token.transfer().take(1).listen((event) {
+  final subscription = token.transferEvents().take(1).listen((event) {
     print('${event.from} sent ${event.value} MetaCoins to ${event.to}!');
   });
 
