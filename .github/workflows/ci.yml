@@ -59,6 +59,8 @@ jobs:
           key: dart-dependencies-${{ hashFiles('pubspec.yaml') }}
       - uses: dart-lang/setup-dart@v1
       - run: dart test --coverage test_coverage
+        env:
+          INFURA_ID: ${{ secrets.INFURA_ID }}
       - run: dart run tool/format_coverage.dart
       - uses: codecov/codecov-action@v1
         with:
