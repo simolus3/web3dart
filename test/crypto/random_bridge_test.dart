@@ -54,4 +54,11 @@ void main() {
     random.nextIntResponses.addAll([84, 12]);
     expect(RandomBridge(random).nextBigInteger(13).toInt(), (12 << 8) + 84);
   });
+
+  test('nextBigInteger is never negative', () {
+    final random = RandomBridge(Random());
+    for (var i = 1; i < 500; i++) {
+      expect(random.nextBigInteger(i), isA());
+    }
+  });
 }

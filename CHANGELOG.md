@@ -1,3 +1,7 @@
+## 2.1.3
+
+- Fix `EthPrivateKey.createRandom` sometimes failing
+
 ## 2.1.2
 
 - Fix contract generation for events
