@@ -234,10 +234,10 @@ class Web3Client {
   }
 
   /// Returns an receipt of a transaction based on its hash.
-  Future<TransactionReceipt> getTransactionReceipt(String hash) {
-    return _makeRPCCall<Map<String, dynamic>>(
+  Future<TransactionReceipt?> getTransactionReceipt(String hash) {
+    return _makeRPCCall<Map<String, dynamic>?>(
             'eth_getTransactionReceipt', [hash])
-        .then((s) => TransactionReceipt.fromMap(s));
+        .then((s) => s != null ? TransactionReceipt.fromMap(s) : null);
   }
 
   /// Gets the code of a contract at the specified [address]

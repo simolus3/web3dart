@@ -69,7 +69,7 @@ void main() {
     final balanceOfSecond = await client.getBalance(secondAddress);
     final value = BigInt.from(1337);
 
-    await client.sendTransaction(
+    final hash = await client.sendTransaction(
       first,
       Transaction(
         to: secondAddress,
@@ -82,6 +82,18 @@ void main() {
         balanceOfFirst.getInWei - value);
     expect((await client.getBalance(secondAddress)).getInWei,
         balanceOfSecond.getInWei + value);
+
+    final receipt = await client.getTransactionReceipt(hash);
+    expect(
+      receipt,
+      isA<TransactionReceipt>()
+          .having((e) => e.to, 'to', secondAddress)
+          .having((e) => e.from, 'from', first.address),
+    );
+  });
+
+  test('getTransactionReceipt returns null for unknown transactions', () {
+    expect(client.getTransactionReceipt('0x123'), completion(isNull));
   });
 }
 
