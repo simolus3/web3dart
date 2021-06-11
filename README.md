@@ -71,7 +71,7 @@ The library won't send signed transactions to miners itself. Instead,
 it relies on an RPC client to do that. You can use a public RPC API like
 [infura](https://infura.io/), setup your own using [geth](https://github.com/ethereum/go-ethereum/wiki/geth)
 or, if you just want to test things out, use a private testnet with
-[truffle](http://truffleframework.com/) and [ganache](http://truffleframework.com/ganache/). All these options will give you
+[truffle](https://www.trufflesuite.com/) and [ganache](https://www.trufflesuite.com/ganache). All these options will give you
 an RPC endpoint to which the library can connect.
 
 ```dart
