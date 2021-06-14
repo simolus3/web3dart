@@ -93,7 +93,7 @@ class Web3Client {
 
   /// Constructs a new [Credentials] with the provided [privateKey] by using
   /// an [EthPrivateKey].
-  Future<Credentials> credentialsFromPrivateKey(String privateKey) {
+  Future<EthPrivateKey> credentialsFromPrivateKey(String privateKey) {
     return _operations.privateKeyFromHex(privateKey);
   }
 

@@ -10,7 +10,7 @@ Future<void> main() async {
   final client = Web3Client(rpcUrl, Client());
 
   final credentials = await client.credentialsFromPrivateKey(privateKey);
-  final address = await credentials.extractAddress();
+  final address = credentials.address;
 
   print(address.hexEip55);
   print(await client.getBalance(address));
