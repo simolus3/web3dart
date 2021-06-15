@@ -1,5 +1,5 @@
 const testCases = <String, String>{
-'''
+  '''
 {
     "abi": [],
     "devdoc": {
@@ -7,8 +7,7 @@ const testCases = <String, String>{
         "methods": {},
         "version": 1
     }
-}''':
-'''
+}''': '''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -25,7 +24,7 @@ class Contract extends _i1.GeneratedContract {
             chainId);
 }
 ''',
-'''
+  '''
 [
     {
         "payable": true,
@@ -36,8 +35,7 @@ class Contract extends _i1.GeneratedContract {
         "stateMutability":"payable",
         "type":"receive"
     }
-]''':
-'''
+]''': '''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -57,7 +55,7 @@ class Contract extends _i1.GeneratedContract {
             chainId);
 }
 ''',
-'''
+  '''
 [
     {
         "inputs": [],
@@ -72,8 +70,7 @@ class Contract extends _i1.GeneratedContract {
         "stateMutability": "view",
         "type": "function"
     }
-]''':
-'''
+]''': '''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -106,7 +103,7 @@ class Contract extends _i1.GeneratedContract {
   }
 }
 ''',
-'''
+  '''
 [
     {
       "inputs": [],
@@ -157,8 +154,7 @@ class Contract extends _i1.GeneratedContract {
       "stateMutability": "nonpayable",
       "type": "function"
     }
-]''':
-'''
+]''': '''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -214,7 +210,7 @@ class GiveMeHello {
   final BigInt num2;
 }
 ''',
-'''
+  '''
 [
     {
       "inputs": [
@@ -250,8 +246,7 @@ class GiveMeHello {
       "stateMutability": "pure",
       "type": "function"
     }
-]''':
-'''
+]''': '''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
