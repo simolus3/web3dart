@@ -18,8 +18,8 @@ class Documentation {
   static Documentation? fromJson(Map<String, Object?> json, ContractAbi abi) {
     if (json['version'] != 1) return null;
 
-    final rawEvents = json['events'] as Map;
-    final rawMethods = json['methods'] as Map;
+    final rawEvents = json['events'] as Map? ?? const {};
+    final rawMethods = json['methods'] as Map? ?? const {};
 
     final details = json['details'] as String?;
     final methods = <ContractFunction, String>{};
