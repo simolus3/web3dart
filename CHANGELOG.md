@@ -1,3 +1,7 @@
+## 2.1.4
+
+- Fix a generator crash for unexpected `devdoc` values
+
 ## 2.1.3
 
 - Fix `EthPrivateKey.createRandom` sometimes failing

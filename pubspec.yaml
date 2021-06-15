@@ -1,6 +1,6 @@
 name: web3dart
 description: Dart library to connect to Ethereum clients. Send transactions and interact with smart contracts!
-version: 2.1.3
+version: 2.1.4
 homepage: https://github.com/simolus3/web3dart
 
 environment: 
