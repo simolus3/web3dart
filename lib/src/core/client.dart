@@ -435,6 +435,14 @@ class Web3Client {
   /// - https://solidity.readthedocs.io/en/develop/contracts.html#events, which
   /// explains more about how events are encoded.
   Stream<FilterEvent> events(FilterOptions options) {
+    if (socketConnector != null) {
+      // The real-time rpc nodes don't support listening to old data, so handle
+      // that here.
+      return Stream.fromFuture(getLogs(options))
+          .expand((e) => e)
+          .followedBy(_filters.addFilter(_EventFilter(options)));
+    }
+
     return _filters.addFilter(_EventFilter(options));
   }
 

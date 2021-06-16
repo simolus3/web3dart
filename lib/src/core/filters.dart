@@ -14,12 +14,17 @@ class _PubSubCreationParams {
 }
 
 abstract class _Filter<T> {
+  bool get supportsPubSub => true;
+
   _FilterCreationParams create();
   _PubSubCreationParams createPubSub();
   T parseChanges(dynamic log);
 }
 
 class _NewBlockFilter extends _Filter<String> {
+  @override
+  bool get supportsPubSub => false;
+
   @override
   _FilterCreationParams create() {
     return _FilterCreationParams('eth_newBlockFilter', []);
@@ -40,6 +45,9 @@ class _NewBlockFilter extends _Filter<String> {
 
 class _PendingTransactionsFilter extends _Filter<String> {
   @override
+  bool get supportsPubSub => false;
+
+  @override
   _FilterCreationParams create() {
     return _FilterCreationParams('eth_newPendingTransactionFilter', []);
   }
@@ -51,7 +59,6 @@ class _PendingTransactionsFilter extends _Filter<String> {
 
   @override
   _PubSubCreationParams createPubSub() {
-    // TODO: implement createPubSub
     return _PubSubCreationParams(List.empty());
   }
 }
@@ -285,21 +292,24 @@ class _FilterEngine {
   final List<Future> _pendingUnsubcriptions = [];
 
   Stream<T> addFilter<T>(_Filter<T> filter) {
-    final pubSubParams = filter.createPubSub();
     final pubSubAvailable = _client.socketConnector != null;
 
     late _InstantiatedFilter<T> instantiated;
-    instantiated = _InstantiatedFilter(filter, pubSubAvailable, () {
+    instantiated = _InstantiatedFilter(
+        filter, filter.supportsPubSub && pubSubAvailable, () {
       _pendingUnsubcriptions.add(uninstall(instantiated));
     });
-    _filters.add(instantiated);
 
-    if (instantiated.isPubSub) {
-      _registerToPubSub(instantiated, pubSubParams);
-    } else {
-      _registerToAPI(instantiated);
-      _startTicking();
-    }
+    instantiated._controller.onListen = () {
+      _filters.add(instantiated);
+
+      if (instantiated.isPubSub) {
+        _registerToPubSub(instantiated, filter.createPubSub());
+      } else {
+        _registerToAPI(instantiated);
+        _startTicking();
+      }
+    };
 
     return instantiated._controller.stream;
   }

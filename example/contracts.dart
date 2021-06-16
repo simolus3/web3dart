@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:path/path.dart' show join, dirname;
 import 'package:web_socket_channel/io.dart';
 
 import 'token.g.dart';
@@ -17,9 +14,6 @@ final EthereumAddress contractAddr =
     EthereumAddress.fromHex('0xeE9312C22890e0Bd9a9bB37Fd17572180F4Fc68a');
 final EthereumAddress receiver =
     EthereumAddress.fromHex('0x6c87E1a114C3379BEc929f6356c5263d62542C13');
-
-final File abiFile =
-    File(join(dirname(Platform.script.path), 'token.abi.json'));
 
 /*
 Examples that deal with contracts. The contract used here is from the truffle
