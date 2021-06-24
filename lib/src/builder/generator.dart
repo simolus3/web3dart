@@ -86,6 +86,11 @@ class _ContractGeneration {
   Library generate() {
     return Library((b) {
       b.body
+        ..add(Block((b) => b
+          ..addExpression(contractAbi.newInstanceNamed(
+            'fromJson',
+            [literalString(_abiCode), literalString(_abi.name)],
+          ).assignFinal('_contractAbi'))))
         ..add(Class(_createContractClass))
         ..addAll(_additionalSpecs);
     });
@@ -129,10 +134,7 @@ class _ContractGeneration {
       ])
       ..initializers.add(callSuper([
         deployedContract.newInstance([
-          contractAbi.newInstanceNamed(
-            'fromJson',
-            [literalString(_abiCode), literalString(_abi.name)],
-          ),
+          refer('_contractAbi'),
           refer('address'),
         ]),
         refer('client'),
