@@ -1,5 +1,5 @@
 const testCases = <String, String>{
-'''
+  '''
 [
     {
         "inputs": [],
@@ -14,8 +14,7 @@ const testCases = <String, String>{
         "stateMutability": "view",
         "type": "function"
     }
-]''':
-'''
+]''': '''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -45,7 +44,7 @@ class Contract extends _i1.GeneratedContract {
   }
 }
 ''',
-'''
+  '''
 {
     "abi": [],
     "devdoc": {
@@ -53,8 +52,7 @@ class Contract extends _i1.GeneratedContract {
         "methods": {},
         "version": 1
     }
-}''':
-'''
+}''': '''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -69,7 +67,7 @@ class Contract extends _i1.GeneratedContract {
       : super(_i1.DeployedContract(_contractAbi, address), client, chainId);
 }
 ''',
-'''
+  '''
 [
     {
         "payable": true,
@@ -80,8 +78,7 @@ class Contract extends _i1.GeneratedContract {
         "stateMutability":"payable",
         "type":"receive"
     }
-]''':
-'''
+]''': '''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -98,7 +95,7 @@ class Contract extends _i1.GeneratedContract {
       : super(_i1.DeployedContract(_contractAbi, address), client, chainId);
 }
 ''',
-'''
+  '''
 [
     {
       "inputs": [
@@ -134,8 +131,7 @@ class Contract extends _i1.GeneratedContract {
       "stateMutability": "pure",
       "type": "function"
     }
-]''':
-'''
+]''': '''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -172,7 +168,7 @@ class Retrieve3 {
   final bool var3;
 }
 ''',
-'''
+  '''
 [
     {
       "inputs": [],
@@ -223,8 +219,7 @@ class Retrieve3 {
       "stateMutability": "nonpayable",
       "type": "function"
     }
-]''':
-'''
+]''': '''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
