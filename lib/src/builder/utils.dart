@@ -73,12 +73,10 @@ Expression callSuper(List<Expression> args) {
 
 final funSendTransaction = refer('client.sendTransaction');
 final funCall = refer('client.call');
-final funWrite = refer('write').call([argCredentials, argTransaction]).returned;
 
 /// Arguments
 
 final argCredentials = refer('credentials');
-final argTransaction = refer('transaction');
 
 final argContract = refer('self');
 final argFunction = refer('function');

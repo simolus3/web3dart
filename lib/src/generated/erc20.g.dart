@@ -2,75 +2,95 @@
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
 
+final _contractAbi = _i1.ContractAbi.fromJson(
+    '[{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]',
+    'Erc20');
+
 /// Interface of the ERC20 standard as defined in the EIP.
 class Erc20 extends _i1.GeneratedContract {
   Erc20(
       {required _i1.EthereumAddress address,
       required _i1.Web3Client client,
       int? chainId})
-      : super(
-            _i1.DeployedContract(
-                _i1.ContractAbi.fromJson(
-                    '[{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]',
-                    'Erc20'),
-                address),
-            client,
-            chainId);
+      : super(_i1.DeployedContract(_contractAbi, address), client, chainId);
 
   /// Returns the remaining number of tokens that [spender] will be allowed to spend on behalf of [owner] through [transferFrom]. This is zero by default. This value changes when [approve] or [transferFrom] are called.
+  ///
+  /// The optional [atBlock] parameter can be used to view historical data. When
+  /// set, the function will be evaluated in the specified block. By default, the
+  /// latest on-chain block will be used.
   Future<BigInt> allowance(
-      _i1.EthereumAddress owner, _i1.EthereumAddress spender) async {
+      _i1.EthereumAddress owner, _i1.EthereumAddress spender,
+      {_i1.BlockNum? atBlock}) async {
     final function = self.function('allowance');
     final params = [owner, spender];
-    final response = await read(function, params);
+    final response = await read(function, params, atBlock);
     return (response[0] as BigInt);
   }
 
   /// Sets [amount] as the allowance of [spender] over the caller's tokens. Returns a boolean value indicating whether the operation succeeded. IMPORTANT: Beware that changing an allowance with this method brings the risk that someone may use both the old and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards: https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729 Emits an [Approval] event.
+  ///
+  /// The optional [transaction] parameter can be used to override parameters
+  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
+  /// set by the contract.
   Future<String> approve(_i1.EthereumAddress spender, BigInt amount,
-      {required _i1.Credentials credentials}) async {
+      {required _i1.Credentials credentials,
+      _i1.Transaction? transaction}) async {
     final function = self.function('approve');
     final params = [spender, amount];
-    final transaction = _i1.Transaction.callContract(
-        contract: self, function: function, parameters: params);
-    return write(credentials, transaction);
+    return write(credentials, transaction, function, params);
   }
 
   /// Returns the amount of tokens owned by [account].
-  Future<BigInt> balanceOf(_i1.EthereumAddress account) async {
+  ///
+  /// The optional [atBlock] parameter can be used to view historical data. When
+  /// set, the function will be evaluated in the specified block. By default, the
+  /// latest on-chain block will be used.
+  Future<BigInt> balanceOf(_i1.EthereumAddress account,
+      {_i1.BlockNum? atBlock}) async {
     final function = self.function('balanceOf');
     final params = [account];
-    final response = await read(function, params);
+    final response = await read(function, params, atBlock);
     return (response[0] as BigInt);
   }
 
   /// Returns the amount of tokens in existence.
-  Future<BigInt> totalSupply() async {
+  ///
+  /// The optional [atBlock] parameter can be used to view historical data. When
+  /// set, the function will be evaluated in the specified block. By default, the
+  /// latest on-chain block will be used.
+  Future<BigInt> totalSupply({_i1.BlockNum? atBlock}) async {
     final function = self.function('totalSupply');
     final params = [];
-    final response = await read(function, params);
+    final response = await read(function, params, atBlock);
     return (response[0] as BigInt);
   }
 
   /// Moves [amount] tokens from the caller's account to [recipient]. Returns a boolean value indicating whether the operation succeeded. Emits a [Transfer] event.
+  ///
+  /// The optional [transaction] parameter can be used to override parameters
+  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
+  /// set by the contract.
   Future<String> transfer(_i1.EthereumAddress recipient, BigInt amount,
-      {required _i1.Credentials credentials}) async {
+      {required _i1.Credentials credentials,
+      _i1.Transaction? transaction}) async {
     final function = self.function('transfer');
     final params = [recipient, amount];
-    final transaction = _i1.Transaction.callContract(
-        contract: self, function: function, parameters: params);
-    return write(credentials, transaction);
+    return write(credentials, transaction, function, params);
   }
 
   /// Moves [amount] tokens from [sender] to [recipient] using the allowance mechanism. [amount] is then deducted from the caller's allowance. Returns a boolean value indicating whether the operation succeeded. Emits a [Transfer] event.
+  ///
+  /// The optional [transaction] parameter can be used to override parameters
+  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
+  /// set by the contract.
   Future<String> transferFrom(
       _i1.EthereumAddress sender, _i1.EthereumAddress recipient, BigInt amount,
-      {required _i1.Credentials credentials}) async {
+      {required _i1.Credentials credentials,
+      _i1.Transaction? transaction}) async {
     final function = self.function('transferFrom');
     final params = [sender, recipient, amount];
-    final transaction = _i1.Transaction.callContract(
-        contract: self, function: function, parameters: params);
-    return write(credentials, transaction);
+    return write(credentials, transaction, function, params);
   }
 
   /// Returns a live stream of all Approval events emitted by this contract.
