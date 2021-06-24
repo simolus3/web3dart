@@ -86,17 +86,11 @@ class _ContractGeneration {
   Library generate() {
     return Library((b) {
       b.body
-        ..add(
-          Block((b) => 
-            b
-              ..addExpression(
-                contractAbi.newInstanceNamed(
-                  'fromJson',
-                  [literalString(_abiCode), literalString(_abi.name)],
-                ).assignFinal('_contractAbi')
-              )
-            )
-          )
+        ..add(Block((b) => b
+          ..addExpression(contractAbi.newInstanceNamed(
+            'fromJson',
+            [literalString(_abiCode), literalString(_abi.name)],
+          ).assignFinal('_contractAbi'))))
         ..add(Class(_createContractClass))
         ..addAll(_additionalSpecs);
     });
