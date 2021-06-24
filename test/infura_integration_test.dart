@@ -36,7 +36,7 @@ void main() {
             isTrue);
       });
     },
-    skip: infuraProjectId == null
+    skip: infuraProjectId == null || infuraProjectId.length < 32
         ? 'Tests require the INFURA_ID environment variable'
         : null,
   );
