@@ -76,7 +76,7 @@ class _MetaMaskRpcService extends RpcService {
   _MetaMaskRpcService(this._ethereum);
 
   @override
-  Future<RPCResponse> call(String function, [List? params]) {
+  Future<RPCResponse> call(String function, [List? params, Map? _]) {
     return _ethereum.rawRequest(function, params: params).then((res) {
       return RPCResponse(0, res);
     });
