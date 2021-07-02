@@ -395,12 +395,17 @@ class _FilterEngine {
   Future uninstall(_InstantiatedFilter filter) async {
     await filter._controller.close();
     _filters.remove(filter);
-
-    if (filter.isPubSub && !_clearingBecauseSocketClosed) {
-      final connection = _client._connectWithPeer();
-      await connection?.sendRequest('eth_unsubscribe', [filter.id]);
-    } else {
-      await _rpc.call('eth_uninstallFilter', [filter.id]);
+    try {
+      if (filter.isPubSub && !_clearingBecauseSocketClosed) {
+        final connection = _client._connectWithPeer();
+        await connection?.sendRequest('eth_unsubscribe', [filter.id]);
+      } else {
+        await _rpc.call('eth_uninstallFilter', [filter.id]);
+      }
+    }
+    // ignore: avoid_catches_without_on_clauses
+    catch (e) {
+      //ignore exceptions when unregistering filters
     }
   }
 
