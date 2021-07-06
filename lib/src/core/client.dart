@@ -73,7 +73,13 @@ class Web3Client {
     if (socketConnector == null) return null;
 
     final socket = socketConnector!();
-    _streamRpcPeer = rpc.Peer(socket)
+    _streamRpcPeer = rpc.Peer(socket, onUnhandledError: (err, stackTrace) {
+      if (err is rpc.RpcException) {
+        print('exception hadled: $err, $stackTrace');
+      } else {
+        throw err as Exception;
+      }
+    })
       ..registerMethod('eth_subscription', (rpc.Parameters params) {
         _filters.handlePubSubNotification(params);
       });
