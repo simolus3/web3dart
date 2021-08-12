@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/digests/sha256.dart';
 import 'package:pointycastle/ecc/api.dart';
@@ -15,8 +16,9 @@ import 'formatting.dart';
 import 'keccak.dart';
 import 'random_bridge.dart';
 
-final ECDomainParameters _params = ECCurve_secp256k1();
-final BigInt _halfCurveOrder = _params.n >> 1;
+@internal
+final ECDomainParameters params = ECCurve_secp256k1();
+final BigInt _halfCurveOrder = params.n >> 1;
 
 /// Generates a public key for the given private key using the ecdsa curve which
 /// Ethereum uses.
@@ -27,7 +29,7 @@ Uint8List privateKeyBytesToPublic(Uint8List privateKey) {
 /// Generates a public key for the given private key using the ecdsa curve which
 /// Ethereum uses.
 Uint8List privateKeyToPublic(BigInt privateKey) {
-  final p = (_params.G * privateKey)!;
+  final p = (params.G * privateKey)!;
 
   //skip the type flag, https://github.com/ethereumjs/ethereumjs-util/blob/master/index.js#L319
   return Uint8List.view(p.getEncoded(false).buffer, 1);
@@ -38,7 +40,7 @@ Uint8List privateKeyToPublic(BigInt privateKey) {
 BigInt generateNewPrivateKey(Random random) {
   final generator = ECKeyGenerator();
 
-  final keyParams = ECKeyGeneratorParameters(_params);
+  final keyParams = ECKeyGeneratorParameters(params);
 
   generator.init(ParametersWithRandom(keyParams, RandomBridge(random)));
 
@@ -69,7 +71,7 @@ class MsgSignature {
 MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
   final digest = SHA256Digest();
   final signer = ECDSASigner(null, HMac(digest, 64));
-  final key = ECPrivateKey(bytesToUnsignedInt(privateKey), _params);
+  final key = ECPrivateKey(bytesToUnsignedInt(privateKey), params);
 
   signer.init(true, PrivateKeyParameter(key));
   var sig = signer.generateSignature(messageHash) as ECSignature;
@@ -84,7 +86,7 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
 	https://github.com/web3j/web3j/blob/master/crypto/src/main/java/org/web3j/crypto/ECDSASignature.java#L27
 	 */
   if (sig.s.compareTo(_halfCurveOrder) > 0) {
-    final canonicalisedS = _params.n - sig.s;
+    final canonicalisedS = params.n - sig.s;
     sig = ECSignature(sig.r, canonicalisedS);
   }
 
@@ -95,7 +97,7 @@ MsgSignature sign(Uint8List messageHash, Uint8List privateKey) {
   //https://github.com/web3j/web3j/blob/master/crypto/src/main/java/org/web3j/crypto/Sign.java
   var recId = -1;
   for (var i = 0; i < 4; i++) {
-    final k = _recoverFromSignature(i, sig, messageHash, _params);
+    final k = _recoverFromSignature(i, sig, messageHash, params);
     if (k == publicKey) {
       recId = i;
       break;
@@ -129,7 +131,7 @@ Uint8List ecRecover(Uint8List messageHash, MsgSignature signatureData) {
   final sig = ECSignature(signatureData.r, signatureData.s);
 
   final recId = header - 27;
-  final pubKey = _recoverFromSignature(recId, sig, messageHash, _params);
+  final pubKey = _recoverFromSignature(recId, sig, messageHash, params);
   if (pubKey == null) {
     throw Exception('Could not recover public key from signature');
   }
@@ -149,14 +151,14 @@ bool isValidSignature(
 /// including the leading 02 or 03
 Uint8List compressPublicKey(Uint8List compressedPubKey) {
   return Uint8List.view(
-      _params.curve.decodePoint(compressedPubKey)!.getEncoded(true).buffer);
+      params.curve.decodePoint(compressedPubKey)!.getEncoded(true).buffer);
 }
 
 /// Given a byte array computes its expanded version and returns it as a byte array,
 /// including the leading 04
 Uint8List decompressPublicKey(Uint8List compressedPubKey) {
   return Uint8List.view(
-      _params.curve.decodePoint(compressedPubKey)!.getEncoded(false).buffer);
+      params.curve.decodePoint(compressedPubKey)!.getEncoded(false).buffer);
 }
 
 BigInt? _recoverFromSignature(

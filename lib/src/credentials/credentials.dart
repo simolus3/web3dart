@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:pointycastle/ecc/api.dart' show ECPoint;
 
 import '../../web3dart.dart' show Transaction;
 import '../crypto/formatting.dart';
@@ -77,12 +78,23 @@ abstract class CustomTransactionSender extends Credentials {
 
 /// Credentials that can sign payloads with an Ethereum private key.
 class EthPrivateKey extends CredentialsWithKnownAddress {
+  /// ECC's d private parameter.
+  final BigInt privateKeyInt;
   final Uint8List privateKey;
   EthereumAddress? _cachedAddress;
 
-  EthPrivateKey(this.privateKey);
+  /// Creates a private key from a byte array representation.
+  ///
+  /// The bytes are interpreted as an unsigned integer forming the private key.
+  EthPrivateKey(this.privateKey)
+      : privateKeyInt = bytesToUnsignedInt(privateKey);
 
-  EthPrivateKey.fromHex(String hex) : privateKey = hexToBytes(hex);
+  /// Parses a private key from a hexadecimal representation.
+  EthPrivateKey.fromHex(String hex) : this(hexToBytes(hex));
+
+  /// Creates a private key from the underlying number.
+  EthPrivateKey.fromInt(this.privateKeyInt)
+      : privateKey = unsignedIntToBytes(privateKeyInt);
 
   /// Creates a new, random private key from the [random] number generator.
   ///
@@ -100,9 +112,15 @@ class EthPrivateKey extends CredentialsWithKnownAddress {
 
   @override
   EthereumAddress get address {
-    return _cachedAddress ??= EthereumAddress(
-        publicKeyToAddress(privateKeyBytesToPublic(privateKey)));
+    return _cachedAddress ??=
+        EthereumAddress(publicKeyToAddress(privateKeyToPublic(privateKeyInt)));
   }
+
+  /// Get the encoded public key in an (uncompressed) byte representation.
+  Uint8List get encodedPublicKey => privateKeyToPublic(privateKeyInt);
+
+  /// The public key corresponding to this private key.
+  ECPoint get publicKey => (params.G * privateKeyInt)!;
 
   @override
   Future<MsgSignature> signToSignature(Uint8List payload,
