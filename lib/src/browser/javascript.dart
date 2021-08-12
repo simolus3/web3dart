@@ -9,7 +9,7 @@ import 'package:meta/meta.dart';
 import 'dart_wrappers.dart';
 
 @JS('ethereum')
-external Ethereum get _ethereum;
+external Ethereum? get _ethereum;
 
 /// Extension to load obtain the `ethereum` window property injected by
 /// Ethereum browser plugins.
