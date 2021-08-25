@@ -1,5 +1,5 @@
 const testCases = <String, String>{
-  '''
+  r'''
 [
     {
       "inputs": [
@@ -35,7 +35,7 @@ const testCases = <String, String>{
       "stateMutability": "pure",
       "type": "function"
     }
-]''': '''
+]''': r'''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -76,7 +76,7 @@ class Retrieve3 {
   final bool var3;
 }
 ''',
-  '''
+  r'''
 [
     {
       "inputs": [],
@@ -127,7 +127,7 @@ class Retrieve3 {
       "stateMutability": "nonpayable",
       "type": "function"
     }
-]''': '''
+]''': r'''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -188,7 +188,56 @@ class GiveMeHello {
   final BigInt num2;
 }
 ''',
-  '''
+  r'''
+[
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "userTotalAmount",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }   
+]''': r'''
+// Generated code, do not modify. Run `build_runner build` to re-generate!
+// @dart=2.12
+import 'package:web3dart/web3dart.dart' as _i1;
+
+final _contractAbi = _i1.ContractAbi.fromJson(
+    '[{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userTotalAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]',
+    'Contract');
+
+class Contract extends _i1.GeneratedContract {
+  Contract(
+      {required _i1.EthereumAddress address,
+      required _i1.Web3Client client,
+      int? chainId})
+      : super(_i1.DeployedContract(_contractAbi, address), client, chainId);
+
+  /// The optional [atBlock] parameter can be used to view historical data. When
+  /// set, the function will be evaluated in the specified block. By default, the
+  /// latest on-chain block will be used.
+  Future<BigInt> userTotalAmount(_i1.EthereumAddress $param0,
+      {_i1.BlockNum? atBlock}) async {
+    final function = self.function('userTotalAmount');
+    final params = [$param0];
+    final response = await read(function, params, atBlock);
+    return (response[0] as BigInt);
+  }
+}
+''',
+  r'''
 [
     {
         "payable": true,
@@ -199,7 +248,7 @@ class GiveMeHello {
         "stateMutability":"payable",
         "type":"receive"
     }
-]''': '''
+]''': r'''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -216,7 +265,7 @@ class Contract extends _i1.GeneratedContract {
       : super(_i1.DeployedContract(_contractAbi, address), client, chainId);
 }
 ''',
-  '''
+  r'''
 [
     {
         "inputs": [],
@@ -231,7 +280,7 @@ class Contract extends _i1.GeneratedContract {
         "stateMutability": "view",
         "type": "function"
     }
-]''': '''
+]''': r'''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;
@@ -264,7 +313,7 @@ class Contract extends _i1.GeneratedContract {
   }
 }
 ''',
-  '''
+  r'''
 {
     "abi": [],
     "devdoc": {
@@ -272,7 +321,7 @@ class Contract extends _i1.GeneratedContract {
         "methods": {},
         "version": 1
     }
-}''': '''
+}''': r'''
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // @dart=2.12
 import 'package:web3dart/web3dart.dart' as _i1;

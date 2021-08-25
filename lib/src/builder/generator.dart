@@ -82,6 +82,7 @@ class _ContractGeneration {
   final Documentation? documentation;
 
   final List<Spec> _additionalSpecs = [];
+  final Map<FunctionParameter, String> _parameterNames = {};
   final Map<ContractFunction, Reference> _functionToResultClass = {};
 
   // The `self` field, storing a reference to the deployed contract.
@@ -91,6 +92,13 @@ class _ContractGeneration {
   static final client = refer('client');
 
   _ContractGeneration(this._abi, this._abiCode, this.documentation);
+
+  String _nameOfParameter(FunctionParameter p) {
+    return _parameterNames.putIfAbsent(p, () {
+      if (p.name.isEmpty) return '\$param${_parameterNames.length}';
+      return p.name;
+    });
+  }
 
   Library generate() {
     return Library((b) {
@@ -204,7 +212,7 @@ class _ContractGeneration {
     final parameters = <Parameter>[];
     for (final param in function.parameters) {
       parameters.add(Parameter((b) => b
-        ..name = param.name
+        ..name = _nameOfParameter(param)
         ..type = param.type.toDart()));
     }
 
@@ -212,7 +220,8 @@ class _ContractGeneration {
   }
 
   Code _bodyForImmutable(ContractFunction function) {
-    final params = function.parameters.map((e) => refer(e.name)).toList();
+    final params =
+        function.parameters.map((e) => refer(_nameOfParameter(e))).toList();
 
     final outputs = function.outputs;
     Expression returnValue;

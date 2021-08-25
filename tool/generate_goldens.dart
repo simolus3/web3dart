@@ -34,11 +34,11 @@ Future<void> main() async {
   final resultBuilder = StringBuffer();
   resultBuilder.writeln('const testCases = <String, String>{');
   data.forEach((key, value) {
-    resultBuilder.writeln("'''");
+    resultBuilder.writeln("r'''");
     resultBuilder.write(key);
     resultBuilder.writeln("''':");
 
-    resultBuilder.writeln("'''");
+    resultBuilder.writeln("r'''");
     resultBuilder.write(value);
     resultBuilder.writeln("''',");
   });
