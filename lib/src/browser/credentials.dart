@@ -22,7 +22,8 @@ class MetaMaskCredentials extends CredentialsWithKnownAddress
       : address = EthereumAddress.fromHex(hexAddress);
 
   @override
-  Future<MsgSignature> signToSignature(Uint8List payload, {int? chainId}) {
+  Future<MsgSignature> signToSignature(Uint8List payload,
+      {int? chainId, bool isEIP1559 = false}) {
     throw UnsupportedError('Signing raw payloads is not supported on MetaMask');
   }
 
