@@ -1,3 +1,7 @@
+## 2.3.0
+
+- Support overloaded methods for generated contracts
+
 ## 2.2.0
 
 - Add `EthPrivateKey.publicKey` getters
