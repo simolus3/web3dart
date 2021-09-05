@@ -235,7 +235,7 @@ class ContractFunction {
 
     final sink = LengthTrackingByteSink()
       //First four bytes to identify the function with its parameters
-      ..add(keccakUtf8(encodeName()).sublist(0, 4));
+      ..add(selector);
 
     TupleType(parameters.map((param) => param.type).toList())
         .encode(params, sink);
@@ -251,6 +251,13 @@ class ContractFunction {
   String encodeName() {
     final parameterTypes = _encodeParameters(parameters);
     return '$name($parameterTypes)';
+  }
+
+  /// The selector of this function, as described [by solidity].
+  ///
+  /// [by solidity]: https://solidity.readthedocs.io/en/develop/abi-spec.html#function-selector
+  Uint8List get selector {
+    return keccakUtf8(encodeName()).sublist(0, 4);
   }
 
   /// Uses the known types of the function output to decode the value returned

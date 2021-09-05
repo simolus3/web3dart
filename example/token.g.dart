@@ -19,7 +19,8 @@ class Token extends _i1.GeneratedContract {
   Future<String> sendCoin(_i1.EthereumAddress receiver, BigInt amount,
       {required _i1.Credentials credentials,
       _i1.Transaction? transaction}) async {
-    final function = self.function('sendCoin');
+    final function = self.abi.functions[1];
+    assert(checkSignature(function, '90b98a11'));
     final params = [receiver, amount];
     return write(credentials, transaction, function, params);
   }
@@ -29,7 +30,8 @@ class Token extends _i1.GeneratedContract {
   /// latest on-chain block will be used.
   Future<BigInt> getBalanceInEth(_i1.EthereumAddress addr,
       {_i1.BlockNum? atBlock}) async {
-    final function = self.function('getBalanceInEth');
+    final function = self.abi.functions[2];
+    assert(checkSignature(function, '7bd703e8'));
     final params = [addr];
     final response = await read(function, params, atBlock);
     return (response[0] as BigInt);
@@ -40,7 +42,8 @@ class Token extends _i1.GeneratedContract {
   /// latest on-chain block will be used.
   Future<BigInt> getBalance(_i1.EthereumAddress addr,
       {_i1.BlockNum? atBlock}) async {
-    final function = self.function('getBalance');
+    final function = self.abi.functions[3];
+    assert(checkSignature(function, 'f8b2cb4f'));
     final params = [addr];
     final response = await read(function, params, atBlock);
     return (response[0] as BigInt);

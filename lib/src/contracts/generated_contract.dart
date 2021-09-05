@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../../crypto.dart';
 import '../../web3dart.dart';
 import 'deployed_contract.dart';
 
@@ -13,6 +14,14 @@ abstract class GeneratedContract {
   final int? chainId;
 
   GeneratedContract(this.self, this.client, this.chainId);
+
+  /// Returns whether the [function] has the [expected] selector.
+  ///
+  /// This is used in an assert in the generated code.
+  @protected
+  bool checkSignature(ContractFunction function, String expected) {
+    return bytesToHex(function.selector) == expected;
+  }
 
   @protected
   Future<List<dynamic>> read(

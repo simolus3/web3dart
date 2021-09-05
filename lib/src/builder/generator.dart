@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:built_collection/built_collection.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart';
 import 'package:web3dart/contracts.dart';
 
+import '../../crypto.dart';
 import 'documentation.dart';
 import 'utils.dart';
 
@@ -84,6 +86,7 @@ class _ContractGeneration {
   final List<Spec> _additionalSpecs = [];
   final Map<FunctionParameter, String> _parameterNames = {};
   final Map<ContractFunction, Reference> _functionToResultClass = {};
+  final Map<String, int> _usedFunctionNames = {};
 
   // The `self` field, storing a reference to the deployed contract.
   static final self = refer('self');
@@ -92,6 +95,17 @@ class _ContractGeneration {
   static final client = refer('client');
 
   _ContractGeneration(this._abi, this._abiCode, this.documentation);
+
+  String _nameOfFunction(ContractFunction function) {
+    final number = _usedFunctionNames[function.name] =
+        (_usedFunctionNames[function.name] ?? 0) + 1;
+
+    if (number == 1) {
+      return function.name;
+    } else {
+      return '${function.name}\$$number';
+    }
+  }
 
   String _nameOfParameter(FunctionParameter p) {
     return _parameterNames.putIfAbsent(p, () {
@@ -117,14 +131,19 @@ class _ContractGeneration {
     b
       ..name = _abi.name
       ..extend = generatedContract
-      ..constructors.add(Constructor(_createContractConstructor))
-      ..methods.addAll([
-        for (final function in _abi.functions)
-          if (!function.isConstructor && !function.isDefault)
-            Method((b) => _methodForFunction(function, b)),
-        for (final event in _abi.events)
-          Method((b) => _methodForEvent(event, b))
-      ]);
+      ..constructors.add(Constructor(_createContractConstructor));
+
+    for (var i = 0; i < _abi.functions.length; i++) {
+      final function = _abi.functions[i];
+
+      if (!function.isConstructor && !function.isDefault) {
+        b.methods.add(Method((b) => _methodForFunction(function, b, i)));
+      }
+    }
+
+    b.methods.addAll([
+      for (final event in _abi.events) Method((b) => _methodForEvent(event, b))
+    ]);
 
     final details = documentation?.forContract();
     if (details != null) b.docs.add(details);
@@ -159,12 +178,14 @@ class _ContractGeneration {
       ]).code);
   }
 
-  void _methodForFunction(ContractFunction fun, MethodBuilder b) {
+  void _methodForFunction(ContractFunction fun, MethodBuilder b, int index) {
     b
       ..modifier = MethodModifier.async
       ..returns = _returnType(fun)
-      ..name = fun.name
-      ..body = fun.isConstant ? _bodyForImmutable(fun) : _bodyForMutable(fun)
+      ..name = _nameOfFunction(fun)
+      ..body = fun.isConstant
+          ? _bodyForImmutable(fun, index)
+          : _bodyForMutable(fun, index)
       ..requiredParameters.addAll(_parametersFor(fun));
 
     if (!fun.isConstant) {
@@ -219,7 +240,7 @@ class _ContractGeneration {
     return parameters;
   }
 
-  Code _bodyForImmutable(ContractFunction function) {
+  Code _bodyForImmutable(ContractFunction function, int index) {
     final params =
         function.parameters.map((e) => refer(_nameOfParameter(e))).toList();
 
@@ -233,17 +254,20 @@ class _ContractGeneration {
           .castTo(function.outputs.single.type);
     }
 
-    return Block((b) => b
-      ..addExpression(_function(function).assignFinal('function'))
-      ..addExpression(literalList(params).assignFinal('params'))
-      ..addExpression(refer('read')
-          .call([argFunction, argParams, refer('atBlock')])
-          .awaited
-          .assignFinal('response'))
-      ..addExpression(returnValue.returned));
+    return Block((b) {
+      _assignFunction(b.statements, function, index);
+
+      b
+        ..addExpression(literalList(params).assignFinal('params'))
+        ..addExpression(refer('read')
+            .call([argFunction, argParams, refer('atBlock')])
+            .awaited
+            .assignFinal('response'))
+        ..addExpression(returnValue.returned);
+    });
   }
 
-  Code _bodyForMutable(ContractFunction function) {
+  Code _bodyForMutable(ContractFunction function, int index) {
     final params = function.parameters.map((e) => refer(e.name)).toList();
     final funWrite = refer('write').call([
       argCredentials,
@@ -252,10 +276,13 @@ class _ContractGeneration {
       refer('params'),
     ]);
 
-    return Block((b) => b
-      ..addExpression(_function(function).assignFinal('function'))
-      ..addExpression(literalList(params).assignFinal('params'))
-      ..addExpression(funWrite.returned));
+    return Block((b) {
+      _assignFunction(b.statements, function, index);
+
+      b
+        ..addExpression(literalList(params).assignFinal('params'))
+        ..addExpression(funWrite.returned);
+    });
   }
 
   /// Creates a custom class encapsulating the return values of a [function]
@@ -359,8 +386,19 @@ class _ContractGeneration {
             .returned));
   }
 
-  Expression _function(ContractFunction function) {
-    return self.property('function').call([literalString(function.name)]);
+  /// Declares a variable named `function` initialized to the [function].
+  /// We use an index instead of looking up the name to support overloaded
+  /// functions.
+  void _assignFunction(
+      ListBuilder<Code> statements, ContractFunction function, int index) {
+    final functionExpr =
+        self.property('abi').property('functions').index(literalNum(index));
+
+    statements.add(functionExpr.assignFinal('function').statement);
+
+    // Assert that we got the right function, just to be sure
+    final selector = bytesToHex(function.selector);
+    statements.add(Code("assert(checkSignature(function, '$selector'));"));
   }
 
   Expression _event(ContractEvent event) {

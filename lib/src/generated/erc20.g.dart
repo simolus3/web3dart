@@ -22,7 +22,8 @@ class Erc20 extends _i1.GeneratedContract {
   Future<BigInt> allowance(
       _i1.EthereumAddress owner, _i1.EthereumAddress spender,
       {_i1.BlockNum? atBlock}) async {
-    final function = self.function('allowance');
+    final function = self.abi.functions[0];
+    assert(checkSignature(function, 'dd62ed3e'));
     final params = [owner, spender];
     final response = await read(function, params, atBlock);
     return (response[0] as BigInt);
@@ -36,7 +37,8 @@ class Erc20 extends _i1.GeneratedContract {
   Future<String> approve(_i1.EthereumAddress spender, BigInt amount,
       {required _i1.Credentials credentials,
       _i1.Transaction? transaction}) async {
-    final function = self.function('approve');
+    final function = self.abi.functions[1];
+    assert(checkSignature(function, '095ea7b3'));
     final params = [spender, amount];
     return write(credentials, transaction, function, params);
   }
@@ -48,7 +50,8 @@ class Erc20 extends _i1.GeneratedContract {
   /// latest on-chain block will be used.
   Future<BigInt> balanceOf(_i1.EthereumAddress account,
       {_i1.BlockNum? atBlock}) async {
-    final function = self.function('balanceOf');
+    final function = self.abi.functions[2];
+    assert(checkSignature(function, '70a08231'));
     final params = [account];
     final response = await read(function, params, atBlock);
     return (response[0] as BigInt);
@@ -60,7 +63,8 @@ class Erc20 extends _i1.GeneratedContract {
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
   Future<BigInt> totalSupply({_i1.BlockNum? atBlock}) async {
-    final function = self.function('totalSupply');
+    final function = self.abi.functions[3];
+    assert(checkSignature(function, '18160ddd'));
     final params = [];
     final response = await read(function, params, atBlock);
     return (response[0] as BigInt);
@@ -74,7 +78,8 @@ class Erc20 extends _i1.GeneratedContract {
   Future<String> transfer(_i1.EthereumAddress recipient, BigInt amount,
       {required _i1.Credentials credentials,
       _i1.Transaction? transaction}) async {
-    final function = self.function('transfer');
+    final function = self.abi.functions[4];
+    assert(checkSignature(function, 'a9059cbb'));
     final params = [recipient, amount];
     return write(credentials, transaction, function, params);
   }
@@ -88,7 +93,8 @@ class Erc20 extends _i1.GeneratedContract {
       _i1.EthereumAddress sender, _i1.EthereumAddress recipient, BigInt amount,
       {required _i1.Credentials credentials,
       _i1.Transaction? transaction}) async {
-    final function = self.function('transferFrom');
+    final function = self.abi.functions[5];
+    assert(checkSignature(function, '23b872dd'));
     final params = [sender, recipient, amount];
     return write(credentials, transaction, function, params);
   }
