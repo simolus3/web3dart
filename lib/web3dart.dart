@@ -26,8 +26,8 @@ export 'credentials.dart';
 export 'src/core/amount.dart';
 export 'src/core/block_number.dart';
 export 'src/core/sync_information.dart';
+
 part 'src/core/client.dart';
-part 'src/core/expensive_operations.dart';
 part 'src/core/filters.dart';
 part 'src/core/transaction.dart';
 part 'src/core/transaction_information.dart';
