@@ -37,7 +37,9 @@ class FixedBytes extends AbiType<Uint8List> {
         'Invalid length: Tried to encode ${data.length} bytes, but expected exactly $length');
     final paddingBytes = calculatePadLength(length);
 
-    buffer..add(data)..add(Uint8List(paddingBytes));
+    buffer
+      ..add(data)
+      ..add(Uint8List(paddingBytes));
   }
 
   @override
@@ -87,7 +89,9 @@ class DynamicBytes extends AbiType<Uint8List> {
 
     final padding = calculatePadLength(data.length, allowEmpty: true);
 
-    buffer..add(data)..add(Uint8List(padding));
+    buffer
+      ..add(data)
+      ..add(Uint8List(padding));
   }
 
   @override

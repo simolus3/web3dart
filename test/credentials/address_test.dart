@@ -1,5 +1,5 @@
-import 'package:web3dart/credentials.dart';
 import 'package:test/test.dart';
+import 'package:web3dart/credentials.dart';
 
 // https://eips.ethereum.org/EIPS/eip-55#test-cases
 const _lowerCaseToEip55 = {

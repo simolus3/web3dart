@@ -107,7 +107,9 @@ class AddressType extends AbiType<EthereumAddress> {
 
   @override
   void encode(EthereumAddress data, LengthTrackingByteSink buffer) {
-    buffer..add(Uint8List(_paddingLen))..add(data.addressBytes);
+    buffer
+      ..add(Uint8List(_paddingLen))
+      ..add(data.addressBytes);
   }
 
   @override

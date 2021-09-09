@@ -9,7 +9,7 @@ Future<void> main() async {
   // start a client we can use to send transactions
   final client = Web3Client(rpcUrl, Client());
 
-  final credentials = await client.credentialsFromPrivateKey(privateKey);
+  final credentials = EthPrivateKey.fromHex(privateKey);
   final address = credentials.address;
 
   print(address.hexEip55);

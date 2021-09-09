@@ -72,9 +72,7 @@ class Web3Client {
 
     final socket = socketConnector!();
     _streamRpcPeer = rpc.Peer(socket)
-      ..registerMethod('eth_subscription', (rpc.Parameters params) {
-        _filters.handlePubSubNotification(params);
-      });
+      ..registerMethod('eth_subscription', _filters.handlePubSubNotification);
 
     _streamRpcPeer?.listen().then((_) {
       // .listen() will complete when the socket is closed, so reset client

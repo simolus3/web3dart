@@ -58,7 +58,7 @@ Future<void> main() async {
   final client = Web3Client(rpcUrl, Client(), socketConnector: () {
     return IOWebSocketChannel.connect(wsUrl).cast<String>();
   });
-  final credentials = await client.credentialsFromPrivateKey(privateKey);
+  final credentials = EthPrivateKey.fromHex(privateKey);
   final ownAddress = await credentials.extractAddress();
 
   // read the contract abi and tell web3dart where it's deployed (contractAddr)
