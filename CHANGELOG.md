@@ -1,3 +1,7 @@
+## 2.3.1
+
+- Fix the `Web3Client.custom` constructor not setting all required fields.
+
 ## 2.3.0
 
 - Support overloaded methods for generated contracts
