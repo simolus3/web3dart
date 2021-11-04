@@ -79,9 +79,10 @@ Future<_SigningInput> _fillMissingData({
 
 Uint8List appendTransactionType(
     {required Uint8List signature, required String hexType}) {
-  final encodedSig = LengthTrackingByteSink();
-  encodedSig.add(hexToBytes(hexType));
-  encodedSig.add(signature);
+  final encodedSig = LengthTrackingByteSink()
+    ..add(hexToBytes(hexType))
+    ..add(signature)
+    ..close();
   return encodedSig.asBytes();
 }
 
@@ -93,6 +94,7 @@ Future<Uint8List> _signTransaction(
     encodedTx.add(rlp
         .encode(_encodeEIP1559ToRlp(transaction, null, BigInt.from(chainId))));
 
+    encodedTx.close();
     final signature = await c.signToSignature(encodedTx.asBytes(),
         chainId: chainId, isEIP1559: transaction.isEIP1559);
 
@@ -125,12 +127,17 @@ List<dynamic> _encodeEIP1559ToRlp(
     list.add('');
   }
 
-  list..add(transaction.value?.getInWei)..add(transaction.data);
+  list
+    ..add(transaction.value?.getInWei)
+    ..add(transaction.data);
 
   list.add([]); // access list
 
   if (signature != null) {
-    list..add(signature.v)..add(signature.r)..add(signature.s);
+    list
+      ..add(signature.v)
+      ..add(signature.r)
+      ..add(signature.s);
   }
 
   return list;
