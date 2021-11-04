@@ -1,3 +1,7 @@
+## 2.3.2
+
+- Support EIP-1559 transactions.
+
 ## 2.3.1
 
 - Fix the `Web3Client.custom` constructor not setting all required fields.

@@ -77,13 +77,10 @@ Future<_SigningInput> _fillMissingData({
   );
 }
 
-Uint8List appendTransactionType(
-    {required Uint8List signature, required String hexType}) {
-  final encodedSig = LengthTrackingByteSink()
-    ..add(hexToBytes(hexType))
-    ..add(signature)
-    ..close();
-  return encodedSig.asBytes();
+Uint8List prependTransactionType(int type, Uint8List transaction) {
+  return Uint8List(transaction.length + 1)
+    ..[0] = type
+    ..setAll(1, transaction);
 }
 
 Future<Uint8List> _signTransaction(

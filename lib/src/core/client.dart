@@ -282,12 +282,11 @@ class Web3Client {
       return cred.sendTransaction(transaction);
     }
 
-    final signed = await signTransaction(cred, transaction,
+    var signed = await signTransaction(cred, transaction,
         chainId: chainId, fetchChainIdFromNetworkId: fetchChainIdFromNetworkId);
 
     if (transaction.isEIP1559) {
-      return sendRawTransaction(
-          appendTransactionType(signature: signed, hexType: '0x02'));
+      signed = prependTransactionType(0x02, signed);
     }
 
     return sendRawTransaction(signed);

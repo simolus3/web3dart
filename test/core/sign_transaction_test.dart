@@ -134,8 +134,8 @@ void main() {
           await client.signTransaction(credentials, transaction, chainId: 4);
 
       expect(
-          bytesToHex(uint8ListFromList(rlp.encode(
-              appendTransactionType(signature: signature, hexType: '0x02')))),
+          bytesToHex(uint8ListFromList(
+              rlp.encode(prependTransactionType(0x02, signature)))),
           strip0x(tx['signedTransactionRLP'] as String));
     });
   });
