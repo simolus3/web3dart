@@ -30,8 +30,10 @@ abstract class Credentials {
   /// bytes representation of the [eth_sign RPC method](https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign),
   /// but without the "Ethereum signed message" prefix.
   /// The [payload] parameter contains the raw data, not a hash.
-  Future<Uint8List> sign(Uint8List payload, {int? chainId}) async {
-    final signature = await signToSignature(payload, chainId: chainId);
+  Future<Uint8List> sign(Uint8List payload,
+      {int? chainId, bool isEIP1559 = false}) async {
+    final signature =
+        await signToSignature(payload, chainId: chainId, isEIP1559: isEIP1559);
 
     final r = padUint8ListTo32(unsignedIntToBytes(signature.r));
     final s = padUint8ListTo32(unsignedIntToBytes(signature.s));
@@ -43,7 +45,8 @@ abstract class Credentials {
 
   /// Signs the [payload] with a private key and returns the obtained
   /// signature.
-  Future<MsgSignature> signToSignature(Uint8List payload, {int? chainId});
+  Future<MsgSignature> signToSignature(Uint8List payload,
+      {int? chainId, bool isEIP1559 = false});
 
   /// Signs an Ethereum specific signature. This method is equivalent to
   /// [sign], but with a special prefix so that this method can't be used to
@@ -124,14 +127,19 @@ class EthPrivateKey extends CredentialsWithKnownAddress {
 
   @override
   Future<MsgSignature> signToSignature(Uint8List payload,
-      {int? chainId}) async {
+      {int? chainId, bool isEIP1559 = false}) async {
     final signature = secp256k1.sign(keccak256(payload), privateKey);
 
     // https://github.com/ethereumjs/ethereumjs-util/blob/8ffe697fafb33cefc7b7ec01c11e3a7da787fe0e/src/signature.ts#L26
     // be aware that signature.v already is recovery + 27
-    final chainIdV =
-        chainId != null ? (signature.v - 27 + (chainId * 2 + 35)) : signature.v;
-
+    int chainIdV;
+    if (isEIP1559) {
+      chainIdV = signature.v - 27;
+    } else {
+      chainIdV = chainId != null
+          ? (signature.v - 27 + (chainId * 2 + 35))
+          : signature.v;
+    }
     return MsgSignature(signature.r, signature.s, chainIdV);
   }
 

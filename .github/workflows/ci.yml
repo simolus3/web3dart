@@ -25,15 +25,6 @@ jobs:
          PUB_CACHE: ".dart_tool/pub_cache"
        run: dart pub upgrade
 
-  ensure_formatted:
-    name: "Formatting"
-    runs-on: ubuntu-latest
-    container:
-      image: google/dart
-    steps:
-      - uses: actions/checkout@v2
-      - run: "dart format --output=none --set-exit-if-changed ."
-
   analyze:
     name: "Analysis"
     needs: get_dependencies
@@ -45,6 +36,7 @@ jobs:
           path: .dart_tool
           key: dart-dependencies-${{ hashFiles('pubspec.yaml') }}
       - uses: dart-lang/setup-dart@v1
+      - run: "dart format --output=none --set-exit-if-changed ."
       - run: dart analyze --fatal-infos
 
   vm_tests:

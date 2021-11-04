@@ -112,6 +112,10 @@ class Web3Client {
     return _makeRPCCall<String>('net_version').then(int.parse);
   }
 
+  Future<BigInt> getChainId() {
+    return _makeRPCCall<String>('eth_chainId').then(BigInt.parse);
+  }
+
   /// Returns true if the node is actively listening for network connections.
   Future<bool> isListeningForNetwork() {
     return _makeRPCCall('net_listening');
@@ -177,6 +181,13 @@ class Web3Client {
   Future<int> getBlockNumber() {
     return _makeRPCCall<String>('eth_blockNumber')
         .then((s) => hexToInt(s).toInt());
+  }
+
+  Future<BlockInformation> getBlockInformation(
+      {String blockNumber = 'latest', bool isContainFullObj = true}) {
+    return _makeRPCCall<Map<String, dynamic>>(
+            'eth_getBlockByNumber', [blockNumber, isContainFullObj])
+        .then((json) => BlockInformation.fromJson(json));
   }
 
   /// Gets the balance of the account with the specified address.
@@ -271,8 +282,12 @@ class Web3Client {
       return cred.sendTransaction(transaction);
     }
 
-    final signed = await signTransaction(cred, transaction,
+    var signed = await signTransaction(cred, transaction,
         chainId: chainId, fetchChainIdFromNetworkId: fetchChainIdFromNetworkId);
+
+    if (transaction.isEIP1559) {
+      signed = prependTransactionType(0x02, signed);
+    }
 
     return sendRawTransaction(signed);
   }
@@ -348,6 +363,8 @@ class Web3Client {
     EtherAmount? value,
     BigInt? amountOfGas,
     EtherAmount? gasPrice,
+    EtherAmount? maxPriorityFeePerGas,
+    EtherAmount? maxFeePerGas,
     Uint8List? data,
     @Deprecated('Parameter is ignored') BlockNum? atBlock,
   }) async {
@@ -360,6 +377,11 @@ class Web3Client {
           if (amountOfGas != null) 'gas': '0x${amountOfGas.toRadixString(16)}',
           if (gasPrice != null)
             'gasPrice': '0x${gasPrice.getInWei.toRadixString(16)}',
+          if (maxPriorityFeePerGas != null)
+            'maxPriorityFeePerGas':
+                '0x${maxPriorityFeePerGas.getInWei.toRadixString(16)}',
+          if (maxFeePerGas != null)
+            'maxFeePerGas': '0x${maxFeePerGas.getInWei.toRadixString(16)}',
           if (value != null) 'value': '0x${value.getInWei.toRadixString(16)}',
           if (data != null) 'data': bytesToHex(data, include0x: true),
         },

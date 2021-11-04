@@ -23,17 +23,22 @@ Future<_SigningInput> _fillMissingData({
 
   final sender = transaction.from ?? await credentials.extractAddress();
   var gasPrice = transaction.gasPrice;
-  var nonce = transaction.nonce;
-  if (gasPrice == null || nonce == null) {
-    if (client == null) {
-      throw ArgumentError("Can't find suitable gas price and nonce from client "
-          'because no client is set. Please specify a gas price on the '
-          'transaction.');
-    }
-    gasPrice ??= await client.getGasPrice();
-    nonce ??= await client.getTransactionCount(sender,
-        atBlock: const BlockNum.pending());
+
+  if (client == null &&
+          (transaction.nonce == null ||
+              transaction.maxGas == null ||
+              loadChainIdFromNetwork) ||
+      (!transaction.isEIP1559 && gasPrice == null)) {
+    throw ArgumentError('Client is required to perform network actions');
   }
+
+  if (!transaction.isEIP1559 && gasPrice == null) {
+    gasPrice = await client!.getGasPrice();
+  }
+
+  final nonce = transaction.nonce ??
+      await client!
+          .getTransactionCount(sender, atBlock: const BlockNum.pending());
 
   final maxGas = transaction.maxGas ??
       await client!
@@ -43,6 +48,8 @@ Future<_SigningInput> _fillMissingData({
             data: transaction.data,
             value: transaction.value,
             gasPrice: gasPrice,
+            maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+            maxFeePerGas: transaction.maxFeePerGas,
           )
           .then((bigInt) => bigInt.toInt());
 
@@ -60,12 +67,7 @@ Future<_SigningInput> _fillMissingData({
   if (!loadChainIdFromNetwork) {
     resolvedChainId = chainId!;
   } else {
-    if (client == null) {
-      throw ArgumentError(
-          "Can't load chain id from network when no client is set");
-    }
-
-    resolvedChainId = await client.getNetworkId();
+    resolvedChainId = await client!.getNetworkId();
   }
 
   return _SigningInput(
@@ -75,8 +77,27 @@ Future<_SigningInput> _fillMissingData({
   );
 }
 
+Uint8List prependTransactionType(int type, Uint8List transaction) {
+  return Uint8List(transaction.length + 1)
+    ..[0] = type
+    ..setAll(1, transaction);
+}
+
 Future<Uint8List> _signTransaction(
     Transaction transaction, Credentials c, int? chainId) async {
+  if (transaction.isEIP1559 && chainId != null) {
+    final encodedTx = LengthTrackingByteSink();
+    encodedTx.addByte(0x02);
+    encodedTx.add(rlp
+        .encode(_encodeEIP1559ToRlp(transaction, null, BigInt.from(chainId))));
+
+    encodedTx.close();
+    final signature = await c.signToSignature(encodedTx.asBytes(),
+        chainId: chainId, isEIP1559: transaction.isEIP1559);
+
+    return uint8ListFromList(rlp.encode(
+        _encodeEIP1559ToRlp(transaction, signature, BigInt.from(chainId))));
+  }
   final innerSignature =
       chainId == null ? null : MsgSignature(BigInt.zero, BigInt.zero, chainId);
 
@@ -85,6 +106,38 @@ Future<Uint8List> _signTransaction(
   final signature = await c.signToSignature(encoded, chainId: chainId);
 
   return uint8ListFromList(rlp.encode(_encodeToRlp(transaction, signature)));
+}
+
+List<dynamic> _encodeEIP1559ToRlp(
+    Transaction transaction, MsgSignature? signature, BigInt chainId) {
+  final list = [
+    chainId,
+    transaction.nonce,
+    transaction.maxPriorityFeePerGas!.getInWei,
+    transaction.maxFeePerGas!.getInWei,
+    transaction.maxGas,
+  ];
+
+  if (transaction.to != null) {
+    list.add(transaction.to!.addressBytes);
+  } else {
+    list.add('');
+  }
+
+  list
+    ..add(transaction.value?.getInWei)
+    ..add(transaction.data);
+
+  list.add([]); // access list
+
+  if (signature != null) {
+    list
+      ..add(signature.v)
+      ..add(signature.r)
+      ..add(signature.s);
+  }
+
+  return list;
 }
 
 List<dynamic> _encodeToRlp(Transaction transaction, MsgSignature? signature) {
