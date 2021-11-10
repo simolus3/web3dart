@@ -25,10 +25,10 @@ Future<_SigningInput> _fillMissingData({
   var gasPrice = transaction.gasPrice;
 
   if (client == null &&
-          (transaction.nonce == null ||
-              transaction.maxGas == null ||
-              loadChainIdFromNetwork) ||
-      (!transaction.isEIP1559 && gasPrice == null)) {
+      (transaction.nonce == null ||
+          transaction.maxGas == null ||
+          loadChainIdFromNetwork ||
+          (!transaction.isEIP1559 && gasPrice == null))) {
     throw ArgumentError('Client is required to perform network actions');
   }
 
