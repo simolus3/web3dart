@@ -122,7 +122,7 @@ void main() {
           .having((e) => e.to, 'to', secondAddress)
           .having((e) => e.from, 'from', first.address),
     );
-  });
+  }, skip: 'requires ganache 7.0.0');
 
   test('getTransactionReceipt returns null for unknown transactions', () {
     expect(client.getTransactionReceipt('0x123'), completion(isNull));
