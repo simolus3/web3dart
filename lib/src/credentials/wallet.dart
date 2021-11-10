@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 import 'package:pointycastle/api.dart';
-import 'package:pointycastle/block/aes_fast.dart';
+import 'package:pointycastle/block/aes.dart';
 import 'package:pointycastle/digests/sha256.dart';
 import 'package:pointycastle/key_derivators/api.dart';
 import 'package:pointycastle/key_derivators/pbkdf2.dart' as pbkdf2;
@@ -259,7 +259,7 @@ class Wallet {
 
   static CTRStreamCipher _initCipher(
       bool forEncryption, Uint8List key, Uint8List iv) {
-    return CTRStreamCipher(AESFastEngine())
+    return CTRStreamCipher(AESEngine())
       ..init(false, ParametersWithIV(KeyParameter(key), iv));
   }
 

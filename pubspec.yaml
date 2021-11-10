@@ -15,7 +15,7 @@ dependencies:
   path: ^1.8.0
 
   built_collection: ^5.0.0
-  pointycastle: ^3.0.1
+  pointycastle: ^3.4.0
   convert: ^3.0.0
   meta: ^1.1.0
   http: ^0.13.0
