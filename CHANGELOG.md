@@ -1,3 +1,7 @@
+## 2.3.3
+
+- Fix signing legacy transactions without gas and without a client.
+
 ## 2.3.2
 
 - Support EIP-1559 transactions.
