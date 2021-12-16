@@ -29,7 +29,7 @@ Credentials fromHex = EthPrivateKey.fromHex("c87509a[...]dc0d3");
 
 // Or generate a new key randomly
 var rng = Random.secure();
-Credentials random = EthPrivateKey.createRandom(random)(rng);
+Credentials random = EthPrivateKey.createRandom(rng);
 
 // In either way, the library can derive the public key and the address
 // from a private key:
