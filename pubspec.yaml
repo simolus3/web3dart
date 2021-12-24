@@ -28,6 +28,7 @@ dependencies:
   collection: ^1.14.11
 
 dev_dependencies:
+  async: ^2.8.2
   build_runner: ^2.0.3
   build_test: ^2.1.0
   web_socket_channel: ^2.0.0
