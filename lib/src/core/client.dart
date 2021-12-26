@@ -187,7 +187,7 @@ class Web3Client {
       {String blockNumber = 'latest', bool isContainFullObj = true}) {
     return _makeRPCCall<Map<String, dynamic>>(
             'eth_getBlockByNumber', [blockNumber, isContainFullObj])
-        .then((json) => BlockInformation.fromJson(json));
+        .then((Map<String, dynamic> json) => BlockInformation.fromJson(json));
   }
 
   /// Gets the balance of the account with the specified address.
@@ -284,7 +284,7 @@ class Web3Client {
 
     var signed = await signTransaction(cred, transaction,
         chainId: chainId, fetchChainIdFromNetworkId: fetchChainIdFromNetworkId);
-
+    print("signed: $signed");
     if (transaction.isEIP1559) {
       signed = prependTransactionType(0x02, signed);
     }
