@@ -284,7 +284,7 @@ class Web3Client {
 
     var signed = await signTransaction(cred, transaction,
         chainId: chainId, fetchChainIdFromNetworkId: fetchChainIdFromNetworkId);
-    print("signed: $signed");
+
     if (transaction.isEIP1559) {
       signed = prependTransactionType(0x02, signed);
     }

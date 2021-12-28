@@ -3,30 +3,30 @@ import 'package:web3dart/src/crypto/formatting.dart';
 import 'package:web3dart/web3dart.dart';
 
 class BlockInformation {
-  EthereumAddress? from; // Author
-  String? boundary;
-  String? difficulty;
-  String? extraData;
-  String? gasLimit;
-  String? gasUsed;
-  String? hash;
-  String? logsBloom;
-  EthereumAddress? miner;
-  String? mixHash;
-  String? nonce;
-  EtherAmount? baseFeePerGas;
-  String? number;
-  String? parentHash;
-  String? receiptsRoot;
-  String? seedHash;
-  String? sha3Uncles;
-  String? size;
-  String? stateRoot;
-  String? timestamp;
-  String? totalDifficulty;
-  List<TransactionInformation>? transactions;
-  String? transactionsRoot;
-  List<dynamic>? uncles;
+  final EthereumAddress? from; // Author
+  final String? boundary;
+  final String? difficulty;
+  final String? extraData;
+  final String? gasLimit;
+  final String? gasUsed;
+  final String? hash;
+  final String? logsBloom;
+  final EthereumAddress? miner;
+  final String? mixHash;
+  final String? nonce;
+  final EtherAmount? baseFeePerGas;
+  final String? number;
+  final String? parentHash;
+  final String? receiptsRoot;
+  final String? seedHash;
+  final String? sha3Uncles;
+  final String? size;
+  final String? stateRoot;
+  final String? timestamp;
+  final String? totalDifficulty;
+  final List<TransactionInformation>? transactions;
+  final String? transactionsRoot;
+  final List<dynamic>? uncles;
 
   BlockInformation({
     this.from,
