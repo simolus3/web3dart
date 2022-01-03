@@ -12,6 +12,30 @@ class MockClient extends BaseClient {
   MockClient(this.handler);
 
   @override
+  Future<Response> post(Uri url,
+      {Map<String, String>? headers, Object? body, Encoding? encoding}) async {
+    if (body is! String) {
+      fail('Invalid request, expected string as request body');
+    }
+
+    final data = json.decode(body) as Map<String, dynamic>;
+    if (data['jsonrpc'] != '2.0') {
+      fail('Expected request to contain correct jsonrpc key');
+    }
+
+    final id = data['id'];
+    final method = data['method'] as String;
+    final params = data['params'];
+    final response = {
+      'body': body,
+      'id': id,
+      'result': handler(method, params)
+    };
+
+    return Response(json.encode(response), 200);
+  }
+
+  @override
   Future<StreamedResponse> send(BaseRequest request) async {
     final data = await _jsonUtf8.decoder.bind(request.finalize()).first;
 
