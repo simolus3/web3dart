@@ -263,7 +263,9 @@ class _EventFilter extends _Filter<FilterEvent> {
       encodedOptions['address'] = options.address?.hex;
     }
     if (options.topics != null) {
-      encodedOptions['topics'] = options.topics;
+      final topics = <dynamic>[];
+      options.topics?.forEach((e) => topics.add(e.isEmpty ? null : e));
+      encodedOptions['topics'] = topics;
     }
 
     return encodedOptions;
