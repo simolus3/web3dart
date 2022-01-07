@@ -96,7 +96,7 @@ linter:
     #- lines_longer_than_80_chars ignored because it's annoying for long literals in tests
     - non_constant_identifier_names
     - null_closures
-    - omit_local_variable_types
+#    - omit_local_variable_types
     - one_member_abstracts
     - only_throw_errors
     - overridden_fields
