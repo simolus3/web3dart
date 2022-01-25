@@ -35,6 +35,21 @@ void main() {
         expect(balance >= BigInt.parse('410243042034234643784017156276017'),
             isTrue);
       });
+
+      test('Web3Client.getBlockInformation', () async {
+        final blockInfo = await client.getBlockInformation(
+          blockNumber: const BlockNum.exact(14074702).toBlockParam(),
+        );
+
+        expect(
+          blockInfo.timestamp.millisecondsSinceEpoch == 1643113026000,
+          isTrue,
+        );
+        expect(
+          blockInfo.timestamp.isUtc == true,
+          isTrue,
+        );
+      });
     },
     skip: infuraProjectId == null || infuraProjectId.length < 32
         ? 'Tests require the INFURA_ID environment variable'
