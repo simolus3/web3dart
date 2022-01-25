@@ -11,11 +11,10 @@ Future<void> main() async {
       .where((entity) => entity is File)
       .map((entity) => entity as File)
       .toList();
-  final coverage = await parseCoverage(files, 0);
 
-  final formatter =
-      LcovFormatter(resolver, reportOn: ['lib', 'test'], basePath: '.');
-  final output = await formatter.format(coverage);
+  final coverage = await HitMap.parseFiles(files);
 
+  final output =
+      coverage.formatLcov(resolver, reportOn: ['lib', 'test'], basePath: '.');
   await File('lcov.info').writeAsString(output);
 }
