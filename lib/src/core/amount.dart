@@ -72,7 +72,7 @@ class EtherAmount {
   /// especially for larger amounts or smaller units. While it can be used to
   /// display the amount of ether in a human-readable format, it should not be
   /// used for anything else.
-  num getValueInUnit(EtherUnit unit) {
+  double getValueInUnit(EtherUnit unit) {
     final factor = _factors[unit]!;
     final value = _value ~/ factor;
     final remainder = _value.remainder(factor);
