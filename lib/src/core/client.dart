@@ -238,7 +238,7 @@ class Web3Client {
   Future<TransactionInformation> getTransactionByHash(String transactionHash) {
     return _makeRPCCall<Map<String, dynamic>>(
             'eth_getTransactionByHash', [transactionHash])
-        .then((s) => TransactionInformation.fromMap(s));
+        .then((s) => TransactionInformation.returnFromTxHash(s));
   }
 
   /// Returns an receipt of a transaction based on its hash.
